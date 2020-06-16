@@ -1,0 +1,48 @@
+---
+parameters:
+    # maximum number of e_docker
+    n_dockers: 1
+
+    # maximum number of co_docker
+    n_co_dockers: 1
+
+    # maximum number of memory
+    n_mem: 1
+
+    # maximum number of CPUs
+    n_cpu: 1
+
+    cpu_sharing: False
+
+    cpu_policy: one_by_core
+
+    boot_policy: one_then_others
+
+    # type of load stress methods to use: io, cpu, mem, pgbench, network or no_stress
+    co_workload: no_stress
+
+    # the number of repetition for each experiment
+    iteration: 20
+
+exp_env:
+    # the path to the image to deploy e_docker
+    e_docker_image: /home/lnguyen/image/docker/docker_img
+
+    # the path to the image to deploy co_docker
+    co_docker_image: /home/lnguyen/image/docker/stress_img
+
+    get_host_diskspeed: False
+
+    # run resource monitor with vmstat and iostat
+    monitor: True
+
+    # type of disks to use: hdd, ssd, or ceph
+    disk_type: hdd
+
+    # the ceph master node hostname
+    ceph_master: null
+
+    # limit the network bandwith on reserved nodes with a range of given bandwith by running iperf stress on nodes
+    network_iperf: null
+    bandwidth: 0
+
