@@ -5,9 +5,14 @@
 <p>
 
 <h3 align="center">
-<p> cloudal is a module hepls to design and perform experiments on different cloud systems
-<p> Currently support: Grid5000 system
+<p> cloudal is a module helps to design and perform experiments on different cloud systems
 </h3>
+<h4 align="center">
+<p> Currently support: Grid5000 system
+</h4>
+
+
+
 
 # Installation
 1. Clone the repository.
@@ -75,7 +80,7 @@ The `docker_boottime_g5k.py` script (i) makes a reservation for nodes; then (ii)
 
 You can modify the `_perform_experiments()` function in the script to design your own experiment scenarios.
 
-##. Options
+## 4. Options
 For each script, you might want to use `--help` to see all available options:
 ```
 usage: <program> [options] <arguments>
