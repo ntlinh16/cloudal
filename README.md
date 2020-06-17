@@ -11,7 +11,7 @@
 <p align="center">
 <b>Currently support:</b>
     <a target="_blank" href="https://www.grid5000.fr">
-        <img src="https://www.grid5000.fr/mediawiki/resources/assets/logo.png" width="70"/>
+        <img style="vertical-align:middle" src="https://www.grid5000.fr/mediawiki/resources/assets/logo.png" width="70"/>
     </a>
 </p>
 
