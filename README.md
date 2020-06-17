@@ -9,7 +9,7 @@
     <p> 🤗 cloudal is a module helps to design and perform experiments on different cloud systems 🤗
 </h3>
 <p align="center">
-Currently support:
+<b>Currently support:</b>
     <a target="_blank" href="https://www.grid5000.fr">
         <img src="https://www.grid5000.fr/mediawiki/resources/assets/logo.png" width="70"/>
     </a>
