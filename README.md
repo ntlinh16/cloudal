@@ -1,18 +1,35 @@
 <p align="center">
-    <br>
-    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/cloudal_logo.png" width="300"/>
+    <a href="https://github.com/ntlinh16/cloudal">
+        <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/cloudal_logo.png" width="300"/>
+    </a>
     <br>
 <p>
 
 <h3 align="center">
-<p> 🤗 cloudal is a module helps to design and perform experiments on different cloud systems 🤗
+    <p> 🤗 cloudal is a module helps to design and perform experiments on different cloud systems 🤗
 </h3>
-<h4 align="center">
-<p> Currently support: Grid5000 system
-</h4>
+<p align="center">
+Currently support:
+    <a target="_blank" href="https://www.grid5000.fr">
+        <img src="https://www.grid5000.fr/mediawiki/resources/assets/logo.png" width="70"/>
+    </a>
+</p>
 
 
 
+# Introduction
+
+<p align="center">
+    <br>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/architecture.jpg" width="500"/>
+    <br>
+<p>
+
+The main goals of `cloudal` is to perform large-scale reproducible experiments and collecting results automatically. `cloudal` consists of two main components: the Provisioning Cloud System module and the Performing Actions script. 
+
+The `Provisioning Cloud System module` is responsible for returning to the client the required nodes with the OS installed. For each cloud system, I implement a provisioner to interract with that cloud system.
+
+The `Performing Actions script` performs a specific action which can be provisioning, configuring or experimeting. Users have to write the their custom script to perform one or multiple actions such as only provisioning nodes, or provisioning and configuring nodes, or provisioning nodes and configuring sofware then running experiments on them.
 
 # Installation
 1. Clone the repository.
@@ -50,7 +67,7 @@ The `provision_g5k.py` script makes a reservation with the description in the pr
 The nodes are kept alive after the script is terminated (with `-k` option) so that you can connect to them.
 
 ## 2. Configure software on running Grid5000 nodes
-In this example, we provision some nodes on Grid5000 and then install Docker on these nodes.
+In this example, we provision some nodes on Grid5000 and then install Docker and configure to ensure that Docker runs on these nodes.
 
 First, we also need to edit the provision config file `provisioning_config_g5k.yaml` with your own desire.
 
