@@ -18,7 +18,7 @@ default_connection_params['user'] = 'root'
 default_frontend_connection_params['user'] = current_user
 
 
-class provision_nodes_g5k(performing_actions):
+class provision_g5k(performing_actions):
     """ This is a base class of cloudal engine, that is built from execo_engine
         and can be used to deploy servers a different cloud system."""
 
@@ -30,7 +30,7 @@ class provision_nodes_g5k(performing_actions):
         # Using super() function to access the parrent class
         # so that we do not care about the changing of parent class
 
-        super(provision_nodes_g5k, self).__init__()
+        super(provision_g5k, self).__init__()
 
         self.args_parser.add_argument("-k", dest="keep_alive",
                                       help="Keep the reservation alive after deploying.",
@@ -84,7 +84,7 @@ class provision_nodes_g5k(performing_actions):
 
 if __name__ == "__main__":
     logger.info("Init engine in %s" % __file__)
-    engine = provision_nodes_g5k()
+    engine = provision_g5k()
 
     try:
         logger.info("Start engine in %s" % __file__)
