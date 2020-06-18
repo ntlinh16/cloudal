@@ -49,7 +49,7 @@ export PYTHONPATH=/path/to/your/cloudal
 You can add the above line to your `.bashrc` to have the env variable set on new shell session.
 
 # Setup to access nodes from outside Grid5000
-If you want to run `cloudal` on Grid5k system from your laptop (not on a frontend), you have to perform the following steps.
+If you want to run `cloudal` to interact with Grid5k system from your laptop (not on a frontend), you have to perform the following steps on your laptop.
 
 1. Setup an alias for the access to any hosts inside Grid'5000. In `~/.ssh/config`, put these lines:
 ```
