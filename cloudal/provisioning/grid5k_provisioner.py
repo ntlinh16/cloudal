@@ -19,7 +19,7 @@ from execo_g5k.api_utils import canonical_host_name
 
 logger = get_logger()
 
-default_connection_params['user'] = 'root'
+# default_connection_params['user'] = 'root'
 
 
 class grid5k_provisioner(cloud_provisioning):

@@ -41,14 +41,62 @@ git clone https://github.com/ntlinh16/cloudal.git
 cd cloudal
 pip install -U -r requirements.txt
 ```
+3. In other to run `execo`, we need to install `taktuk`
+```
+apt-get install taktuk
+```
 
-3. Set the `PYTHONPATH` to the directory of `cloudal`.
+4. Set the `PYTHONPATH` to the directory of `cloudal`.
 ```
 export PYTHONPATH=/path/to/your/cloudal
 ```
 You can add the above line to your `.bashrc` to have the env variable set on new shell session.
 
+# Setup to access nodes from outside Grid5000
+If you want to run `cloudal` an action on Grid5k system from  your laptop (not on a frontend), you have to perform the following steps.
 
+1. Setup an alias for the access to any hosts inside Grid'5000. In `~/.ssh/config`, put these lines:
+```
+Host g5k
+  User g5k_login
+  Hostname access.grid5000.fr
+  ForwardAgent no
+
+Host *.g5k
+  User g5k_login
+  ProxyCommand ssh g5k -W "$(basename %h .g5k):%p"
+  ForwardAgent no
+```
+
+
+2. Setup `~/.execo.conf.py` configuration file 
+
+```
+import re
+  
+default_connection_params = {
+    'host_rewrite_func': lambd
+    a host: re.sub("\.grid5000\.fr$", ".g5k", host),
+    'taktuk_gateway': 'g5k'
+    }
+
+
+default_frontend_connection_params = {
+    'user': '<g5k_username>',
+    'host_rewrite_func': lambda host: host + ".g5k"
+    }
+
+g5k_configuration = {
+    'api_username': '<g5k_username>',
+    }
+
+```
+
+These configurations follow the instruction of `Grid5000` and `execo`: 
+
+[1] http://execo.gforge.inria.fr/doc/latest-stable/execo_g5k.html#running-from-outside-grid5000
+
+[2] https://www.grid5000.fr/w/SSH#Using_SSH_ProxyCommand_feature_to_ease_the_access_to_hosts_inside_Grid.275000
 
 # Usages
 
