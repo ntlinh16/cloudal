@@ -1,5 +1,10 @@
-# to parse yaml files
+
 execo
+# dependencies of execo
+requests
+
+# to parse yaml files
 pyyaml
+
 # to add colors to log
 coloredlogs
