@@ -13,9 +13,9 @@ from execo_g5k.config import default_frontend_connection_params
 logger = get_logger()
 
 
-current_user = os.getlogin()
-default_connection_params['user'] = 'root'
-default_frontend_connection_params['user'] = current_user
+#current_user = os.getlogin()
+#default_connection_params['user'] = 'root'
+#default_frontend_connection_params['user'] = current_user
 
 
 class provision_g5k(performing_actions):
