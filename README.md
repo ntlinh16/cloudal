@@ -141,7 +141,7 @@ cd cloudal/examples/experiments/boottime/docker/
 python docker_boottime_g5k.py --system_config_file provisioning_config_g5k.yaml --exp_setting_file exp_setting_docker_boottime.yaml -c /path/to/your/result/dir -k
 ```
 
-The `docker_boottime_g5k.py` script (i) makes a reservation for nodes; then (ii) installs Docker on them and (iii) measures Docker boot time with different scenarios and save all the result in a result directory.
+The `docker_boottime_g5k.py` script (i) makes a reservation for nodes; then (ii) installs Docker on them and (iii) measures Docker boot time with different scenarios and saves all the results in a result directory.
 
 You can modify the `_perform_experiments()` function in the script to design your own experiment scenarios.
 
@@ -162,11 +162,11 @@ optional arguments:
                         stderr in a single file. Default = False
   -c DIR                use experiment directory DIR
   --system_config_file CONFIG_FILE_PATH
-                        The path to the provisioning configuration file.
+                        the path to the provisioning configuration file.
   --exp_setting_file EXP_SETTING_FILE_PATH
-                        The path to the experiment setting file.
-  -k                    Keep the reservation alive after deploying.
-  -o                    Run the engine outside of grid5k charter
+                        the path to the experiment setting file.
+  -k                    keep the reservation alive after deploying.
+  -o                    run the engine outside of grid5k charter
   -j OAR_JOB_IDS        the reserved oar_job_ids on grid5k. The format is
                         site1:oar_job_id1,site2:oar_job_id2,...
   --no-deploy-os        specify not to deploy OS on reserved nodes
