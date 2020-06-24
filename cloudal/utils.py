@@ -98,6 +98,9 @@ def get_remote_executor(remote_tool=TAKTUK, fileput_tool=TAKTUK, fileget_tool=TA
 
 def execute_cmd(cmd, hosts, mode='run'):
     """
+    2 modes:
+        run: start a process and wait until it ends
+        start: start a process
     """
     remote_executor = get_remote_executor()
     result = None

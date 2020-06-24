@@ -21,12 +21,12 @@ class performing_actions(Engine):
 
         self.args_parser.add_argument("--system_config_file",
                                       dest="config_file_path",
-                                      help="The path to the provisioning configuration file.",
+                                      help="the path to the provisioning configuration file.",
                                       required=True,
                                       type=str)
         self.args_parser.add_argument("--exp_setting_file",
                                       dest="exp_setting_file_path",
-                                      help="The path to the experiment setting file.",
+                                      help="the path to the experiment setting file.",
                                       type=str)
 
     def _provisioning(self):

@@ -31,11 +31,11 @@ class DockerBootTime_Measurement(performing_actions):
         super(DockerBootTime_Measurement, self).__init__()
 
         self.args_parser.add_argument("-k", dest="keep_alive",
-                                      help="Keep the reservation alive after deploying.",
+                                      help="keep the reservation alive after deploying.",
                                       action="store_true")
 
         self.args_parser.add_argument("-o", dest="out_of_chart",
-                                      help="Run the engine outside of grid5k charter",
+                                      help="run the engine outside of grid5k charter",
                                       action="store_true")
 
         self.args_parser.add_argument("-j", dest="oar_job_ids",

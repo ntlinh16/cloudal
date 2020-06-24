@@ -1,21 +1,21 @@
-import os
+# import os
 import traceback
 
 from cloudal.utils import get_logger
 from cloudal.action import performing_actions
-from cloudal.provisioning.grid5k_provisioner import grid5k_provisioner
+from cloudal.provisioning.g5k_provisioner import g5k_provisioner
 
-from execo import default_connection_params
+# from execo import default_connection_params
 from execo_g5k import oardel
-from execo_g5k.config import default_frontend_connection_params
+# from execo_g5k.config import default_frontend_connection_params
 
 
 logger = get_logger()
 
 
-#current_user = os.getlogin()
-#default_connection_params['user'] = 'root'
-#default_frontend_connection_params['user'] = current_user
+# current_user = os.getlogin()
+# default_connection_params['user'] = 'root'
+# default_frontend_connection_params['user'] = current_user
 
 
 class provision_g5k(performing_actions):
@@ -33,11 +33,11 @@ class provision_g5k(performing_actions):
         super(provision_g5k, self).__init__()
 
         self.args_parser.add_argument("-k", dest="keep_alive",
-                                      help="Keep the reservation alive after deploying.",
+                                      help="keep the reservation alive after deploying.",
                                       action="store_true")
 
         self.args_parser.add_argument("-o", dest="out_of_chart",
-                                      help="Run the engine outside of grid5k charter",
+                                      help="run the engine outside of grid5k charter",
                                       action="store_true")
 
         self.args_parser.add_argument("-j", dest="oar_job_ids",
@@ -53,8 +53,8 @@ class provision_g5k(performing_actions):
         that identifies the reservation on each site,
         which can be retrieved from the command line arguments or from make_reservation()"""
 
-        logger.info("Init provisioner: grid5k_provisioner")
-        self.provisioner = grid5k_provisioner(config_file_path=self.args.config_file_path,
+        logger.info("Init provisioner: g5k_provisioner")
+        self.provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
                                                keep_alive=self.args.keep_alive,
                                                out_of_chart=self.args.out_of_chart)
         self.provisioner.oar_result = list()
@@ -67,7 +67,7 @@ class provision_g5k(performing_actions):
             self.provisioner.make_reservation()
 
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
-        return the resources which is a dict needed by grid5k_provisioner """
+        return the resources which is a dict needed by g5k_provisioner """
         self.provisioner.get_resources()
         self.hosts = self.provisioner.hosts
 
@@ -78,8 +78,6 @@ class provision_g5k(performing_actions):
         logger.info("Start provisioning hosts")
         self.provisioning()
         logger.info("Finish provisioning hosts")
-        # self.config_host()
-        # self.perform_experiments()
 
 
 if __name__ == "__main__":

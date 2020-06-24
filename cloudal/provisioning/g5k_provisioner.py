@@ -6,7 +6,7 @@ from cloudal.provisioning.provisioning import cloud_provisioning
 from cloudal.utils import get_remote_executor, get_logger
 
 from execo import format_date, Host
-from execo.config import default_connection_params
+# from execo.config import default_connection_params
 from execo.time_utils import timedelta_to_seconds
 from execo_g5k import (
     oarsub, wait_oar_job_start, get_oar_job_nodes, get_oar_job_subnets, get_oar_job_kavlan,
@@ -22,11 +22,11 @@ logger = get_logger()
 # default_connection_params['user'] = 'root'
 
 
-class grid5k_provisioner(cloud_provisioning):
+class g5k_provisioner(cloud_provisioning):
     """docstring for grid5k"""
 
     def __init__(self, **kwargs):
-        super(grid5k_provisioner, self).__init__(config_file_path=kwargs['config_file_path'])
+        super(g5k_provisioner, self).__init__(config_file_path=kwargs['config_file_path'])
 
         self.keep_alive = kwargs.get('keep_alive')
         self.out_of_chart = kwargs.get('out_of_chart')
@@ -102,8 +102,10 @@ class grid5k_provisioner(cloud_provisioning):
 
     def get_resources(self):
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
-        return the resources which is a dict needed by grid5k_provisioner """
-        self.resources = {}
+        return the resources which is a dict needed by g5k_provisioner """
+        self.resources = dict()
+        self.hosts = list()
+
         for oar_job_id, site in self.oar_result:
             logger.info('Waiting for the reserved nodes of %s on %s site to be up' % (oar_job_id, site))
             if not wait_oar_job_start(oar_job_id, site):
@@ -126,10 +128,9 @@ class grid5k_provisioner(cloud_provisioning):
             self.resources[site] = {'hosts': hosts,
                                     'ip_mac': ip_mac,
                                     'kavlan': kavlan}
-        self.hosts = list()
+
         for site, resource in self.resources.items():
             self.hosts += resource['hosts']
-        return self.resources
 
     def _launch_kadeploy(self, max_tries=1, check_deploy=True):
         """Create a execo_g5k.Deployment object, launch the deployment and
