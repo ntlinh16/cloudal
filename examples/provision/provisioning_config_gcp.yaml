@@ -1,0 +1,27 @@
+---
+private_ssh_key_path:  ~/.ssh/gce/id_rsa_gce
+public_ssh_key_path:  ~/.ssh/gce/id_rsa_gce.pub
+service_account_username: linhnguyen-libcloud@libcloud-testing.iam.gserviceaccount.com
+service_account_credentials_json_file_path: ~/lig/libcloud_testing_project_gcp/libcloud-testing-a7352b398077.json
+project_id: libcloud-testing
+
+# the OS image name (or environment name) that used to deploy OS on the reserved nodes on G5k system.
+# the list of possible OS images can be found at /https://www.grid5000.fr/w/Advanced_Kadeploy#Search_and_deploy_an_existing_environment
+cloud_provider_image: debian-10-buster-v20200618
+instance_type: f1-micro
+
+# the path to your custom image that used to deploy OS on the reserved nodes on G5k system.
+# follow this link to make your custom image: https://www.grid5000.fr/w/Advanced_Kadeploy#How_can_I_make_my_own_environment.3F
+custom_image: null
+
+# the name of the cluster and the number of nodes on each cluster that you want to make a reservation
+clusters:
+    - cluster: us-central1-a
+      n_nodes: 1
+      instance_type: f1-micro
+      image: null
+
+    - cluster: us-central1-b
+      n_nodes: 1
+      instance_type: f1-micro
+      image: null
