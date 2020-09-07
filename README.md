@@ -5,13 +5,16 @@
     <br>
 <p>
 
-<h3 align="center">
-    <p> 🤗 cloudal is a module helps to design and perform experiments on different cloud systems 🤗
-</h3>
+<h4 align="center"> cloudal is a module helps to design and perform experiments on different cloud systems 🤗
+</h4>
+
 <p align="center">
-<b>Currently support:</b>
+<b><i>Currently support:</i></b>
     <a target="_blank" href="https://www.grid5000.fr">
         <img align="middle" src="https://www.grid5000.fr/mediawiki/resources/assets/logo.png" width="70"/>
+    </a>
+    <a target="_blank" href="https://cloud.google.com">
+        <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/google_logo.png" width="140"/>
     </a>
 </p>
 
@@ -21,132 +24,61 @@
 
 <p align="center">
     <br>
-    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/architecture.jpg" width="500"/>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/architecture.png" width="600"/>
     <br>
 <p>
 
-The main goals of `cloudal` is to perform large-scale reproducible experiments and collecting results automatically. `cloudal` consists of two main components: the Provisioning Cloud System module and the Performing Actions script. 
+The main goal of `cloudal` is to perform large-scale reproducible experiments and collecting results automatically on different cloud systems. `cloudal` is composed of: 
+- a performing actions script that conducts user defined experiment workflow
+- a cloud provisioning module that reserves nodes from cloud systems
 
-The `Provisioning Cloud System module` is responsible for returning to the client the required nodes with the OS installed. For each cloud system, I implement a provisioner to interract with that cloud system.
+In order to setup a cloud system for running rigorous experiments, we usually follow a typical experiment workflow which is (1) provisioning machines; (2) configuring the enviroment; (3) writing the experiment workflow scripts. 
+`cloudal` implements this workflow and provide templates so that users can customize to their needs. 
 
-The `Performing Actions script` performs a specific action which can be provisioning, configuring or experimeting. Users have to write the their custom script to perform one or multiple actions such as only provisioning nodes, or provisioning and configuring nodes, or provisioning nodes and configuring sofware then running experiments on them.
+Users modify the `Performing Actions` script to perform one or multiple actions. Users are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts, or perform experiments which require all the actions). There are three main components:
+
+- __provisioner__: Each provisioner is an instance of `Cloud Provisioning`, implements steps to perform the reservation and OS installation (if needed) phase by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilizes `libcloud` to interact with various public cloud systems. By leveraging libcloud, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
+- __configurator__: this module contains some ready-to-use configurators that help setting up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned machines.
+- __experimenter__: is a workflow for user's specific experimental scenario. 
+
 
 # Installation
+This repo uses Python 2.7+ due to `execo`.
+
+The following are steps to install cloudal. If you want to test it without affecting your system, you may want to run it in a virtual enviroment. If you're unfamiliar with Python virtual environments, check out the [user guide](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
+
 1. Clone the repository.
 ```
 git clone https://github.com/ntlinh16/cloudal.git
 ```
-2. Activate your virtualenv (optional), and install the requirements.
+2. Activate your virtualenv (optional), and then install the requirements.
 ```
 cd cloudal
 pip install -U -r requirements.txt
 ```
 
-3. Set the `PYTHONPATH` to the directory of `cloudal`.
-```
-export PYTHONPATH=/path/to/your/cloudal
-```
-You can add the above line to your `.bashrc` to have the env variable set on new shell session.
-
-# Setup to access nodes from outside Grid5000
-If you want to run `cloudal` to interact with Grid5k system from your laptop (not on a frontend), you have to perform the following steps on your laptop.
-
-1. Setup an alias for the access to any hosts inside Grid'5000. In `~/.ssh/config`, put these lines:
-```
-Host g5k
-  User <g5k_username>
-  Hostname access.grid5000.fr
-  ForwardAgent no
-
-Host *.g5k
-  User <g5k_username>
-  ProxyCommand ssh g5k -W "$(basename %h .g5k):%p"
-  ForwardAgent no
-```
-
-
-2. Setup `~/.execo.conf.py` configuration file 
-
-```
-import re
-  
-default_connection_params = {
-    'host_rewrite_func': lambd
-    a host: re.sub("\.grid5000\.fr$", ".g5k", host),
-    'taktuk_gateway': 'g5k'
-    }
-
-
-default_frontend_connection_params = {
-    'user': '<g5k_username>',
-    'host_rewrite_func': lambda host: host + ".g5k"
-    }
-
-g5k_configuration = {
-    'api_username': '<g5k_username>',
-    }
-
-```
-
-These configurations follow the instruction of `Grid5000` and `execo`: 
-
-[1] http://execo.gforge.inria.fr/doc/latest-stable/execo_g5k.html#running-from-outside-grid5000
-
-[2] https://www.grid5000.fr/w/SSH#Using_SSH_ProxyCommand_feature_to_ease_the_access_to_hosts_inside_Grid.275000
-
 3. In other to run `execo`, we need to install `taktuk`
 ```
 apt-get install taktuk
 ```
-# Usages
 
-## 1. Provision nodes on Grid5000
-In this example, we provision some nodes on Grid5000 system.
-
-First, edit the provision config file `provisioning_config_g5k.yaml` with your desired infrastructure description.
-
-Then, run the following command to make the provision:
+4. Set the `PYTHONPATH` to the directory of `cloudal`.
 ```
-cd cloudal/examples/provision/
-python provision_g5k.py --system_config_file provisioning_config_g5k.yaml -k
+export PYTHONPATH=$PYTHONPATH:/path/to/your/cloudal
 ```
-
-The `provision_g5k.py` script makes a reservation with the description in the provision config file `provisioning_config_g5k.yaml`: 10 nodes on *econome*, 3 nodes on *dahu* and 7 nodes on *graphite* clusters in 3 hours. These nodes are deployed with `debian10-x64-big` environment. 
-The nodes are kept alive after the script is terminated (with `-k` option) so that you can connect to them.
-
-## 2. Configure software on running Grid5000 nodes
-In this example, we provision some nodes on Grid5000 and then install Docker and configure to ensure that Docker runs on these nodes.
-
-First, we also need to edit the provision config file `provisioning_config_g5k.yaml` with your own desire.
-
-Then, run the following command to provision and configure nodes:
-```
-cd cloudal/examples/configuration/
-python config_docker_env_g5k.py --system_config_file provisioning_config_g5k.yaml -k
-```
-
-This `config_docker_env_g5k.py` script makes a reservation for nodes then install Docker on them.
-
-You can modify the `config_host()` function in the script to install and configure your necessary applications.
+You can add the above line to your `.bashrc` to have the env variable set on new shell session.
 
 
-## 3. Perform experiment: measuring Docker boot time on configured Grid5000 nodes
-In this example, we provision some nodes on Grid5000 and then install Docker on these nodes.
 
-First, edit the provision config file `provisioning_config_g5k.yaml` and the experimental setting file `exp_setting_docker_boottime.yaml` depends on your experiment setup.
+# Tutorials
 
-Then, run the following command to perform experiment:
-```
-cd cloudal/examples/experiments/boottime/docker/
-python docker_boottime_g5k.py --system_config_file provisioning_config_g5k.yaml --exp_setting_file exp_setting_docker_boottime.yaml -c /path/to/your/result/dir -k
-```
+We provide some quick tutorials to get you started with `cloudal`:
+- [Working with Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/grid5000.md)
+- [Working with Google Cloud Platform](https://github.com/ntlinh16/cloudal/blob/master/docs/googlecloud.md)
 
-The `docker_boottime_g5k.py` script (i) makes a reservation for nodes; then (ii) installs Docker on them and (iii) measures Docker boot time with different scenarios and saves all the results in a result directory.
 
-You can modify the `_perform_experiments()` function in the script to design your own experiment scenarios.
-
-## 4. Options
-For each script, you might want to use `--help` to see all available options:
+# Options
+You might want to use `--help` to see all available options:
 ```
 usage: <program> [options] <arguments>
 
