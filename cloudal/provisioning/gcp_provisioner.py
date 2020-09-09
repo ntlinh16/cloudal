@@ -2,7 +2,6 @@ import os
 
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
-from libcloud.compute.deployment import ScriptDeployment
 
 from cloudal.provisioning.provisioning import cloud_provisioning
 from cloudal.utils import parse_config_file, get_logger
@@ -15,22 +14,14 @@ class gcp_provisioner(cloud_provisioning):
         and it can be used to deploy servers on different cloud systems."""
 
     def __init__(self, config_file_path):
-        """Add options for the number of measures, number of nodes
-        walltime, env_file or env_name and clusters and initialize the engine
+        """Add options for the number of measures, number of nodes,
+        env_file or env_name and clusters and initialize the engine
         """
         self.configs = parse_config_file(config_file_path)
         self.nodes = list()
 
-    def make_reservation(self):
-        """Performing a reservation of the required number of nodes.
-        """
-        logger.info("Creating the Driver to connect to GCP")
-
-        PRIVATE_SSH_KEY_PATH = os.path.expanduser(self.configs['private_ssh_key_path'])
-        PUBLIC_SSH_KEY_PATH = os.path.expanduser(self.configs['public_ssh_key_path'])
-
-        with open(PUBLIC_SSH_KEY_PATH, 'r') as fp:
-            PUBLIC_SSH_KEY_CONTENT = fp.read().strip()
+    def _get_gce_driver(self):
+        logger.info("Creating a Driver to connect to GCP")
 
         # GCE authentication related info
         SERVICE_ACCOUNT_USERNAME = self.configs['service_account_username']
@@ -41,26 +32,23 @@ class gcp_provisioner(cloud_provisioning):
         driver = Driver(SERVICE_ACCOUNT_USERNAME,
                         SERVICE_ACCOUNT_CREDENTIALS_JSON_FILE_PATH,
                         project=PROJECT_ID)
+        return driver
 
-        step = ScriptDeployment("echo")
+    def make_reservation(self):
+        driver = self._get_gce_driver()
 
         images = driver.list_images()
         sizes = driver.list_sizes()
-
         if self.configs['cloud_provider_image'] is not None:
             image = [i for i in images if i.name == self.configs['cloud_provider_image']][0]
-
         if self.configs['instance_type'] is not None:
             instance_type = [s for s in sizes if s.name == self.configs['instance_type']][0]
 
-        # NOTE: We specify which public key is installed on the instance using
-        # metadata functionality.
-        # Keep in mind that this step is only needed if you want to install a specific
-        # key which is used to run the deployment script.
-        # If you are using a VM image with a public SSH key already pre-baked in or if
-        # you use project wide ssh-keys GCP functionality, you can remove metadata
-        # argument, but you still need to make sure the private key you use inside this
-        # script matches the one which is installed / available on the server.
+        PUBLIC_SSH_KEY_PATH = os.path.expanduser(self.configs['public_ssh_key_path'])
+
+        with open(PUBLIC_SSH_KEY_PATH, 'r') as fp:
+            PUBLIC_SSH_KEY_CONTENT = fp.read().strip()
+
         metadata = {
             'items': [
                 {
@@ -92,18 +80,13 @@ class gcp_provisioner(cloud_provisioning):
                 logger.info('Using image: %s' % (current_image.name))
                 logger.info('Using instance type: %s' % (current_instance_type))
 
-                node = driver.deploy_node(name=machine_name,
+                node = driver.create_node(name=machine_name,
                                           image=current_image,
                                           size=current_instance_type,
                                           ex_metadata=metadata,
-                                          deploy=step,
-                                          ssh_key=PRIVATE_SSH_KEY_PATH,
                                           location=datacenter)
                 self.nodes.append(node)
                 index += 1
-                # print('stdout: %s' % (step.stdout))
-                # print('stderr: %s' % (step.stderr))
-                # print('exit_code: %s' % (step.exit_status))
         logger.info("Deploying the nodes on GCP: DONE")
 
     def get_resources(self):
