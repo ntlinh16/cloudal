@@ -28,16 +28,16 @@
     <br>
 <p>
 
-The main goal of `cloudal` is to perform large-scale reproducible experiments and collecting results automatically on different cloud systems. `cloudal` is composed of: 
+The main goal of `cloudal` is to perform large-scale reproducible experiments and collecting results automatically on different cloud systems. cloudal is composed of:  
 - a performing actions script that conducts user defined experiment workflow
 - a cloud provisioning module that reserves nodes from cloud systems
 
 In order to setup a cloud system for running rigorous experiments, we usually follow a typical experiment workflow which is (1) provisioning machines; (2) configuring the enviroment; (3) writing the experiment workflow scripts. 
-`cloudal` implements this workflow and provide templates so that users can customize to their needs. 
+cloudal implements this workflow and provide templates so that users can customize to their needs. 
 
-Users modify the `Performing Actions` script to perform one or multiple actions. Users are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts, or perform experiments which require all the actions). There are three main components:
+Users modify the `Performing Actions` script to perform one or multiple actionsm they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts, or perform experiments which require all the actions). There are three main components in this script:
 
-- __provisioner__: Each provisioner is an instance of `Cloud Provisioning`, implements steps to perform the reservation and OS installation (if needed) phase by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilizes `libcloud` to interact with various public cloud systems. By leveraging libcloud, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
+- __provisioner__: Each provisioner is an instance of `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging libcloud, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
 - __configurator__: this module contains some ready-to-use configurators that help setting up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned machines.
 - __experimenter__: is a workflow for user's specific experimental scenario. 
 
@@ -68,7 +68,25 @@ export PYTHONPATH=$PYTHONPATH:/path/to/your/cloudal
 ```
 You can add the above line to your `.bashrc` to have the env variable set on new shell session.
 
+5. Set up the SSH configuration for execo:
 
+If you want to specify the SSH key to use with cloudal, you should odify the file `~/.execo.conf.py` as following.
+
+```
+default_connection_params = {
+    'user': '<username_to_connect_to_node>',
+    'keyfile': '<your_private_ssh_key_path>',
+    }
+```
+for example:
+```
+default_connection_params = {
+    'user': 'root',
+    'keyfile': '~/.ssh/cloudal_key/id_rsa',
+    }
+```
+
+Execo reads configuration file `~/.execo.conf.py` to setup the connection. If the file is not exist, execo use the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
 
 # Tutorials
 
