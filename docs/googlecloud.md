@@ -7,43 +7,48 @@ If you do not have a GCP account, you can create one [free trial account](https:
 
 ## Setup to access nodes on GCP from your laptop
 
-Google supports two ways to authenticate from outside: using Service Accounts and User Accounts (or OAuth 2.0 client IDs). `cloudal` implements to support both authentication methods. You have to determine the correct authentication flow for your application.
+Google supports two ways to authenticate from outside: using Service Accounts and User Accounts (or OAuth 2.0 client IDs). `cloudal` implements to support both authentication methods. You have to determine the correct authentication for your application.
 
-#### 1. Service Account 
+#### 1. Service Account
 
 Service Accounts are generally better suited for automated systems, cron jobs, etc. They should be used when access to the application/script is limited and needs to be able to run with limited intervention.
 
-To set up Service Account authentication, you will need to download the corresponding private key file in either the new JSON (preferred) format, or the legacy P12 format.
+Follow the instructions at [Createing a service account](https://cloud.google.com/docs/authentication/production#create_service_account) to create and download the private key.
 
-1. Follow the instructions at [create a service account](https://cloud.google.com/docs/authentication/production#create_service_account) to create and download the private key.
+To set up a Service Account authentication, you have to provide:
 
-2. You will need the Service Account’s “Email Address” and the path to the key file for authentication.
+1. The path to your private key file in the new JSON (preferred) format.
 
-3. You will also need your “Project ID” (a string, not a numerical value) that can be found by clicking on the “Overview” link on the left sidebar.
+2. Your Service Account’s “Email Address”.
+
+3. Your “Project ID” (a string, not a numerical value).
 
 
 #### 2. User Account
 
-Installed Application authentication is often the better choice when creating an application that may be used by third-parties interactively. For example, a desktop application for managing VMs that would be used by many different people with different Google accounts.
+User account authentication is often the better choice when creating an application that may be used by third-parties interactively. For example, a desktop application for managing VMs that would be used by many different people with different Google accounts.
 
-To set up Installed Account authentication:
+Follow the instruction at [Creating your client credentials](https://cloud.google.com/docs/authentication/end-user#creating_your_client_credentials) to create and download your client secret.
 
-1. Go to the Google Developers Console
-2. Select your project
-3. In the left sidebar, go to “APIs & auth”
-4. Click on “Credentials” then “Create New Client ID”
-5. Select “Installed application” and “Other” then click “Create Client ID”
-6. For authentication, you will need the “Client ID” and the “Client Secret”
-7. You will also need your “Project ID” (a string, not a numerical value) that can be found by clicking on the “Overview” link on the left sidebar.
-
+For authentication, you will need the “Client ID”, the “Client Secret” and the “Project ID” (a string, not a numerical value).
 
 
 ## Example 1: Provision nodes 
 In this example, we provision some nodes on GCP.
 
+First, edit the parameters in the provisioning config file `provisioning_config_gcp.yaml` with your authentication information and your infrastructure requirements.
 
-## Example 2: Configure Docker on running nodes
-In this example, we provision some nodes on GCP and then install Docker and configure to ensure that Docker runs on these nodes.
+Then, run the following command to perform the provisioning process on GCP:
+```
+cd cloudal/examples/provision/
+python provision_gcp.py --system_config_file provisioning_config_gcp.yaml
+```
+
+The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 node on datacenter _us-central1-a_ with the type of node is _e2-standard-2_, and 2 _f1-micro_ nodes on _europe-west3-a_. These nodes are deployed with the `debian-10-buster-v20200618` image. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
+
+With GCP, all the provisioned nodes are kept alive until you deleted it, so that remember to delete your nodes to release the resources (and not losing money) after finishing your testing.
+
+If you do not have a free trial account (with $300 credit), you always create nodes with `f1-micro` type and it is free, check out the information in [Always Free usage limits](https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits)
 
 
-## Example 3: Configure AntidoteDB on running nodes
+
