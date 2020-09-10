@@ -7,8 +7,8 @@ from threading import Lock, Thread
 import cloudal.experimenting.exp_g5k_utils as g5k_utils
 from cloudal.action import performing_actions
 from cloudal.utils import parse_config_file, get_logger, execute_cmd
-from cloudal.provisioning.grid5k_provisioner import grid5k_provisioner
-from cloudal.configuring.docker_debian10_configuring import docker_debian_configuring
+from cloudal.provisioning.g5k_provisioner import g5k_provisioner
+from cloudal.configuring.docker_configurator import docker_configurator
 
 from execo_engine import slugify
 from execo_g5k import oardel
@@ -79,9 +79,9 @@ class DockerBootTime_Measurement(performing_actions):
         that identifies the reservation on each site,
         which can be retrieved from the command line arguments or from make_reservation()"""
 
-        self.provisioner = grid5k_provisioner(config_file_path=self.args.config_file_path,
-                                               keep_alive=self.args.keep_alive,
-                                               out_of_chart=self.args.out_of_chart)
+        self.provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
+                                           keep_alive=self.args.keep_alive,
+                                           out_of_chart=self.args.out_of_chart)
 
         """
         TODO:
@@ -111,7 +111,7 @@ class DockerBootTime_Measurement(performing_actions):
             self.provisioner.make_reservation(job_name=self.__class__.__name__)
 
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
-        return the resources which is a dict needed by grid5k_provisioner """
+        return the resources which is a dict needed by g5k_provisioner """
         logger.info('Getting resources infomation')
         self.provisioner.get_resources()
         self.hosts = self.provisioner.hosts
@@ -311,7 +311,7 @@ class DockerBootTime_Measurement(performing_actions):
 
     def _config_host(self):
         logger.info('Start configuring the following hosts:\n%s' % self.hosts)
-        configurator = docker_debian_configuring(self.hosts)
+        configurator = docker_configurator(self.hosts)
         configurator.config_hosts()
         self.error_hosts = configurator.error_hosts
 

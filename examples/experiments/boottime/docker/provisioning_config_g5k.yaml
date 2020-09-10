@@ -1,6 +1,6 @@
 ---
-# the total time to keep the reserved nodes running
-walltime: 3:00:00
+# the duration to keep the reserved nodes running
+walltime: 1:00:00
 
 # the OS image name (or environment name) that used to deploy OS on the reserved nodes on G5k system.
 # the list of possible OS images can be found at /https://www.grid5000.fr/w/Advanced_Kadeploy#Search_and_deploy_an_existing_environment
@@ -12,11 +12,11 @@ custom_image: null
 
 # the name of the cluster and the number of nodes on each cluster that you want to make a reservation
 clusters:
-    - cluster: econome
-      n_nodes: 10
-
-    - cluster: dahu
+    - cluster: ecotype
       n_nodes: 3
 
-    - cluster: graphite
-      n_nodes: 7
+    - cluster: dahu
+      n_nodes: 1
+
+    - cluster: paravance
+      n_nodes: 2

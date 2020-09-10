@@ -1,27 +1,28 @@
 ---
-private_ssh_key_path:  ~/.ssh/gce/id_rsa_gce
-public_ssh_key_path:  ~/.ssh/gce/id_rsa_gce.pub
-service_account_username: linhnguyen-libcloud@libcloud-testing.iam.gserviceaccount.com
-service_account_credentials_json_file_path: ~/lig/libcloud_testing_project_gcp/libcloud-testing-a7352b398077.json
-project_id: libcloud-testing
+public_ssh_key_path: <path_to_your_public_ssh_key_file>
+service_account_username: <your_service_account_email>
+service_account_credentials_json_file_path: <path_to_your_json_file>
+project_id: <your_project_id>
 
-# the OS image name (or environment name) that used to deploy OS on the reserved nodes on G5k system.
-# the list of possible OS images can be found at /https://www.grid5000.fr/w/Advanced_Kadeploy#Search_and_deploy_an_existing_environment
+# the OS image name (or environment name) that used to deploy OS on the reserved nodes on GCP.
+# the list of support images can be found at https://cloud.google.com/compute/docs/images#os-compute-support
 cloud_provider_image: debian-10-buster-v20200618
 instance_type: f1-micro
 
-# the path to your custom image that used to deploy OS on the reserved nodes on G5k system.
-# follow this link to make your custom image: https://www.grid5000.fr/w/Advanced_Kadeploy#How_can_I_make_my_own_environment.3F
 custom_image: null
 
-# the name of the cluster and the number of nodes on each cluster that you want to make a reservation
+# the name of the datacenter, the number of nodes, the instance type and the image 
+# to deploy on each cluster that you want to make a reservation.
+# If you do not specify the instance_type and the image for each cluster, 
+# it will be the above value of cloud_provider_image and instance_type and the same for all clusters.
+
 clusters:
     - cluster: us-central1-a
       n_nodes: 1
-      instance_type: f1-micro
+      instance_type: e2-standard-2
       image: null
 
-    - cluster: us-central1-b
-      n_nodes: 1
+    - cluster: europe-west3-a
+      n_nodes: 2
       instance_type: f1-micro
       image: null
