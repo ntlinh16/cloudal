@@ -1,6 +1,4 @@
-# Working with Google Cloud Platform
-
-
+# Working on Google Cloud Platform
 
 This tutorial helps you to setup the authentication to connect to [Google Cloud Platform (GCP)](https://cloud.google.com) and then shows some examples to provision machines and then perform some actions on the reserved machines on .
 
@@ -17,7 +15,7 @@ Service Accounts are generally better suited for automated systems, cron jobs, e
 
 To set up Service Account authentication, you will need to download the corresponding private key file in either the new JSON (preferred) format, or the legacy P12 format.
 
-1. Follow the instructions at https://cloud.google.com/docs/authentication/production#create_service_account to create and download the private key.
+1. Follow the instructions at [create a service account](https://cloud.google.com/docs/authentication/production#create_service_account) to create and download the private key.
 
 2. You will need the Service Account’s “Email Address” and the path to the key file for authentication.
 

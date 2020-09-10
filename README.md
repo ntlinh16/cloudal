@@ -38,8 +38,8 @@ cloudal implements this workflow and provide templates so that users can customi
 Users modify the `Performing Actions` script to perform one or multiple actionsm they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts, or perform experiments which require all the actions). There are three main components in this script:
 
 - __provisioner__: Each provisioner is an instance of `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging libcloud, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
-- __configurator__: this module contains some ready-to-use configurators that help setting up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned machines.
-- __experimenter__: is a workflow for user's specific experimental scenario. 
+- __configurator__: this module contains some ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned machines.
+- __experimenter__: users have to wirte their own experimenter to describe sequential steps to perform their specific experimental scenarios. Users can execute this workflow with different input parameters and repeat it the number of times on the same environment in order to obtain a statistically significant result. In this way, users can perform reproducible and repetitive experiments automatically. We use `execo` as an experiment toolkits which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
 
 
 # Installation
@@ -70,11 +70,13 @@ You can add the above line to your `.bashrc` to have the env variable set on new
 
 5. Set up the SSH configuration for execo:
 
-If you want to specify the SSH key to use with cloudal, you should odify the file `~/.execo.conf.py` as following.
+If you want to specify the SSH key to use with cloudal, you have to modify the execo configuration file. 
+
+In `~/.execo.conf.py`, put these lines:
 
 ```
 default_connection_params = {
-    'user': '<username_to_connect_to_node>',
+    'user': '<username_to_connect_to_nodes_inside_cloud_system>',
     'keyfile': '<your_private_ssh_key_path>',
     }
 ```
@@ -86,38 +88,12 @@ default_connection_params = {
     }
 ```
 
-Execo reads configuration file `~/.execo.conf.py` to setup the connection. If the file is not exist, execo use the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
+Execo reads `~/.execo.conf.py` file to setup the connection. If this file is not exist, execo uses the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
 
 # Tutorials
 
 We provide some quick tutorials to get you started with `cloudal`:
-- [Working with Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/grid5000.md)
-- [Working with Google Cloud Platform](https://github.com/ntlinh16/cloudal/blob/master/docs/googlecloud.md)
+- [Working on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/grid5000.md)
+- [Working on Google Cloud Platform](https://github.com/ntlinh16/cloudal/blob/master/docs/googlecloud.md)
 
 
-# Options
-You might want to use `--help` to see all available options:
-```
-usage: <program> [options] <arguments>
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -l LOG_LEVEL          log level (int or string). Default = inherit execo
-                        logger level
-  -L                    copy stdout / stderr to log files in the experiment
-                        result directory. Default = False
-  -R                    redirect stdout / stderr to log files in the
-                        experiment result directory. Default = False
-  -M                    when copying or redirecting outputs, merge stdout /
-                        stderr in a single file. Default = False
-  -c DIR                use experiment directory DIR
-  --system_config_file CONFIG_FILE_PATH
-                        the path to the provisioning configuration file.
-  --exp_setting_file EXP_SETTING_FILE_PATH
-                        the path to the experiment setting file.
-  -k                    keep the reservation alive after deploying.
-  -o                    run the engine outside of grid5k charter
-  -j OAR_JOB_IDS        the reserved oar_job_ids on grid5k. The format is
-                        site1:oar_job_id1,site2:oar_job_id2,...
-  --no-deploy-os        specify not to deploy OS on reserved nodes
-```
