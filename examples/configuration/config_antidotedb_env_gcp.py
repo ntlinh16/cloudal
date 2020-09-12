@@ -1,4 +1,3 @@
-# import os
 import traceback
 
 from cloudal.utils import get_logger, execute_cmd
@@ -6,10 +5,11 @@ from cloudal.action import performing_actions
 from cloudal.provisioning.gcp_provisioner import gcp_provisioner
 from cloudal.configuring.docker_configurator import docker_configurator
 
+
 logger = get_logger()
 
 
-class config_CIbench_env_gcp(performing_actions):
+class config_antidotedb_env_gcp(performing_actions):
     """ This is a base class of cloudal engine, that is built from execo_engine
         and can be used to deploy servers a different cloud system."""
 
@@ -21,7 +21,7 @@ class config_CIbench_env_gcp(performing_actions):
         # Using super() function to access the parrent class
         # so that we do not care about the changing of parent class
 
-        super(config_CIbench_env_gcp, self).__init__()
+        super(config_antidotedb_env_gcp, self).__init__()
 
     def provisioning(self):
         """self.oar_result containts the list of tuples (oar_job_id, site_name)
@@ -32,59 +32,43 @@ class config_CIbench_env_gcp(performing_actions):
         self.provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
         logger.info("Making reservation")
         self.provisioner.make_reservation()
-        logger.info("Getting resources")
+        logger.info("Getting resources of nodes:")
         self.provisioner.get_resources()
         self.hosts = self.provisioner.hosts
 
     def config_host(self):
-        logger.info("Start configuring docker on hosts")
-        logger.info("Init Docker configurator")
+
+        logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
+        logger.info("Starting install Docker on nodes")
         configurator.config_hosts()
 
-        logger.info("Install essential packages")
-        cmd = 'apt-get install --yes --allow-change-held-packages --no-install-recommends git make htop sysstat'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
+        logger.info("Finish installing Docker")
 
-        logger.info("Pull AntidoteDB docker image")
+        # Install antidoteDB
+
+        logger.info("Pull AntidoteDB container image")
         cmd = 'docker pull antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Pull cadvisor docker image")
-        cmd = 'docker pull google/cadvisor'
+        logger.info("Run AntidoteDB container")
+        cmd = 'docker run -d --name antidote -p "8087:8087" antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Install docker-compose")
-        cmd = 'apt-get update && apt-get install --yes --allow-change-held-packages --no-install-recommends docker-compose'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
-
-        logger.info("Install CI-Bench")
-        cmd = 'cd ~/ && git clone https://github.com/AntidoteDB/antidote.git'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 2")
-        cmd = 'cd ~/antidote && make docker-build'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 3")
-        cmd = 'cd ~/ && git clone https://github.com/AntidoteDB/CI-bench.git'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 4")
-        cmd = 'cd ~/CI-bench && docker build --no-cache -t antidote-benchmark .'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
-
-        logger.info("Finish configuring CI-bench")
+        logger.info("Configuring AntidoteDB on nodes: DONE")
 
     def run(self):
-        logger.info("Start provisioning hosts")
+        logger.info("Starting provision nodes")
         self.provisioning()
-        logger.info("Finish provisioning hosts")
+        logger.info("Provisioning nodes: DONE")
 
-        logger.info("Start configuring CI-bench on hosts")
+        logger.info("Starting configure nodes")
         self.config_host()
 
 
 if __name__ == "__main__":
     logger.info("Init engine in %s" % __file__)
-    engine = config_CIbench_env_gcp()
+    engine = config_antidotedb_env_gcp()
 
     try:
         logger.info("Start engine in %s" % __file__)
