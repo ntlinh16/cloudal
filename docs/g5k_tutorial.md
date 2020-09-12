@@ -72,11 +72,11 @@ These provisioned nodes are kept alive after this script is terminated (with `-k
 ## Example 2: Configure Docker on running Grid5000 nodes
 In this example, we provision some nodes on Grid5000 and then install Docker and configure the environment to ensure that Docker runs on these nodes.
 
-First, you also have to edit the provision config file `provisioning_config_g5k.yaml` with your own requirements.
+First, you also have to edit the provisioning config file `provisioning_config_g5k.yaml` with your own requirements.
 
-Then, run the configurator script to configure Docker container:
+Then, run the configurator script to configure Docker container.
 
-1. If you already run Example 1, and you still have your resevation, you can quickly install Docker container on these nodes (without making a provisioning process again).
+1. If you already run Example 1, and you still have your resevation, you can quickly install Docker container on these nodes (without making a provisioning process again):
 
 ```
 cd cloudal/examples/configuration/
