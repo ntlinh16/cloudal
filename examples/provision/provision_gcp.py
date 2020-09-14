@@ -35,7 +35,7 @@ class provision_gcp(performing_actions):
         self.provisioner.get_resources()
 
     def run(self):
-        logger.info("Start provisioning hosts")
+        logger.info("Starting provision hosts")
         self.provisioning()
         logger.info("Finish provisioning hosts")
 
