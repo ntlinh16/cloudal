@@ -1,13 +1,13 @@
 # Working on Grid5000 
 
-This tutorial shows you how to setup the connnection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop and then provision machines, install applications and conduct experiments on the reserved machines.
+This tutorial shows you how to set up the connnection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop and then provision machines, install applications and conduct experiments on the reserved machines.
 
 If you do not have a Grid5000 account, check out the [Grid5000:Get an account](https://www.grid5000.fr/w/Grid5000:Get_an_account)
 
-## Setup to access nodes from outside Grid5000
+## Set up to access nodes from outside Grid5000
 To interact with Grid5000 system from your laptop (not from a Grid5000 frontend node), you have to perform the following steps:
 
-##### 1. Setup an alias for the access to any hosts inside Grid5000. 
+##### 1. Set up an alias for the access to any hosts inside Grid5000. 
 
 In `~/.ssh/config`, put these lines:
 ```
@@ -23,7 +23,7 @@ Host *.g5k
 ```
 
 
-##### 2. Setup `~/.execo.conf.py` configuration file 
+##### 2. Set up `~/.execo.conf.py` configuration file 
 
 ```
 import re
@@ -80,7 +80,7 @@ Then, run the configurator script to configure Docker container.
 
 ```
 cd cloudal/examples/configuration/
-python config_docker_env_g5k.py --system_config_file provisioning_config_g5k.yaml -j econome:<your_oar_job_id>,dahu:<your_oar_job_id>,graphite:<your_oar_job_id> -k 
+python config_docker_env_g5k.py --system_config_file provisioning_config_g5k.yaml -j nantes:<your_oar_job_id_on_nantes>,rennes:<your_oar_job_id_on_rennes>,grenoble:<your_oar_job_id_on_grenoble> -k 
 ```
 
 This `config_docker_env_g5k.py` will install Docker container on the provisioned nodes you give them.

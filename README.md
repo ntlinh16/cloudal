@@ -32,7 +32,7 @@ The main goal of `cloudal` is to perform large-scale reproducible experiments an
 - a performing actions script that conducts user defined experiment workflow
 - a cloud provisioning module that reserves nodes from cloud systems
 
-In order to setup a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning machines; (2) configuring the enviroment; (3) writing the experiment workflow scripts. 
+In order to set up a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning machines; (2) configuring the enviroment; (3) writing the experiment workflow scripts. 
 cloudal implements this workflow and provide templates so that users can customize to their needs. 
 
 Users modify the `Performing Actions` script to perform one or multiple actions, and they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts, or perform experiments which require all three steps). There are three main components in this script:
@@ -88,7 +88,7 @@ default_connection_params = {
     }
 ```
 
-Execo reads `~/.execo.conf.py` file to setup the connection. If this file is not exist, execo uses the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
+Execo reads `~/.execo.conf.py` file to set up the connection. If this file is not exist, execo uses the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
 
 # Tutorials
 
