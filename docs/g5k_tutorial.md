@@ -53,7 +53,7 @@ These above configurations follow the instruction of:
 
 - [Using SSH ProxyCommand to access hosts inside Grid5000](https://www.grid5000.fr/w/SSH#Using_SSH_ProxyCommand_feature_to_ease_the_access_to_hosts_inside_Grid.275000)
 
-## Example 1: Provision nodes on Grid5000
+## Example 1: Provision nodes
 In this example, we provision some nodes on Grid5000 system.
 
 First, edit the provision config file in `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
@@ -69,7 +69,7 @@ This `provision_g5k.py` script makes a reservation with the description in the p
 These provisioned nodes are kept alive after this script is terminated (with `-k` option) so that you can connect to them. Remember to delete the reservation to release the resoures after finishing your testing.
 
 
-## Example 2: Configure Docker on running Grid5000 nodes
+## Example 2: Configure Docker on running nodes
 In this example, we provision some nodes on Grid5000 and then install Docker and configure the environment to ensure that Docker runs on these nodes.
 
 First, you also have to edit the provisioning config file `provisioning_config_g5k.yaml` with your own requirements.
@@ -93,11 +93,11 @@ python config_docker_env_g5k.py --system_config_file provisioning_config_g5k.yam
 
 In this case, the `config_docker_env_g5k.py` script makes a reservation for nodes then installs Docker container on them. You can modify the `config_host()` function in this script to install and configure your own necessary applications.
 
-## Example 3: Configure AntidoteDB on running Grid5000 nodes
+## Example 3: Configure AntidoteDB on running nodes
 
-This example is similar to the Example 2, after provisioning some nodes on Grid5000, it installs AntidoteDB and configure to ensure that AntidoteDB runs on these nodes.
+This example is similar to the Example 2, after provisioning some nodes on Grid5000, it configures to ensure that AntidoteDB runs on these nodes.
 
-First, you still need to describe your infrastructure in  `provisioning_config_g5k.yaml` file.
+First, you still need to describe your infrastructure in `provisioning_config_g5k.yaml` file.
 
 Then, run the following command:
 ```
@@ -105,11 +105,11 @@ cd cloudal/examples/configuration/
 python config_antidotedb_env_g5k.py --system_config_file provisioning_config_g5k.yaml -k
 ```
 
-This `config_antidotedb_env_g5k.py` script makes a reservation for nodes, then installs Docker container on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
+This `config_antidotedb_env_g5k.py` script makes a reservation for required nodes, then installs Docker container on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
 
 
 ## Example 4: Perform an experiment: measuring Docker boottime on configured Grid5000 nodes
-In this example, we will perform a workflow to measure a Docker container boottime.
+In this example, we perform a workflow to measure a Docker container boottime.
 
 First, edit the provision config file `provisioning_config_g5k.yaml` and the experimental setting file `exp_setting_docker_boottime.yaml` depends on your experiment setup.
 

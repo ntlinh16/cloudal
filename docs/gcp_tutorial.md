@@ -50,5 +50,40 @@ With GCP, all the provisioned nodes are kept alive until you deleted it, so that
 
 If you do not have a free trial account (with $300 credit), you always create nodes with `f1-micro` type and it is free, check out the information in [Always Free usage limits](https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits)
 
+## Example 2: Configure AntidoteDB
+
+In this example, after provisioning some nodes on GCP, we install Docker and configure to ensure that AntidoteDB runs on these nodes.
+
+First, you still need to describe your infrastructure in  `provisioning_config_gcp.yaml` file.
+
+Then, run the following command:
+```
+cd cloudal/examples/configuration/
+python config_antidotedb_env_gcp.py --system_config_file provisioning_config_gcp.yaml -k
+```
+
+This `config_antidotedb_env_gcp.py` script makes a reservation for required nodes, then installs Docker on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
+
+Now on your GCP, you have the number of your required nodes running the AntidoteDB, you can connect to them and perform your testing.
 
 
+## Options
+You might want to use `--help` to see all available options:
+```
+usage: <program> [options] <arguments>
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l LOG_LEVEL          log level (int or string). Default = inherit execo
+                        logger level
+  -L                    copy stdout / stderr to log files in the experiment
+                        result directory. Default = False
+  -R                    redirect stdout / stderr to log files in the
+                        experiment result directory. Default = False
+  -M                    when copying or redirecting outputs, merge stdout /
+                        stderr in a single file. Default = False
+  -c DIR                use experiment directory DIR
+  --system_config_file CONFIG_FILE_PATH
+                        the path to the provisioning configuration file.
+  --exp_setting_file EXP_SETTING_FILE_PATH
+                        the path to the experiment setting file.
