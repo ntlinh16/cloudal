@@ -15,6 +15,7 @@ from execo_g5k import (
 from execo_g5k.planning import get_planning, compute_slots, get_jobs_specs
 from execo_g5k.utils import hosts_list
 from execo_g5k.api_utils import canonical_host_name
+from execo_g5k.oar import get_oar_job_info
 
 
 logger = get_logger()
@@ -26,11 +27,37 @@ class g5k_provisioner(cloud_provisioning):
     """docstring for grid5k"""
 
     def __init__(self, **kwargs):
-        super(g5k_provisioner, self).__init__(config_file_path=kwargs['config_file_path'])
-
         self.keep_alive = kwargs.get('keep_alive')
         self.out_of_chart = kwargs.get('out_of_chart')
+        self.oar_job_ids = kwargs.get('oar_job_ids')
+        self.config_file_path = kwargs.get('config_file_path')
 
+        """
+        TODO:
+            + write function to check all nodes in a job is alive
+            + modify make_reservation function to accept error_hosts
+              -> make replacement reservation or cancel program or ignore
+        """
+        if self.oar_job_ids is not None:
+            self.oar_result = list()
+            logger.info('Checking oar_job_id is valid or not')
+            for each in self.oar_job_ids.split(','):
+                site_name, oar_job_id = each.split(':')
+                oar_job_id = int(oar_job_id)
+                # check validity of oar_job_id
+                job_info = get_oar_job_info(oar_job_id=oar_job_id, frontend=site_name)
+                if job_info is None or len(job_info) == 0:
+                    logger.error("Job id: %s in %s is not a valid Grid5000 oar job id" %
+                                 (oar_job_id, site_name))
+                    logger.error("Please rerun the script with a correct oar job id")
+                    exit()
+                self.oar_result.append((int(oar_job_id), str(site_name)))
+            return
+        elif self.config_file_path is None:
+            logger.error("Please provide at least a provisioning config file or OAR job IDs.")
+            exit()
+
+        super(g5k_provisioner, self).__init__(config_file_path=self.config_file_path)
         # parse clusters into correct format to be used in g5k
         self.clusters = {each['cluster']: each['n_nodes'] for each in self.configs['clusters']}
 
@@ -62,6 +89,9 @@ class g5k_provisioner(cloud_provisioning):
     def make_reservation(self, job_name='cloudal'):
         """Perform a reservation of the required number of nodes, with 4000 IP.
         """
+        if self.oar_result:
+            return
+
         logger.info('Performing reservation')
         starttime = int(time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
         endtime = int(starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
@@ -109,7 +139,7 @@ class g5k_provisioner(cloud_provisioning):
         for oar_job_id, site in self.oar_result:
             logger.info('Waiting for the reserved nodes of %s on %s site to be up' % (oar_job_id, site))
             if not wait_oar_job_start(oar_job_id, site):
-                logger.info('The reserved resources were cancelled.\nThe program is terminated.')
+                logger.error('The reserved resources cannot be used.\nThe program is terminated.')
                 exit()
 
         for oar_job_id, site in self.oar_result:
@@ -136,6 +166,12 @@ class g5k_provisioner(cloud_provisioning):
         """Create a execo_g5k.Deployment object, launch the deployment and
         return a tuple (deployed_hosts, undeployed_hosts)
         """
+
+        # if the provisioner has oar_job_ids and no config_file_path
+        # then the configs variable is not created
+        if not hasattr(self, 'configs'):
+            return
+
         logger.info('Deploying %s hosts \n%s', len(self.hosts), hosts_list(self.hosts, separator='\n'))
         try:
             deployment = Deployment(hosts=[Host(canonical_host_name(host))

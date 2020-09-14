@@ -81,34 +81,11 @@ class DockerBootTime_Measurement(performing_actions):
 
         self.provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
                                            keep_alive=self.args.keep_alive,
-                                           out_of_chart=self.args.out_of_chart)
+                                           out_of_chart=self.args.out_of_chart,
+                                           oar_job_ids=self.args.oar_job_ids)
 
-        """
-        TODO:
-            + write function to check all nodes in a job is alive
-            + modify make_reservation function to accept error_hosts
-              -> make replacement reservation or cancel program or ignore
-            + after checking for case args.oar_job_ids is not None, change it to None
-              so that it won't be called in the 2nd time on
-            
-+        """
-        if self.args.oar_job_ids is not None:
-            self.provisioner.oar_result = list()
-            logger.info('Checking oar_job_id is valid or not')
-            for each in self.args.oar_job_ids.split(','):
-                site_name, oar_job_id = each.split(':')
-                oar_job_id = int(oar_job_id)
-                # check validity of oar_job_id
-                job_info = get_oar_job_info(oar_job_id=oar_job_id, frontend=site_name)
-                if job_info is None or len(job_info) == 0:
-                    logger.error("Job id: %s in %s is not a valid Grid5000 oar job id" %
-                                 (oar_job_id, site_name))
-                    logger.error("Please rerun the script with a correct job id")
-                    exit()
-                self.provisioner.oar_result.append((int(oar_job_id), str(site_name)))
-        else:
-            logger.info("START PROVISIONING PROCESS")
-            self.provisioner.make_reservation(job_name=self.__class__.__name__)
+        logger.info("START PROVISIONING PROCESS")
+        self.provisioner.make_reservation()
 
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
         return the resources which is a dict needed by g5k_provisioner """

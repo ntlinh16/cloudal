@@ -3,7 +3,7 @@ import yaml
 import logging
 
 from execo.action import ActionFactory
-from execo.config import TAKTUK, default_connection_params
+from execo.config import TAKTUK, SSH, SCP, default_connection_params
 
 
 default_connection_params['taktuk_connector_options'] = ('-o', 'BatchMode=yes',
@@ -67,7 +67,7 @@ def get_logger(log_level=logging.INFO):
 executor_singleton = list()
 
 
-def get_remote_executor(remote_tool=TAKTUK, fileput_tool=TAKTUK, fileget_tool=TAKTUK):
+def get_remote_executor(remote_tool=SSH, fileput_tool=SCP, fileget_tool=SCP):
     '''Instanciate remote process execution and file copies tool
 
     Parameters
