@@ -6,7 +6,7 @@ project_id: <your_project_id>
 
 # the OS image name (or environment name) that used to deploy OS on the reserved nodes on GCP.
 # the list of support images can be found at https://cloud.google.com/compute/docs/images#os-compute-support
-cloud_provider_image: debian-10-buster-v20200618
+cloud_provider_image: <name_of_an image_supported_by_GCP>
 instance_type: f1-micro
 
 custom_image: null
