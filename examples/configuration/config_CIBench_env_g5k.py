@@ -76,7 +76,7 @@ class config_CIbench_env_g5k(performing_actions):
         cmd = 'docker pull antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Pull cadvisor docker image")
+        #logger.info("Pull cadvisor docker image")
         cmd = 'docker pull google/cadvisor'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
@@ -84,39 +84,28 @@ class config_CIbench_env_g5k(performing_actions):
         cmd = 'apt-get update && apt-get install --yes --allow-change-held-packages --no-install-recommends docker-compose'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        # logger.info("Install golang")
-        # cmd = 'cd ~/ && wget https://dl.google.com/go/go1.14.3.linux-amd64.tar.gz'
-        # self.error_hosts = execute_cmd(cmd, self.hosts)
-        # cmd = 'cd ~/ && tar xzf go1.14.3.linux-amd64.tar.gz'
-        # self.error_hosts = execute_cmd(cmd, self.hosts)
-        # cmd = 'chown -R root:root ~/go'
-        # self.error_hosts = execute_cmd(cmd, self.hosts)
-        # cmd = 'mv ~/go /usr/local'
-        # self.error_hosts = execute_cmd(cmd, self.hosts)
-        # cmd = 'echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.profile'
-        # self.error_hosts = execute_cmd(cmd, self.hosts)
-        # cmd = 'source ~/.profile'
-        # self.error_hosts = execute_cmd(cmd, self.hosts)
-
         logger.info("Install CI-Bench")
         cmd = 'cd ~/ && git clone https://github.com/AntidoteDB/antidote.git'
         self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 2")
+
         cmd = 'cd ~/antidote && make docker-build'
         self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 3")
+
         cmd = 'cd ~/ && git clone https://github.com/AntidoteDB/CI-bench.git'
         self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 4")
+
         cmd = 'cd ~/CI-bench && docker build --no-cache -t antidote-benchmark .'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Finish configuring hosts")
 
     def run(self):
+        logger.info("Starting provision nodes")
         self.provisioning()
+        logger.info("Provisioning nodes: DONE")
+
+        logger.info("Starting configure CI-Bench on nodes")
         self.config_host()
-        # self.perform_experiments()
+        logger.info("Configuring CI-Bench on nodes: DONE")
 
 
 if __name__ == "__main__":

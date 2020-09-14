@@ -69,11 +69,11 @@ class config_antidotedb_env_g5k(performing_actions):
         logger.info("Init Docker configurator")
         configurator = docker_configurator(self.hosts)
         # Install & config Docker
-        logger.info("Start configuring Docker on hosts")
+        logger.info("Starting configure Docker on hosts")
         configurator.config_hosts()
 
         # Install antidoteDB
-        logger.info("Install AntidoteDB")
+        logger.info("Starting configure AntidoteDB")
 
         logger.info("Pull AntidoteDB docker image")
         cmd = 'docker pull antidotedb/antidote'
@@ -83,12 +83,16 @@ class config_antidotedb_env_g5k(performing_actions):
         cmd = 'docker run -d --name antidote -p "8087:8087" antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Finish configuring hosts")
+        logger.info("Configuring AntidoteDB on hosts: DONE")
 
     def run(self):
+        logger.info("Starting provision nodes")
         self.provisioning()
+        logger.info("Provisioning nodes: DONE")
+
+        logger.info("Starting configure AntidoteDB on nodes")
         self.config_host()
-        # self.perform_experiments()
+        logger.info("Configuring AntidoteDB on nodes: DONE")
 
 
 if __name__ == "__main__":

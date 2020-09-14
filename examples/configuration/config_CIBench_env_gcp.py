@@ -50,7 +50,7 @@ class config_CIbench_env_gcp(performing_actions):
         cmd = 'docker pull antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Pull cadvisor docker image")
+        #logger.info("Pull cadvisor docker image")
         cmd = 'docker pull google/cadvisor'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
@@ -61,25 +61,24 @@ class config_CIbench_env_gcp(performing_actions):
         logger.info("Install CI-Bench")
         cmd = 'cd ~/ && git clone https://github.com/AntidoteDB/antidote.git'
         self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 2")
+
         cmd = 'cd ~/antidote && make docker-build'
         self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 3")
+
         cmd = 'cd ~/ && git clone https://github.com/AntidoteDB/CI-bench.git'
         self.error_hosts = execute_cmd(cmd, self.hosts)
-        logger.info("Install CI-Bench 4")
+
         cmd = 'cd ~/CI-bench && docker build --no-cache -t antidote-benchmark .'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Finish configuring CI-bench")
-
     def run(self):
-        logger.info("Start provisioning hosts")
+        logger.info("Starting provision nodes")
         self.provisioning()
-        logger.info("Finish provisioning hosts")
+        logger.info("Provisioning nodes: DONE")
 
-        logger.info("Start configuring CI-bench on hosts")
+        logger.info("Starting configure CI-Bench on nodes")
         self.config_host()
+        logger.info("Configuring CI-Bench on nodes: DONE")
 
 
 if __name__ == "__main__":

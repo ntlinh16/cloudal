@@ -40,14 +40,14 @@ class config_antidotedb_env_gcp(performing_actions):
 
         logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
-        logger.info("Starting install Docker on nodes")
+        # Install & config Docker
+        logger.info("Starting configure Docker on nodes")
         configurator.config_hosts()
 
-        logger.info("Finish installing Docker")
-
         # Install antidoteDB
+        logger.info("Starting configure AntidoteDB on nodes")
 
-        logger.info("Pull AntidoteDB container image")
+        logger.info("Pull AntidoteDB docker image")
         cmd = 'docker pull antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
@@ -55,15 +55,14 @@ class config_antidotedb_env_gcp(performing_actions):
         cmd = 'docker run -d --name antidote -p "8087:8087" antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
-        logger.info("Configuring AntidoteDB on nodes: DONE")
-
     def run(self):
         logger.info("Starting provision nodes")
         self.provisioning()
         logger.info("Provisioning nodes: DONE")
 
-        logger.info("Starting configure nodes")
+        logger.info("Starting configure AntidoteDB on nodes")
         self.config_host()
+        logger.info("Configuring AntidoteDB on nodes: DONE")
 
 
 if __name__ == "__main__":

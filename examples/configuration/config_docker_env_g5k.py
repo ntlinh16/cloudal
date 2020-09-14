@@ -70,13 +70,17 @@ class config_docker_env_g5k(performing_actions):
     def config_host(self):
         logger.info("Init configurator")
         configurator = docker_configurator(self.hosts)
-        logger.info("Start configuring hosts")
+        logger.info("Starting install Docker")
         configurator.config_hosts()
-        logger.info("Finish configuring hosts")
 
     def run(self):
+        logger.info("Starting provision nodes")
         self.provisioning()
+        logger.info("Provisioning nodes: DONE")
+
+        logger.info("Starting configure Docker on nodes")
         self.config_host()
+        logger.info("Configuring Docker on nodes: DONE")
         # self.perform_experiments()
 
 

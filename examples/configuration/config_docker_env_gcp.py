@@ -37,21 +37,19 @@ class config_docker_env_gcp(performing_actions):
         self.hosts = self.provisioner.hosts
 
     def config_host(self):
-
         logger.info("Init configurator")
         configurator = docker_configurator(self.hosts)
-        logger.info("Start configuring nodes")
+        logger.info("Starting install Docker")
         configurator.config_hosts()
 
-        logger.info("Configuring Docker container: DONE")
-
     def run(self):
-        logger.info("Start provisioning nodes")
+        logger.info("Starting provision nodes")
         self.provisioning()
-        logger.info("Finish provisioning nodes")
+        logger.info("Provisioning nodes: DONE")
 
-        logger.info("Start configuring Docker container on nodes")
+        logger.info("Starting configure Docker on nodes")
         self.config_host()
+        logger.info("Configuring Docker on nodes: DONE")
 
 
 if __name__ == "__main__":
