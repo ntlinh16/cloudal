@@ -32,6 +32,11 @@ class g5k_provisioner(cloud_provisioning):
         self.oar_job_ids = kwargs.get('oar_job_ids')
         self.config_file_path = kwargs.get('config_file_path')
 
+        """self.oar_result containts the list of tuples (oar_job_id, site_name)
+        that identifies the reservation on each site,
+        which can be retrieved from the command line arguments or from make_reservation()"""
+        self.oar_result = list()
+
         """
         TODO:
             + write function to check all nodes in a job is alive
@@ -39,7 +44,6 @@ class g5k_provisioner(cloud_provisioning):
               -> make replacement reservation or cancel program or ignore
         """
         if self.oar_job_ids is not None:
-            self.oar_result = list()
             logger.info('Checking oar_job_id is valid or not')
             for each in self.oar_job_ids.split(','):
                 site_name, oar_job_id = each.split(':')
@@ -118,8 +122,6 @@ class g5k_provisioner(cloud_provisioning):
 
         self.oar_result = oarsub(jobs_specs)
 
-        # self.oar_job_id, self.frontend) = oarsub(jobs_specs)
-        # (self.oar_job_id, self.frontend) = oarsub(jobs_specs, frontend_connection_params={'user': 'lnguyen'})[0]
         for oar_job_id, _ in self.oar_result:
             if oar_job_id is None:
                 logger.info('Performing reservation FAILED')
