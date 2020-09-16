@@ -1,6 +1,6 @@
 # Working on Grid5000 
 
-This tutorial shows you how to set up the connnection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop and then provision machines, install applications and conduct experiments on the reserved machines.
+This tutorial shows you how to set up the connnection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop, then provision machines, install applications and conduct experiments on the reserved machines.
 
 If you do not have a Grid5000 account, check out the [Grid5000:Get an account](https://www.grid5000.fr/w/Grid5000:Get_an_account)
 
@@ -66,7 +66,9 @@ python provision_g5k.py --system_config_file provisioning_config_g5k.yaml -k
 
 This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS enviroments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). 
 
-These provisioned nodes are kept alive after this script is terminated (with `-k` option) so that you can connect to them. Remember to delete the reservation to release the resoures after finishing your testing.
+These provisioned nodes are kept alive after this script is terminated with `-k` option. You can connect to these nodes and install or set up your applications manually or you just need to give these nodes to _cloudal_ and it will configure them as your wish (see Example 2).
+
+Remember to delete the reservation to release the resoures after finishing your testing.
 
 
 ## Example 2: Configure Docker on running nodes
@@ -80,10 +82,10 @@ Then, run the configurator script to configure Docker container.
 
 ```
 cd cloudal/examples/configuration/
-python config_docker_env_g5k.py --system_config_file provisioning_config_g5k.yaml -j nantes:<your_oar_job_id_on_nantes>,rennes:<your_oar_job_id_on_rennes>,grenoble:<your_oar_job_id_on_grenoble> -k 
+python config_docker_env_g5k.py -j nantes:<your_oar_job_id_on_nantes>,rennes:<your_oar_job_id_on_rennes>,grenoble:<your_oar_job_id_on_grenoble> -k 
 ```
 
-This `config_docker_env_g5k.py` will install Docker container on the provisioned nodes you give them.
+This `config_docker_env_g5k.py` will install Docker on the provisioned nodes you give them.
 
 2. If you do not have any running nodes on Grid5000, run the following command to provision and then configure nodes:
 ```
