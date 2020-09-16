@@ -7,13 +7,6 @@ class performing_actions(Engine):
     and can be used to deploy servers a different cloud system."""
 
     def __init__(self):
-        """Add options for the number of measures, number of nodes
-        walltime, env_file or env_name and clusters and initialize the engine
-        """
-
-        # Using super() function to access the parrent class
-        # so that we do not care about the changing of parent class
-
         super(performing_actions, self).__init__()
 
         # initialize the remote_executor to execute a command on hosts
@@ -36,3 +29,26 @@ class performing_actions(Engine):
 
     def _perform_experiments(self):
         pass
+
+
+class performing_actions_g5k(performing_actions):
+    def __init__(self):
+        """ Add options and initialize the engine
+        """
+        super(performing_actions_g5k, self).__init__()
+
+        self.args_parser.add_argument("-k", dest="keep_alive",
+                                      help="keep the reservation alive after deploying.",
+                                      action="store_true")
+
+        self.args_parser.add_argument("-o", dest="out_of_chart",
+                                      help="run the engine outside of grid5k charter",
+                                      action="store_true")
+
+        self.args_parser.add_argument("-j", dest="oar_job_ids",
+                                      help="the reserved oar_job_ids on grid5k. The format is site1:oar_job_id1,site2:oar_job_id2,...",
+                                      type=str)
+
+        self.args_parser.add_argument("--no-deploy-os", dest="no_deploy_os",
+                                      help="specify not to deploy OS on reserved nodes",
+                                      action="store_true")

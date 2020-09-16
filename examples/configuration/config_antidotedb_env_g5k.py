@@ -12,38 +12,10 @@ logger = get_logger()
 class config_antidotedb_env_g5k(performing_actions):
     """
     """
-
     def __init__(self):
-        """ Add options for the number of measures, number of nodes
-        walltime, env_file or env_name and clusters and initialize the engine
-        """
-
-        # Using super() function to access the parrent class
-        # so that we do not care about the changing of parent class
-
         super(config_antidotedb_env_g5k, self).__init__()
 
-        self.args_parser.add_argument("-k", dest="keep_alive",
-                                      help="keep the reservation alive after deploying.",
-                                      action="store_true")
-
-        self.args_parser.add_argument("-o", dest="out_of_chart",
-                                      help="run the engine outside of grid5k charter",
-                                      action="store_true")
-
-        self.args_parser.add_argument("-j", dest="oar_job_ids",
-                                      help="the reserved oar_job_ids on grid5k. The format is site1:oar_job_id1,site2:oar_job_id2,...",
-                                      type=str)
-
-        self.args_parser.add_argument("--no-deploy-os", dest="no_deploy_os",
-                                      help="specify not to deploy OS on reserved nodes",
-                                      action="store_true")
-
     def provisioning(self):
-        """self.oar_result containts the list of tuples (oar_job_id, site_name)
-        that identifies the reservation on each site,
-        which can be retrieved from the command line arguments or from make_reservation()"""
-
         logger.info("Init provisioner: g5k_provisioner")
         self.provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
                                            keep_alive=self.args.keep_alive,
@@ -61,7 +33,7 @@ class config_antidotedb_env_g5k(performing_actions):
             self.provisioner.setup_hosts()
 
     def config_host(self):
-        logger.info("Init Docker configurator")
+        logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
         # Install & config Docker
         logger.info("Starting configure Docker on hosts")
