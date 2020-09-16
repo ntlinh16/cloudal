@@ -7,7 +7,7 @@ from cloudal.utils import get_remote_executor, get_logger
 
 from execo import format_date, Host
 # from execo.config import default_connection_params
-from execo.time_utils import timedelta_to_seconds
+from execo.time_utils import timedelta_to_seconds, get_unixts
 from execo_g5k import (
     oarsub, wait_oar_job_start, get_oar_job_nodes, get_oar_job_subnets, get_oar_job_kavlan,
     deploy, Deployment
@@ -91,23 +91,26 @@ class g5k_provisioner(cloud_provisioning):
         return startdate
 
     def make_reservation(self, job_name='cloudal'):
-        """Perform a reservation of the required number of nodes, with 4000 IP.
+        """Perform a reservation of the required number of nodes.
         """
         if self.oar_result:
             return
 
         logger.info('Performing reservation')
-        starttime = int(time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
-        endtime = int(starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
+        if 'starttime' not in self.configs or self.configs['starttime'] is None:
+            self.configs['starttime'] = int(time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
 
+        starttime = int(get_unixts(self.configs['starttime']))
+        endtime = int(starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
         startdate = self._get_nodes(starttime, endtime)
+
         while startdate is None:
-            logger.info('No enough nodes found between %s and %s, ' + '\nIncreasing the window time', format_date(starttime), format_date(endtime))
+            logger.info('No enough nodes found between %s and %s, ' + '\nIncreasing the window time....', format_date(starttime), format_date(endtime))
             starttime = endtime
             endtime = int(starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
 
             startdate = self._get_nodes(starttime, endtime)
-            if starttime > int(time.time() + timedelta_to_seconds(datetime.timedelta(weeks=6))):
+            if starttime > int(self.configs['starttime'] + timedelta_to_seconds(datetime.timedelta(weeks=6))):
                 logger.error('What a pity! There is no slot which satisfies your request until %s :(' % format_date(endtime))
                 exit()
 

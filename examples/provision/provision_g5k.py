@@ -6,7 +6,6 @@ from cloudal.provisioning.g5k_provisioner import g5k_provisioner
 from execo_g5k import oardel
 
 logger = get_logger()
-
 # from execo import default_connection_params
 # from execo_g5k.config import default_frontend_connection_params
 
