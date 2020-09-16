@@ -10,13 +10,7 @@ logger = get_logger()
 
 
 class gcp_provisioner(cloud_provisioning):
-    """This is a base class of cloudal engine,
-        and it can be used to deploy servers on different cloud systems."""
-
     def __init__(self, config_file_path):
-        """Add options for the number of measures, number of nodes,
-        env_file or env_name and clusters and initialize the engine
-        """
         self.configs = parse_config_file(config_file_path)
         self.nodes = list()
 
@@ -58,7 +52,7 @@ class gcp_provisioner(cloud_provisioning):
             ]
         }
 
-        logger.info("Deploying the nodes on GCP")
+        logger.info("Deploying nodes on GCP")
         index = 0
         for cluster in self.configs['clusters']:
             n_nodes = cluster['n_nodes']
@@ -87,12 +81,13 @@ class gcp_provisioner(cloud_provisioning):
                                           location=datacenter)
                 self.nodes.append(node)
                 index += 1
-        logger.info("Deploying the nodes on GCP: DONE")
+        logger.info("Deploying nodes on GCP: DONE")
 
     def get_resources(self):
-        """Retriving the information of  the list of reserved hosts
+        """Retriving the information of the list of reserved hosts
         """
         self.hosts = list()
+        logger.info("Retriving the public IPs of nodes")
         for node in self.nodes:
             if len(node.public_ips) > 0:
                 self.hosts.append(node.public_ips[0])

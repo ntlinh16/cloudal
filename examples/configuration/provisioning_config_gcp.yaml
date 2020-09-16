@@ -4,7 +4,7 @@ service_account_username: <your_service_account_email>
 service_account_credentials_json_file_path: <path_to_your_json_file>
 project_id: <your_project_id>
 
-# the OS image name (or environment name) that used to deploy OS on the reserved nodes on GCP.
+# the cloud provider image is an OS image name that used to deploy OS on the provisioned nodes on GCP.
 # the list of support images can be found at https://cloud.google.com/compute/docs/images#os-compute-support
 cloud_provider_image: <name_of_an image_supported_by_GCP>
 instance_type: f1-micro

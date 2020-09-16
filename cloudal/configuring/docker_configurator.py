@@ -37,6 +37,6 @@ class docker_configurator(object):
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
     def config_hosts(self):
-        logger.info('Configuring %s hosts with Docker' % len(self.hosts))
+        logger.info('Starting install Docker on %s hosts' % len(self.hosts))
         self._install_docker()
-        logger.info('Configuring %s hosts with Docker: DONE' % len(self.hosts))
+        logger.info('Installing Docker on %s hosts: DONE' % len(self.hosts))

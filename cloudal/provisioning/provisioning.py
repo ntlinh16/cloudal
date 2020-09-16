@@ -6,9 +6,6 @@ class cloud_provisioning(object):
         and it can be used to deploy servers on different cloud systems."""
 
     def __init__(self, config_file_path):
-        """Add options for the number of measures, number of nodes
-        walltime, env_file or env_name and clusters and initialize the engine
-        """
         self.configs = parse_config_file(config_file_path)
 
     def _get_nodes(self, starttime, endtime):
