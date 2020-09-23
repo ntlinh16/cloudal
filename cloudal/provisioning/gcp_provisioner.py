@@ -4,15 +4,17 @@ from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
 
 from cloudal.provisioning.provisioning import cloud_provisioning
-from cloudal.utils import parse_config_file, get_logger
+from cloudal.utils import get_logger
 
 logger = get_logger()
 
 
 class gcp_provisioner(cloud_provisioning):
-    def __init__(self, config_file_path):
-        self.configs = parse_config_file(config_file_path)
+    def __init__(self, **kwargs):
+        self.config_file_path = kwargs.get('config_file_path')
         self.nodes = list()
+
+        super(gcp_provisioner, self).__init__(config_file_path=self.config_file_path)
 
     def _get_gce_driver(self):
         logger.info("Creating a Driver to connect to GCP")
