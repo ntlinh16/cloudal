@@ -94,6 +94,6 @@ Execo reads `~/.execo.conf.py` file to set up the connection. If this file is no
 
 We provide some quick tutorials to get you started with `cloudal`:
 - [Working on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
-- [Working on Google Cloud Platform](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
-
+- [Working on Google Cloud Platform using Compute Engine](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
+- [Working on Google Cloud Platform using Google Kubernetes Engine](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
 

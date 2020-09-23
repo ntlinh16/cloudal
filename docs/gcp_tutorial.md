@@ -1,6 +1,6 @@
 # Working on Google Cloud Platform
 
-This tutorial helps you to setup the authentication to connect to [Google Cloud Platform (GCP)](https://cloud.google.com) and then shows some examples to provision machines and then perform some actions on the reserved machines on .
+This tutorial helps you to setup the authentication to connect to [Google Cloud Platform (GCP)](https://cloud.google.com) and then shows some examples to provision machines and then perform some actions on the reserved machines.
 
 If you do not have a GCP account, you can create one [free trial account](https://cloud.google.com/gcp/?utm_source=google&utm_medium=cpc&utm_campaign=emea-fr-all-en-dr-bkws-all-all-trial-e-gcp-1009139&utm_content=text-ad-none-any-DEV_c-CRE_167380635539-ADGP_Hybrid+%7C+AW+SEM+%7C+BKWS+~+EXA_M:1_FR_EN_General_Cloud_google+cloud+free+trial-KWID_43700053280219975-kwd-112926782887-userloc_1006410&utm_term=KW_google%20cloud%20free%20trial-NET_g-PLAC_&ds_rl=1242853&ds_rl=1245734&ds_rl=1242853&ds_rl=1245734&gclid=EAIaIQobChMI6JjWkffb6wIVeRkGAB3ajQbQEAAYASAAEgISbvD_BwE) to work with.
 
@@ -44,7 +44,7 @@ cd cloudal/examples/provision/
 python provision_gcp.py --system_config_file provisioning_config_gcp.yaml
 ```
 
-The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 node on datacenter _us-central1-a_ with the type of node is _e2-standard-2_, and 2 _f1-micro_ nodes on _europe-west3-a_. These nodes are deployed with the `debian-10-buster-v20200618` image. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
+The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 node on datacenter _us-central1-a_ with the type of node is _e2-standard-2_, and 2 _f1-micro_ nodes on _europe-west3-a_. These nodes are deployed with the given `cloud_provider_image`. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
 
 With GCP, all the provisioned nodes are kept alive until you deleted it, so that remember to delete your nodes to release the resources (and not losing money) after finishing your testing.
 

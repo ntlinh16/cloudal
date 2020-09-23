@@ -53,6 +53,23 @@ These above configurations follow the instruction of:
 
 - [Using SSH ProxyCommand to access hosts inside Grid5000](https://www.grid5000.fr/w/SSH#Using_SSH_ProxyCommand_feature_to_ease_the_access_to_hosts_inside_Grid.275000)
 
+
+##### 3. Set up Grid5000 API authentification 
+
+When you use cloudal for the first time with Grid5000, it asks your Grid5000 account password in your terminal:
+```
+Grid5000 API authentication password for user <your_Grid5000_username>
+```
+
+If you don't want to type your password everytime, you need to install `keyring` package to securely store your password on your working machine. Now you only need to type in your password once, and it is saved automatically for next times.
+```
+pip install keyring
+```
+And then have to you install the corresponding storage backend depends on your system, please follow this [link](https://pypi.org/project/keyring/) for more information on how to install them. 
+In case it is not important to store your password securely for you, you can choose to install this simple backend, and your password will be stored as plain text:
+```
+pip install keyrings.alt
+```
 ## Example 1: Provision nodes
 In this example, we provision some nodes on Grid5000 system.
 
