@@ -14,6 +14,7 @@ logger = get_logger()
 class config_docker_env_g5k(performing_actions_g5k):
     """
     """
+
     def __init__(self):
         super(config_docker_env_g5k, self).__init__()
 
@@ -23,7 +24,6 @@ class config_docker_env_g5k(performing_actions_g5k):
                                            keep_alive=self.args.keep_alive,
                                            out_of_chart=self.args.out_of_chart,
                                            oar_job_ids=self.args.oar_job_ids)
-
         self.provisioner.make_reservation()
 
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
@@ -35,10 +35,9 @@ class config_docker_env_g5k(performing_actions_g5k):
             self.provisioner.setup_hosts()
 
     def config_host(self):
-        logger.info("Init configurator")
+        logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
-        logger.info("Starting install Docker")
-        configurator.config_hosts()
+        configurator.config_docker()
 
     def run(self):
         logger.info("Starting provision nodes")

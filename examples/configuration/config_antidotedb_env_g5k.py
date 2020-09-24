@@ -33,11 +33,10 @@ class config_antidotedb_env_g5k(performing_actions):
             self.provisioner.setup_hosts()
 
     def config_host(self):
+        # Install & config Docker
         logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
-        # Install & config Docker
-        logger.info("Starting configure Docker on hosts")
-        configurator.config_hosts()
+        configurator.config_docker()
 
         # Install antidoteDB
         logger.info("Starting configure AntidoteDB")

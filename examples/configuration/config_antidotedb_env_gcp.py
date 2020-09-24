@@ -23,16 +23,13 @@ class config_antidotedb_env_gcp(performing_actions):
         self.hosts = self.provisioner.hosts
 
     def config_host(self):
-
+        # Install & config Docker
         logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
-        # Install & config Docker
-        logger.info("Starting configure Docker on nodes")
-        configurator.config_hosts()
+        configurator.config_docker()
 
         # Install antidoteDB
         logger.info("Starting configure AntidoteDB on nodes")
-
         logger.info("Pull AntidoteDB docker image")
         cmd = 'docker pull antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)

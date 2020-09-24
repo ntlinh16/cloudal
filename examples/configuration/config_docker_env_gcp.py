@@ -18,15 +18,14 @@ class config_docker_env_gcp(performing_actions):
         self.provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
         logger.info("Making reservation")
         self.provisioner.make_reservation()
-        logger.info("Getting resources")
+        logger.info("Getting resources specs")
         self.provisioner.get_resources()
         self.hosts = self.provisioner.hosts
 
     def config_host(self):
         logger.info("Init configurator")
         configurator = docker_configurator(self.hosts)
-        logger.info("Starting install Docker")
-        configurator.config_hosts()
+        configurator.config_docker()
 
     def run(self):
         logger.info("Starting provision nodes")
