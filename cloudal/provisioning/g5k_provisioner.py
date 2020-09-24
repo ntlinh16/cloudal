@@ -34,7 +34,8 @@ class g5k_provisioner(cloud_provisioning):
 
         """self.oar_result containts the list of tuples (oar_job_id, site_name)
         that identifies the reservation on each site,
-        which can be retrieved from the command line arguments or from make_reservation()"""
+        which can be retrieved from the command line arguments or from make_reservation()
+        """
         self.oar_result = list()
 
         """
@@ -67,7 +68,8 @@ class g5k_provisioner(cloud_provisioning):
 
     def _get_nodes(self, starttime, endtime):
         """ return the nearest slot (startdate) that has enough available nodes
-        to perform the client's actions"""
+        to perform the client's actions
+        """
 
         planning = get_planning(elements=self.clusters.keys(),
                                 starttime=starttime,
@@ -137,7 +139,9 @@ class g5k_provisioner(cloud_provisioning):
 
     def get_resources(self):
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
-        return the resources which is a dict needed by g5k_provisioner """
+        return the resources which is a dict needed by g5k_provisioner
+        """
+        logger.info("Getting resources specs")
         self.resources = dict()
         self.hosts = list()
 

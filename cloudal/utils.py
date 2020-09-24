@@ -30,6 +30,19 @@ def parse_config_file(config_file_path):
 logger_singleton = list()
 
 
+def install_packages_on_debian(packages, hosts):
+    logger = get_logger()
+    try:
+        cmd = (
+            "export DEBIAN_FRONTEND=noninteractive; "
+            "apt-get update && apt-get "
+            "install --yes --allow-change-held-packages --no-install-recommends %s"
+        ) % packages
+        execute_cmd(cmd, hosts)
+    except Exception as e:
+        logger.error("---> Bug [%s] with command: %s" % (e, cmd), exc_info=True)
+
+
 def get_logger(log_level=logging.INFO):
     '''Create a custom logger
 
