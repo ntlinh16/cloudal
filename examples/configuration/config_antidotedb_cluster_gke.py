@@ -1,7 +1,6 @@
 import os
 import traceback
 import base64
-from time import sleep
 from tempfile import NamedTemporaryFile
 
 from cloudal.utils import get_logger
@@ -9,7 +8,7 @@ from cloudal.action import performing_actions
 from cloudal.provisioning.gke_provisioner import gke_provisioner
 
 import json
-from kubernetes import client, config, utils
+from kubernetes import client, utils
 from kubernetes.utils import FailToCreateError
 from kubernetes.client.api_client import ApiClient
 
