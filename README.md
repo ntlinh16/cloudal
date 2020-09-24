@@ -30,15 +30,15 @@
 
 The main goal of `cloudal` is to perform large-scale reproducible experiments and collecting results automatically on different cloud systems. _cloudal_ is composed of:  
 - a performing actions script that conducts user defined experiment workflow
-- a cloud provisioning module that reserves nodes from cloud systems
+- a cloud provisioning module that reserves resources (nodes, clusters, etc.) from cloud systems
 
-In order to set up a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning machines; (2) configuring the enviroment; (3) writing the experiment workflow scripts. 
-cloudal implements this workflow and provide templates so that users can customize to their needs. 
+In order to set up a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning nodes; (2) configuring the enviroment; (3) writing the experiment workflow scripts. 
+_cloudal_ implements this workflow and provide templates so that users can customize to their needs. 
 
 Users modify the `Performing Actions` script to perform one or multiple actions, and they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts, or perform experiments which require all three steps). There are three main components in this script:
 
 - __provisioner__: Each provisioner is an instance of `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
-- __configurator__: this module contains some ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned machines.
+- __configurator__: this module contains some ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
 - __experimenter__: users have to wirte their own experimenter to describe sequential steps to perform their specific experimental scenarios. Users can execute this experiment workflow with different input parameters and repeat it the number of times on the same environment in order to obtain a statistically significant result. In this way, users can perform reproducible and repetitive experiments automatically. We use `execo` as an experiment toolkits which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
 
 

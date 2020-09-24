@@ -8,7 +8,7 @@ If you do not have a GCP account, you can create one [free trial account](https:
 
 Note: we use Python 3
 
-To work with GKE, you need to install `gke` and `kubernetes` packages:
+To work with GKE, you need to install _GKE_ and _Kubernetes_ packages:
 
 ```
 pip install google-cloud-container
@@ -26,8 +26,8 @@ To set up a Service Account authentication, you have to provide:
 2. Your “Project ID” (a string, not a numerical value).
 
 
-## Example 1: Create kubernetes clusters
-In this example, we create kubernetes clusters on GCP by using GKE.
+## Example 1: Create Kubernetes clusters
+In this example, we create Kubernetes clusters on GCP by using GKE.
 
 First, edit the parameters in the provisioning config file `provisioning_config_gke.yaml` with your authentication information and your infrastructure requirements.
 
@@ -37,12 +37,12 @@ cd cloudal/examples/provision/
 python provision_gke.py --system_config_file provisioning_config_gke.yaml
 ```
 
-The `provision_gke.py` script checks if the required clusters existed or not. If not, it creates 2 clusters that is described in `provisioning_config_gke.yaml` file: cluter _test-1_ with 4 nodes in data center _europe-west3-a_, and cluter _test-2_ with 3 nodes in _us-central1-a_.
+The `provision_gke.py` script checks if the required clusters existed or not. If not, it creates clusters that is described in `provisioning_config_gke.yaml` file: cluter _test-1_ with 4 nodes in data center _europe-west3-a_, and cluter _test-2_ with 3 nodes in _us-central1-a_.
 
 With GKE, all the provisioned clusters are kept alive until you deleted it, so that remember to delete your provision to release the resources (and not losing money) after finishing your testing.
 
 ## Example 2: Deploy an AntidoteDB cluster
-In this example, after creating GKE clusters, we use kubernetes to deploy an AntidoteDB cluster on each Kubernetes cluster. We to follow the instruction to deploy an AntidoteDB cluster by using Kubernetes [here](https://github.com/AntidoteDB/AntidoteDB-documentation/blob/master/deployment/kubernetes/deployment.md).
+In this example, after creating GKE clusters, we use Kubernetes to deploy an AntidoteDB cluster on each GKE cluster. This AntidoteDB cluster consists of 2 data centers that span in a Kubernetes cluster. We follow the instruction [here](https://github.com/AntidoteDB/AntidoteDB-documentation/blob/master/deployment/kubernetes/deployment.md) to deploy an AntidoteDB cluster by using Kubernetes.
 
 First, you still have to describe your GKE authentication information and your clusters requirements in `provisioning_config_gke.yaml` file.
 
@@ -52,7 +52,7 @@ cd cloudal/examples/configuration/
 python config_antidotedb_cluster_env_gke.py --system_config_file provisioning_config_gke.yaml --antidote_yaml_dir antidotedb_yaml/ 
 ```
 
-This `config_antidotedb_env_gke.py` script makes a reservation for required clusters, then setup and deploy the AntidoteDB from given yaml files. These deployment files are stored in `antidotedb_yaml` directory. You can also modify the `config_host()` function in this script to install and configure your necessary applications.
+This `config_antidotedb_env_gke.py` script creates all required clusters, then performs the necessary setup and deploy the AntidoteDB from given yaml files. These antidote deployment yaml files are stored in the `antidotedb_yaml` directory. You can also modify the `config_host()` function in this script to install and configure your custom applications.
 
 Now on your GKE you have running AntidoteDB clusters, you can connect to them and peform your testing.
 
