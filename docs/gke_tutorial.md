@@ -49,7 +49,7 @@ First, you still have to describe your GKE authentication information and your c
 Then, run the following command:
 ```
 cd cloudal/examples/configuration/
-python config_antidotedb_cluster_env_gke.py --system_config_file provisioning_config_gke.yaml --antidote_yaml_dir antidotedb_yaml/ 
+python config_antidotedb_cluster_env_gke.py --system_config_file provisioning_config_gke.yaml --antidote_yaml_dir antidotedb_yaml_gce/ 
 ```
 
 This `config_antidotedb_env_gke.py` script creates all required clusters, then performs the necessary setup and deploy the AntidoteDB from given yaml files. These antidote deployment yaml files are stored in the `antidotedb_yaml` directory. You can also modify the `config_host()` function in this script to install and configure your custom applications.
