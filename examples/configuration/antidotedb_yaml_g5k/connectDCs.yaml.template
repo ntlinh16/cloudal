@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: connector-for-${antidote_datacenters}
+  labels:
+    type: antidote-util-tmp
+spec:
+  ttlSecondsAfterFinished: 5
+  template:
+    spec:
+      containers:
+      - name: antidote-connect
+        image: peterzel/antidote-connect
+        imagePullPolicy: Always
+        args: ["--connectDcs", ${antidote_servers}] ## first_node with format hostname:port and list of antidote nodes format antidote@hostname
+      restartPolicy: Never
+  backoffLimit: 4
