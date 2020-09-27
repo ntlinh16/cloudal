@@ -15,12 +15,12 @@ class config_antidotedb_env_gcp(performing_actions):
 
     def provisioning(self):
         logger.info("Init provisioner: gcp_provisioner")
-        self.provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
+        provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
         logger.info("Making reservation")
-        self.provisioner.make_reservation()
+        provisioner.make_reservation()
         logger.info("Getting resources of nodes:")
-        self.provisioner.get_resources()
-        self.hosts = self.provisioner.hosts
+        provisioner.get_resources()
+        self.hosts = provisioner.hosts
 
     def config_host(self):
         # Install & config Docker
