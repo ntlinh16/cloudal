@@ -23,7 +23,7 @@ class gke_provisioner(cloud_provisioning):
         cluster_manager_client = ClusterManagerClient.from_service_account_json(service_account_credentials_json_file_path)
         return cluster_manager_client
 
-    def _check_clusters(self, project_id, list_zones):
+    def _get_existed_clusters(self, project_id, list_zones):
         clusters_ok = dict()
         clusters_ko = dict()
 
@@ -47,8 +47,8 @@ class gke_provisioner(cloud_provisioning):
         for cluster in self.configs['clusters']:
             list_zones.append(cluster['data_center'])
 
-        logger.info("Validating Kubernetes clusters on GCP")
-        clusters_ok, clusters_ko = self._check_clusters(project_id, list_zones)
+        logger.info("Validating Kubernetes clusters")
+        clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones)
 
         for cluster in self.configs['clusters']:
             key = '%s:%s' % (cluster['data_center'], cluster['cluster_name'])
@@ -67,7 +67,7 @@ class gke_provisioner(cloud_provisioning):
                                                       parent='projects/%s/locations/%s' % (project_id, cluster['data_center']))
 
                 i = 0
-                while i < 15:
+                while i < 10:
                     c = cluster_manager_client.get_cluster(project_id=project_id,
                                                            zone=cluster['data_center'],
                                                            cluster_id=cluster['cluster_name'])
@@ -75,6 +75,6 @@ class gke_provisioner(cloud_provisioning):
                         self.clusters.append(c)
                         break
                     i += 1
-                    sleep(15)
+                    sleep(40 * cluster['n_nodes'])
 
         logger.info("Deploying Kubernetes clusters on GCP: DONE")

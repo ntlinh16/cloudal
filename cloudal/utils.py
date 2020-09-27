@@ -27,20 +27,29 @@ def parse_config_file(config_file_path):
                 return content
 
 
-logger_singleton = list()
-
-
 def install_packages_on_debian(packages, hosts):
+    '''Install a list of given packages
+
+    Parameters
+    ----------
+    packages: list of string
+        the list of package names to be installed
+    hosts: list of string
+        the list of hostnames
+    '''
     logger = get_logger()
     try:
         cmd = (
             "export DEBIAN_FRONTEND=noninteractive; "
             "apt-get update && apt-get "
             "install --yes --allow-change-held-packages --no-install-recommends %s"
-        ) % packages
+        ) % ' '.join(packages)
         execute_cmd(cmd, hosts)
     except Exception as e:
         logger.error("---> Bug [%s] with command: %s" % (e, cmd), exc_info=True)
+
+
+logger_singleton = list()
 
 
 def get_logger(log_level=logging.INFO):
@@ -140,3 +149,16 @@ def execute_cmd(cmd, hosts, mode='run'):
         logger.error("Connection error to %s hosts:\n%s" % (len(host_errors), '\n'.join(host_errors)))
         hosts = [host for host in hosts if host not in host_errors]
     return host_errors, result
+
+
+def get_file(remote_file_paths, host, local_dir, mode='run'):
+    """
+    2 modes:
+        run: start a process and wait until it ends
+        start: start a process
+    """
+    remote_executor = get_remote_executor()
+    if mode == 'run':
+        remote_executor.get_fileget(host, remote_file_paths, local_dir).run()
+    elif mode == 'start':
+        remote_executor.get_fileget(host, remote_file_paths, local_dir).start()
