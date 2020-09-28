@@ -1,18 +1,19 @@
-import traceback
 import os
+import traceback
 
 from cloudal.utils import get_logger, get_file
-from cloudal.action import performing_actions
+from cloudal.action import performing_actions_g5k
 from cloudal.provisioning.g5k_provisioner import g5k_provisioner
-from cloudal.configuring.antidotedb_cluster_on_k8scluster_configurator import antidotedb_configurator
 from cloudal.configuring.kubernetes_configurator import kubernetes_configurator
 from cloudal.configuring.docker_configurator import docker_configurator
+from cloudal.configuring.antidotedb_cluster_on_k8scluster_configurator import antidotedb_configurator
 
 from kubernetes import config
+
 logger = get_logger()
 
 
-class config_antidotedb_cluster_g5k(performing_actions):
+class config_antidotedb_cluster_g5k(performing_actions_g5k):
     def __init__(self, **kwargs):
         super(config_antidotedb_cluster_g5k, self).__init__()
         self.args_parser.add_argument("--antidote_yaml_dir", dest="yaml_path",
@@ -39,9 +40,14 @@ class config_antidotedb_cluster_g5k(performing_actions):
             provisioner.setup_hosts()
 
     def _get_credential(self, kube_master):
-        local_dir = './'
-        get_file(host=kube_master, remote_file_paths=['~/.kube/config'], local_dir=local_dir)
-        config.load_kube_config(config_file=os.path.join(local_dir, 'config'))
+        home = os.path.expanduser('~')
+        kube_dir = os.path.join(home, '.kube')
+
+        if not os.path.exists(kube_dir):
+            os.mkdir(kube_dir)
+        get_file(host=kube_master, remote_file_paths=['~/.kube/config'], local_dir=kube_dir)
+        config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
+        logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
     def config_host(self):
         logger.info("Init configurator: docker_configurator")
@@ -53,19 +59,20 @@ class config_antidotedb_cluster_g5k(performing_actions):
         kube_master, kube_workers = configurator.deploy_kubernetes_cluster()
 
         self._get_credential(kube_master=kube_master)
+        logger.info('Kubernetes master: %s' % kube_master)
 
         logger.info("Init configurator: antidotedb_configurator")
         configurator = antidotedb_configurator(path=self.args.yaml_path)
         configurator.deploy_antidotedb_cluster()
 
     def run(self):
-        logger.info("Starting create Kubernetes clusters")
+        logger.info("STARTING PROVISIONING NODES")
         self.provisioning()
-        logger.info("Finish create Kubernetes clusters")
+        logger.info("FINISH PROVISIONING NODES")
 
-        logger.info("Starting configure AntidoteDB on Kubernetes clusters")
+        logger.info("STARTING DEPLOY KUBERNETES CLUSTERS")
         self.config_host()
-        logger.info("Finish configure AntidoteDB on Kubernetes clusters")
+        logger.info("FINISH DEPLOY KUBERNETES CLUSTERS")
 
 
 if __name__ == "__main__":

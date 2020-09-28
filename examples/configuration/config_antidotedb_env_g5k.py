@@ -1,5 +1,5 @@
 from cloudal.utils import get_logger, execute_cmd
-from cloudal.action import performing_actions
+from cloudal.action import performing_actions_g5k
 from cloudal.provisioning.g5k_provisioner import g5k_provisioner
 from cloudal.configuring.docker_configurator import docker_configurator
 
@@ -9,7 +9,7 @@ from execo_g5k import oardel
 logger = get_logger()
 
 
-class config_antidotedb_env_g5k(performing_actions):
+class config_antidotedb_env_g5k(performing_actions_g5k):
     """
     """
 

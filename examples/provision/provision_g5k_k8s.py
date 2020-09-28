@@ -1,24 +1,20 @@
-import traceback
 import os
+import traceback
 
 from cloudal.utils import get_logger, get_file
-from cloudal.action import performing_actions
+from cloudal.action import performing_actions_g5k
 from cloudal.provisioning.g5k_provisioner import g5k_provisioner
 from cloudal.configuring.kubernetes_configurator import kubernetes_configurator
 from cloudal.configuring.docker_configurator import docker_configurator
 
 from kubernetes import config
+
 logger = get_logger()
 
 
-class provision_g5k_k8s(performing_actions):
+class provision_g5k_k8s(performing_actions_g5k):
     def __init__(self, **kwargs):
         super(provision_g5k_k8s, self).__init__()
-        self.args_parser.add_argument("--antidote_yaml_dir", dest="yaml_path",
-                                      help="path to yaml file to deploy antidotedb cluster",
-                                      default='',
-                                      required=True,
-                                      type=str)
 
     def provisioning(self):
         logger.info("Init provisioner: g5k_provisioner")
@@ -38,9 +34,14 @@ class provision_g5k_k8s(performing_actions):
             provisioner.setup_hosts()
 
     def _get_credential(self, kube_master):
-        local_dir = './'
-        get_file(host=kube_master, remote_file_paths=['~/.kube/config'], local_dir=local_dir)
-        config.load_kube_config(config_file=os.path.join(local_dir, 'config'))
+        home = os.path.expanduser('~')
+        kube_dir = os.path.join(home, '.kube')
+
+        if not os.path.exists(kube_dir):
+            os.mkdir(kube_dir)
+        get_file(host=kube_master, remote_file_paths=['~/.kube/config'], local_dir=kube_dir)
+        config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
+        logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
     def config_host(self):
         logger.info("Init configurator: docker_configurator")
@@ -50,17 +51,18 @@ class provision_g5k_k8s(performing_actions):
         logger.info("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(self.hosts)
         kube_master, kube_workers = configurator.deploy_kubernetes_cluster()
+        logger.info('Kubernetes master: %s' % kube_master)
 
         self._get_credential(kube_master=kube_master)
 
     def run(self):
-        logger.info("Starting create Kubernetes clusters")
+        logger.info("STARTING PROVISIONING NODES")
         self.provisioning()
-        logger.info("Finish create Kubernetes clusters")
+        logger.info("FINISH PROVISIONING NODES")
 
-        logger.info("Starting deploy Kubernetes clusters")
+        logger.info("STARTING DEPLOY KUBERNETES CLUSTERS")
         self.config_host()
-        logger.info("Finish deploy Kubernetes clusters")
+        logger.info("FINISH DEPLOY KUBERNETES CLUSTERS")
 
 
 if __name__ == "__main__":
