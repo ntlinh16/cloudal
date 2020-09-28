@@ -21,25 +21,25 @@ class provision_g5k(performing_actions_g5k):
 
     def provisioning(self):
         logger.info("Init provisioner: g5k_provisioner")
-        self.provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
-                                           keep_alive=self.args.keep_alive,
-                                           out_of_chart=self.args.out_of_chart,
-                                           oar_job_ids=self.args.oar_job_ids)
+        provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
+                                      keep_alive=self.args.keep_alive,
+                                      out_of_chart=self.args.out_of_chart,
+                                      oar_job_ids=self.args.oar_job_ids)
 
-        self.provisioner.make_reservation()
+        provisioner.make_reservation()
 
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
         return the resources which is a dict needed by g5k_provisioner """
-        self.provisioner.get_resources()
-        self.hosts = self.provisioner.hosts
+        provisioner.get_resources()
+        self.hosts = provisioner.hosts
 
         if not self.args.no_deploy_os:
-            self.provisioner.setup_hosts()
+            provisioner.setup_hosts()
 
     def run(self):
-        logger.info("Starting provisioning hosts")
+        logger.info("STARTING PROVISIONING NODES")
         self.provisioning()
-        logger.info("Provisioning hosts: DONE")
+        logger.info("FINISH PROVISIONING NODES")
 
 
 if __name__ == "__main__":

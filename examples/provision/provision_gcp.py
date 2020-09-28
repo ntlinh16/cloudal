@@ -20,9 +20,9 @@ class provision_gcp(performing_actions):
         self.provisioner.get_resources()
 
     def run(self):
-        logger.info("Starting provision hosts")
+        logger.info("STARTING PROVISIONING HOSTS")
         self.provisioning()
-        logger.info("Finish provisioning hosts")
+        logger.info("FINISH PROVISIONING HOSTS")
 
 
 if __name__ == "__main__":
