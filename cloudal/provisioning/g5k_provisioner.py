@@ -45,7 +45,7 @@ class g5k_provisioner(cloud_provisioning):
               -> make replacement reservation or cancel program or ignore
         """
         if self.oar_job_ids is not None:
-            logger.info('Checking oar_job_id is valid or not')
+            logger.info('Checking the given oar_job_id is valid or not')
             for each in self.oar_job_ids.split(','):
                 site_name, oar_job_id = each.split(':')
                 oar_job_id = int(oar_job_id)
@@ -146,13 +146,13 @@ class g5k_provisioner(cloud_provisioning):
         self.hosts = list()
 
         for oar_job_id, site in self.oar_result:
-            logger.info('Waiting for the reserved nodes of %s on %s site to be up' % (oar_job_id, site))
+            logger.info('Waiting for the reserved nodes of %s on %s to be up' % (oar_job_id, site))
             if not wait_oar_job_start(oar_job_id, site):
                 logger.error('The reserved resources cannot be used.\nThe program is terminated.')
                 exit()
 
         for oar_job_id, site in self.oar_result:
-            logger.info('Retrieving resource of %s on %s site' % (oar_job_id, site))
+            logger.info('Retrieving resource of %s on %s' % (oar_job_id, site))
             logger.debug('Retrieving hosts')
             hosts = [host.address for host in get_oar_job_nodes(oar_job_id, site)]
 
@@ -179,6 +179,7 @@ class g5k_provisioner(cloud_provisioning):
         # if the provisioner has oar_job_ids and no config_file_path
         # then the configs variable is not created
         if not hasattr(self, 'configs'):
+            logger.info('The list of %s hosts: \n%s', len(self.hosts), hosts_list(self.hosts, separator='\n'))
             return
 
         logger.info('Deploying %s hosts \n%s', len(self.hosts), hosts_list(self.hosts, separator='\n'))
