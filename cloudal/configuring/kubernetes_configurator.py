@@ -13,6 +13,8 @@ class kubernetes_configurator(object):
         self.hosts = hosts
 
     def _install_kubeadm(self):
+        logger.info('Installing kubeadm on all %s nodes' % len(self.hosts))
+
         logger.debug('Turning off Firewall on hosts')
         cmd = '''cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
                  net.bridge.bridge-nf-call-ip6tables = 1
@@ -43,13 +45,16 @@ class kubernetes_configurator(object):
         kube_master = self.hosts[0]
         kube_workers = self.hosts[1:]
 
-        logger.debug('Configuring kubeadm on master')
-        cmd = 'kubeadm init'
+        logger.info('Configuring kubeadm on master')
+        cmd = 'kubeadm init --pod-network-cidr=10.244.0.0/16'
         execute_cmd(cmd, [kube_master])
 
         cmd = '''mkdir -p $HOME/.kube
                  cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
                  chown $(id -u):$(id -g) $HOME/.kube/config'''
+        execute_cmd(cmd, [kube_master])
+
+        cmd = 'kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml'
         execute_cmd(cmd, [kube_master])
 
         cmd = 'kubeadm token create --print-join-command'
@@ -58,5 +63,7 @@ class kubernetes_configurator(object):
         logger.debug('Adding %s kube workers' % len(kube_workers))
         cmd = 'kubeadm join' + result.processes[0].stdout.split('kubeadm join')[-1]
         execute_cmd(cmd.strip(), kube_workers)
+
+        logger.info('Deploying Kubernetes cluster successfully')
 
         return kube_master, kube_workers
