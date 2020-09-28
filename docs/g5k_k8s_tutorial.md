@@ -76,9 +76,25 @@ In case it is not important to store your password securely for you, you can cho
 ```
 pip install keyrings.alt
 ```
-##### 4. Set up a VPN
+##### 4. Set up a VPN to connect to the Grid5000 network
 
-Following the instruction [here](https://www.grid5000.fr/w/VPN?fbclid=IwAR1t_5TBkUhJ5LkMSO2BRkjp-CAksRfEKf4-HrBBxGkOa_yDXIRT40SWvRE) to setup a VPN to connect to the Grid5000 network.
+Following the instruction [here](https://www.grid5000.fr/w/VPN?fbclid=IwAR1t_5TBkUhJ5LkMSO2BRkjp-CAksRfEKf4-HrBBxGkOa_yDXIRT40SWvRE) to create and download your Grid5000 VPN certificate.
+
+If you create a Grid5000 certificate with passphrase, and you want to run your `openvpn` as a daemon, you shoule following these steps:
+1. create a `auth` file with your VPN password:
+```
+touch auth | echo "<your VPN password>" > auth
+```
+
+2. add this line to `Grid5000_VPN.ovpn`:
+```
+askpass /path/to/your/auth/file
+```
+3. run openvpn as a daemon:
+```
+sudo openvpn --config Grid5000_VPN.ovpn --daemon
+```
+
 
 ## Example 1: Create a Kubernetes clusters
 In this example, we provision some nodes on Grid5000 system and then create a Kubernetes cluster from that nodes.
@@ -87,7 +103,7 @@ First, edit the provision config file in `cloudal/examples/provision/provisionin
 
 Then, run the following command to create a Kubernetes:
 ```
-cd cloudal/examples/configuration/
+cd cloudal/examples/provision/
 python provision_g5k_k8s.py --system_config_file provisioning_config_g5k.yaml -k
 ```
 
