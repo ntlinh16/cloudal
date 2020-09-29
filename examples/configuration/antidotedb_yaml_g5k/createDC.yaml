@@ -13,6 +13,11 @@ spec:
       - name: antidote-connect
         image: peterzel/antidote-connect
         imagePullPolicy: Always
-        args: ["--createDc", "antidote-0.antidote:8087", "antidote@antidote-0.antidote", "antidote@antidote-1.antidote"]
+        args: ["--createDc", "antidote-0.antidote:8087", 
+               "antidote@antidote-0.antidote", 
+               "antidote@antidote-1.antidote",
+               "antidote@antidote-2.antidote",
+               "antidote@antidote-3.antidote",
+               "antidote@antidote-4.antidote"]
       restartPolicy: Never
   backoffLimit: 4
