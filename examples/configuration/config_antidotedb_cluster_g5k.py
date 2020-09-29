@@ -49,13 +49,17 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
         config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
         logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
-    def _setup_volumes(self, kube_workers):
+    def _setup_g5k_kube_volumes(self, kube_workers):
         logger.info("Setting volumes on %s kubernetes workers" % len(kube_workers))
-        cmd = '''mkdir -p /mnt/disks;
-                 mkdir -p /mnt/disks/vol;
-                 umount /tmp;
-                 sleep 5;
-                 mount -t ext4 /dev/sda5 /mnt/disks/vol'''
+        N_PV = 10
+        cmd = '''umount /dev/sda5;
+                 mount -t ext4 /dev/sda5 /tmp'''
+        execute_cmd(cmd, kube_workers)
+        cmd = '''for i in $(seq 1 %s); do
+                     mkdir -p /tmp/pv/vol${i}
+                     mkdir -p /mnt/disks/vol${i}
+                     mount --bind /tmp/pv/vol${i} /mnt/disks/vol${i}
+                 done''' % N_PV
         execute_cmd(cmd, kube_workers)
 
     def config_host(self):
@@ -70,7 +74,7 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
 
         self._get_credential(kube_master=kube_master)
 
-        self._setup_volumes(kube_workers)
+        self._setup_g5k_kube_volumes(kube_workers)
 
         logger.info("Init configurator: antidotedb_configurator")
         configurator = antidotedb_configurator(path=self.args.yaml_path)
