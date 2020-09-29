@@ -72,12 +72,12 @@ spec:
             value: antidote@$(HOSTNAME).antidote
 
         volumeMounts:
-        - name: antidote-data
+        - name: antidote-volume-claim
           mountPath: /antidote-data
           
   volumeClaimTemplates:
   - metadata:
-      name: antidote-data
+      name: antidote-volume-claim
     spec:
       accessModes: [ "ReadWriteOnce" ]
       storageClassName: local-storage

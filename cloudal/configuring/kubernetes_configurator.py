@@ -27,7 +27,7 @@ class kubernetes_configurator(object):
         cmd = 'swapoff -a'
         execute_cmd(cmd, self.hosts)
 
-        logger.debug('Installing kubeadm')
+        logger.debug('Installing kubeadm kubelet kubectl')
         install_packages_on_debian(['apt-transport-https', 'curl'], self.hosts)
 
         cmd = 'curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -'
@@ -45,7 +45,7 @@ class kubernetes_configurator(object):
         kube_master = self.hosts[0]
         kube_workers = self.hosts[1:]
 
-        logger.info('Configuring kubeadm on master')
+        logger.info('Initializing kubeadm on master')
         cmd = 'kubeadm init --pod-network-cidr=10.244.0.0/16'
         execute_cmd(cmd, [kube_master])
 

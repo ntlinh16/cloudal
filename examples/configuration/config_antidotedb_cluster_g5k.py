@@ -1,7 +1,7 @@
 import os
 import traceback
 
-from cloudal.utils import get_logger, get_file
+from cloudal.utils import get_logger, get_file, execute_cmd
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioning.g5k_provisioner import g5k_provisioner
 from cloudal.configuring.kubernetes_configurator import kubernetes_configurator
@@ -49,6 +49,15 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
         config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
         logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
+    def _setup_volumes(self, kube_workers):
+        logger.info("Setting volumes on %s kubernetes workers" % len(kube_workers))
+        cmd = '''mkdir -p /mnt/disks;
+                 mkdir -p /mnt/disks/vol;
+                 umount /tmp;
+                 sleep 5;
+                 mount -t ext4 /dev/sda5 /mnt/disks/vol'''
+        execute_cmd(cmd, kube_workers)
+
     def config_host(self):
         logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
@@ -57,9 +66,11 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
         logger.info("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(self.hosts)
         kube_master, kube_workers = configurator.deploy_kubernetes_cluster()
+        logger.info('Kubernetes master: %s' % kube_master)
 
         self._get_credential(kube_master=kube_master)
-        logger.info('Kubernetes master: %s' % kube_master)
+
+        self._setup_volumes(kube_workers)
 
         logger.info("Init configurator: antidotedb_configurator")
         configurator = antidotedb_configurator(path=self.args.yaml_path)
