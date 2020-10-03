@@ -2,7 +2,7 @@ import sys
 import time
 import datetime
 
-from cloudal.provisioning.provisioning import cloud_provisioning
+from cloudal.provisioner.provisioning import cloud_provisioning
 from cloudal.utils import get_remote_executor, get_logger
 
 from execo import format_date, Host
@@ -50,21 +50,26 @@ class g5k_provisioner(cloud_provisioning):
                 site_name, oar_job_id = each.split(':')
                 oar_job_id = int(oar_job_id)
                 # check validity of oar_job_id
-                job_info = get_oar_job_info(oar_job_id=oar_job_id, frontend=site_name)
+                job_info = get_oar_job_info(
+                    oar_job_id=oar_job_id, frontend=site_name)
                 if job_info is None or len(job_info) == 0:
                     logger.error("Job id: %s in %s is not a valid Grid5000 oar job id" %
                                  (oar_job_id, site_name))
-                    logger.error("Please rerun the script with a correct oar job id")
+                    logger.error(
+                        "Please rerun the script with a correct oar job id")
                     exit()
                 self.oar_result.append((int(oar_job_id), str(site_name)))
             return
         elif self.config_file_path is None:
-            logger.error("Please provide at least a provisioning config file or OAR job IDs.")
+            logger.error(
+                "Please provide at least a provisioning config file or OAR job IDs.")
             exit()
 
-        super(g5k_provisioner, self).__init__(config_file_path=self.config_file_path)
+        super(g5k_provisioner, self).__init__(
+            config_file_path=self.config_file_path)
         # parse clusters into correct format to be used in g5k
-        self.clusters = {each['cluster']: each['n_nodes'] for each in self.configs['clusters']}
+        self.clusters = {each['cluster']: each['n_nodes']
+                         for each in self.configs['clusters']}
 
     def _get_nodes(self, starttime, endtime):
         """ return the nearest slot (startdate) that has enough available nodes
@@ -88,7 +93,8 @@ class g5k_provisioner(cloud_provisioning):
                 startdate = slot[0]
                 break
         if startdate is not None:
-            logger.info('A slot is found for your request at %s' % format_date(startdate))
+            logger.info('A slot is found for your request at %s' %
+                        format_date(startdate))
 
         return startdate
 
@@ -100,20 +106,25 @@ class g5k_provisioner(cloud_provisioning):
 
         logger.info('Performing reservation')
         if 'starttime' not in self.configs or self.configs['starttime'] is None:
-            self.configs['starttime'] = int(time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
+            self.configs['starttime'] = int(
+                time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
 
         starttime = int(get_unixts(self.configs['starttime']))
-        endtime = int(starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
+        endtime = int(
+            starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
         startdate = self._get_nodes(starttime, endtime)
 
         while startdate is None:
-            logger.info('No enough nodes found between %s and %s, ' + '\nIncreasing the window time....', format_date(starttime), format_date(endtime))
+            logger.info('No enough nodes found between %s and %s, ' +
+                        '\nIncreasing the window time....', format_date(starttime), format_date(endtime))
             starttime = endtime
-            endtime = int(starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
+            endtime = int(
+                starttime + timedelta_to_seconds(datetime.timedelta(days=3, minutes=1)))
 
             startdate = self._get_nodes(starttime, endtime)
             if starttime > int(self.configs['starttime'] + timedelta_to_seconds(datetime.timedelta(weeks=6))):
-                logger.error('What a pity! There is no slot which satisfies your request until %s :(' % format_date(endtime))
+                logger.error(
+                    'What a pity! There is no slot which satisfies your request until %s :(' % format_date(endtime))
                 exit()
 
         jobs_specs = get_jobs_specs(self.clusters, name=job_name)
@@ -146,15 +157,18 @@ class g5k_provisioner(cloud_provisioning):
         self.hosts = list()
 
         for oar_job_id, site in self.oar_result:
-            logger.info('Waiting for the reserved nodes of %s on %s to be up' % (oar_job_id, site))
+            logger.info(
+                'Waiting for the reserved nodes of %s on %s to be up' % (oar_job_id, site))
             if not wait_oar_job_start(oar_job_id, site):
-                logger.error('The reserved resources cannot be used.\nThe program is terminated.')
+                logger.error(
+                    'The reserved resources cannot be used.\nThe program is terminated.')
                 exit()
 
         for oar_job_id, site in self.oar_result:
             logger.info('Retrieving resource of %s on %s' % (oar_job_id, site))
             logger.debug('Retrieving hosts')
-            hosts = [host.address for host in get_oar_job_nodes(oar_job_id, site)]
+            hosts = [host.address for host in get_oar_job_nodes(
+                oar_job_id, site)]
 
             logger.debug('Retrieving subnet')
             ip_mac, _ = get_oar_job_subnets(oar_job_id, site)
@@ -179,17 +193,20 @@ class g5k_provisioner(cloud_provisioning):
         # if the provisioner has oar_job_ids and no config_file_path
         # then the configs variable is not created
         if not hasattr(self, 'configs'):
-            logger.info('The list of %s hosts: \n%s', len(self.hosts), hosts_list(self.hosts, separator='\n'))
+            logger.info('The list of %s hosts: \n%s', len(
+                self.hosts), hosts_list(self.hosts, separator='\n'))
             return
 
-        logger.info('Deploying %s hosts \n%s', len(self.hosts), hosts_list(self.hosts, separator='\n'))
+        logger.info('Deploying %s hosts \n%s', len(self.hosts),
+                    hosts_list(self.hosts, separator='\n'))
         try:
             deployment = Deployment(hosts=[Host(canonical_host_name(host))
                                            for host in self.hosts],
                                     env_file=self.configs['custom_image'],
                                     env_name=self.configs['cloud_provider_image'])
         except ValueError:
-            logger.error("Please put in the config file either custom_image or cloud_provider_image.")
+            logger.error(
+                "Please put in the config file either custom_image or cloud_provider_image.")
             exit()
         # user=self.env_user,
         # vlan=self.kavlan)
@@ -217,7 +234,8 @@ class g5k_provisioner(cloud_provisioning):
         #         undeployed_hosts[i] = get_kavlan_host_name(host, self.kavlan)
         logger.info('Deployed %s hosts successfully', len(deployed_hosts))
         cr = '\n' if len(undeployed_hosts) > 0 else ''
-        logger.info('Failed %s hosts %s%s', len(undeployed_hosts), cr, hosts_list(undeployed_hosts))
+        logger.info('Failed %s hosts %s%s', len(undeployed_hosts),
+                    cr, hosts_list(undeployed_hosts))
         return deployed_hosts, undeployed_hosts
 
     def _configure_ssh(self):
@@ -237,7 +255,8 @@ class g5k_provisioner(cloud_provisioning):
 
     def setup_hosts(self):
 
-        n_nodes = sum([len(resource['hosts']) for site, resource in self.resources.items()])
+        n_nodes = sum([len(resource['hosts'])
+                       for site, resource in self.resources.items()])
         logger.info('Starting setup on %s hosts' % n_nodes)
 
         self._launch_kadeploy()

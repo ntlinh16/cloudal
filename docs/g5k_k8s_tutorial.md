@@ -120,7 +120,7 @@ First, edit the provision config file in `cloudal/examples/provision/provisionin
 
 Then, run the following command to create a Kubernetes:
 ```
-cd cloudal/examples/configuration/
+cd cloudal/examples/configuration/antidote/
 python config_antidotedb_cluster_g5k.py --system_config_file provisioning_config_g5k.yaml -k --antidote_yaml_dir antidotedb_yaml_g5k/ 
 ```
 

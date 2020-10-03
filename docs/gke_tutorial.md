@@ -48,7 +48,7 @@ First, you still have to describe your GKE authentication information and your c
 
 Then, run the following command:
 ```
-cd cloudal/examples/configuration/
+cd cloudal/examples/configuration/antidote/
 python config_antidotedb_cluster_env_gke.py --system_config_file provisioning_config_gke.yaml --antidote_yaml_dir antidotedb_yaml_gce/ 
 ```
 

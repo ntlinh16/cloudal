@@ -58,7 +58,7 @@ First, you still need to describe your infrastructure in  `provisioning_config_g
 
 Then, run the following command:
 ```
-cd cloudal/examples/configuration/
+cd cloudal/examples/configuration/antidote/
 python config_antidotedb_env_gcp.py --system_config_file provisioning_config_gcp.yaml -k
 ```
 

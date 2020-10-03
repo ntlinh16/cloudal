@@ -4,11 +4,11 @@ from datetime import datetime
 from time import sleep
 from threading import Lock, Thread
 
-import cloudal.experimenting.exp_g5k_utils as g5k_utils
+import cloudal.experimenter.exp_g5k_utils as g5k_utils
 from cloudal.action import performing_actions
 from cloudal.utils import parse_config_file, get_logger, execute_cmd
-from cloudal.provisioning.g5k_provisioner import g5k_provisioner
-from cloudal.configuring.docker_configurator import docker_configurator
+from cloudal.provisioner import g5k_provisioner
+from cloudal.configurator import docker_configurator
 
 from execo_engine import slugify
 from execo_g5k import oardel
@@ -70,7 +70,8 @@ class DockerBootTime_Measurement(performing_actions):
             'iteration': range(1, self.settings['parameters']['iteration'] + 1)
         }
         if self.settings['exp_env']['bandwidth']:
-            self.parameters['bandwidths'] = range(1, self.settings['exp_env']['bandwidth'] + 1, 1)
+            self.parameters['bandwidths'] = range(
+                1, self.settings['exp_env']['bandwidth'] + 1, 1)
 
         return self.parameters
 
@@ -118,9 +119,11 @@ class DockerBootTime_Measurement(performing_actions):
         logger.info('Setting from ceph master')
         for host in self.hosts:
             cmd = '''ceph-deploy install %s''' % (host)
-            error_hosts = execute_cmd(cmd, [self.settings['exp_env']['ceph_master']])
+            error_hosts = execute_cmd(
+                cmd, [self.settings['exp_env']['ceph_master']])
             cmd = '''ceph-deploy admin %s''' % (host)
-            error_hosts = execute_cmd(cmd, [self.settings['exp_env']['ceph_master']])
+            error_hosts = execute_cmd(
+                cmd, [self.settings['exp_env']['ceph_master']])
         logger.info('Setting from ceph master ... DONE')
 
         logger.info('Create volume for docker root file on ceph master')
@@ -170,7 +173,8 @@ class DockerBootTime_Measurement(performing_actions):
             retries = self.options.number_of_retries
             while retries > 0:
                 is_error = False
-                error_vms, get_boottime = execute_cmd(cmd, [vm['ip'] for vm in vms], get_run_result=True)
+                error_vms, get_boottime = execute_cmd(
+                    cmd, [vm['ip'] for vm in vms], get_run_result=True)
                 for p in get_boottime.processes:
                     if p.error or 'copied' not in p.stderr:
                         is_error = True
@@ -178,7 +182,8 @@ class DockerBootTime_Measurement(performing_actions):
                     speed, unit = p.stderr.strip().split(' s, ')[1].split(' ')
                     unit = unit.replace('\n', '')
                     if speed:
-                        disk_speeds[p.host.address].append({'speed': speed, 'unit': unit})
+                        disk_speeds[p.host.address].append(
+                            {'speed': speed, 'unit': unit})
                 if is_error:
                     logger.info('Retrying [#%s] because there is error in Taktuk on disk speed test\n' %
                                 (self.options.number_of_retries - retries + 1))
@@ -198,7 +203,8 @@ class DockerBootTime_Measurement(performing_actions):
             out_file_path = '/tmp/docker_root'
         else:
             out_file_path = '/tmp/'
-        hosts_speeds = self.get_disk_speed([{'ip': host} for host in hosts], out_file_path=out_file_path)
+        hosts_speeds = self.get_disk_speed(
+            [{'ip': host} for host in hosts], out_file_path=out_file_path)
         if not hosts_speeds:
             return {}
         for host, host_disk_speeds in hosts_speeds.iteritems():
@@ -208,7 +214,8 @@ class DockerBootTime_Measurement(performing_actions):
             host_speeds = []
             host_units = []
             for index, each in enumerate(host_disk_speeds):
-                logger.info('Speed #%s: %s (%s)' % (host, index, each['speed'], each['unit']))
+                logger.info('Speed #%s: %s (%s)' %
+                            (host, index, each['speed'], each['unit']))
                 host_speeds.append(float(each['speed']))
                 host_units.append(each['unit'].strip().lower())
             if len(host_speeds) > 0:
@@ -230,22 +237,29 @@ class DockerBootTime_Measurement(performing_actions):
         self.error_hosts = execute_cmd(cmd, self.hosts)
 
         # Remove all existed dockers on host
-        self.error_hosts = execute_cmd('''docker container rm $(docker ps -a -q)''', self.hosts)
+        self.error_hosts = execute_cmd(
+            '''docker container rm $(docker ps -a -q)''', self.hosts)
 
-        e_docker_image_name = self.settings['exp_env']['e_docker_image'].strip().split('/')[-1]
-        co_docker_image_name = self.settings['exp_env']['co_docker_image'].strip().split('/')[-1]
+        e_docker_image_name = self.settings['exp_env']['e_docker_image'].strip().split(
+            '/')[-1]
+        co_docker_image_name = self.settings['exp_env']['co_docker_image'].strip(
+        ).split('/')[-1]
 
         logger.info('Upload e_docker_image: %s' % e_docker_image_name)
-        self.remote_executor.get_fileput(self.hosts, [self.settings['exp_env']['e_docker_image']], remote_location='/tmp/').run()
+        self.remote_executor.get_fileput(self.hosts, [
+                                         self.settings['exp_env']['e_docker_image']], remote_location='/tmp/').run()
 
         logger.info('Upload co_docker_image: %s' % co_docker_image_name)
-        self.remote_executor.get_fileput(self.hosts, [self.settings['exp_env']['co_docker_image']], remote_location='/tmp/').run()
+        self.remote_executor.get_fileput(self.hosts, [
+                                         self.settings['exp_env']['co_docker_image']], remote_location='/tmp/').run()
 
         logger.info('Load e_docker_image: %s' % e_docker_image_name)
-        self.error_hosts = execute_cmd('docker load -i /tmp/%s' % e_docker_image_name, self.hosts)
+        self.error_hosts = execute_cmd(
+            'docker load -i /tmp/%s' % e_docker_image_name, self.hosts)
 
         logger.info('Load co_docker_image: %s' % co_docker_image_name)
-        self.error_hosts = execute_cmd('docker load -i /tmp/%s' % co_docker_image_name, self.hosts)
+        self.error_hosts = execute_cmd(
+            'docker load -i /tmp/%s' % co_docker_image_name, self.hosts)
 
         logger.info('Load images finished')
 
@@ -358,10 +372,12 @@ class DockerBootTime_Measurement(performing_actions):
 
     def stress_network(self, co_containers, host):
         """ """
-        self.network_ports = ['%s' % i for i in range(5000, 5000 + len(co_containers))]
+        self.network_ports = ['%s' % i for i in range(
+            5000, 5000 + len(co_containers))]
         logger.info('Stress Network containers on %s' % co_containers)
         cmd = ';'.join(['''(docker run --cpuset-cpus="%s" --name %s stress_img iperf3 -c %s -t 3600 -P 1 -b 1G -R -p %s &)''' %
-                        (index + 1, container['id'], self.options.ip, self.network_ports[index])
+                        (index + 1, container['id'],
+                         self.options.ip, self.network_ports[index])
                         for index, container in enumerate(co_containers)])
         logger.info('Run command:\n%s' % cmd)
         execute_cmd(cmd, host, mode='start')
@@ -370,8 +386,10 @@ class DockerBootTime_Measurement(performing_actions):
 
     def limit_network_host(self, host, bandwidth):
         """Prepare a benchmark command with stress tool"""
-        logger.info('Running Network Stress with bandwidth %s on the following host: %s' % (bandwidth, host))
-        execute_cmd('''iperf3 -c %s -t 3600 -P 1 -b %sG -R''' % (self.options.ip, bandwidth), host, mode='start')
+        logger.info('Running Network Stress with bandwidth %s on the following host: %s' % (
+            bandwidth, host))
+        execute_cmd('''iperf3 -c %s -t 3600 -P 1 -b %sG -R''' %
+                    (self.options.ip, bandwidth), host, mode='start')
 
     # TODO: add retry
     def save_results(self, **kwargs):
@@ -390,8 +408,10 @@ class DockerBootTime_Measurement(performing_actions):
 
         if self.settings['exp_env']['monitor']:
             logger.info('Saving the monitor results')
-            self.remote_executor.get_fileget(host, ['/root/vmstat.txt'], comb_dir).run()
-            self.remote_executor.get_fileget(host, ['/root/iostat.txt'], comb_dir).run()
+            self.remote_executor.get_fileget(
+                host, ['/root/vmstat.txt'], comb_dir).run()
+            self.remote_executor.get_fileget(
+                host, ['/root/iostat.txt'], comb_dir).run()
 
         if self.settings['exp_env']['get_host_diskspeed']:
             logger.info('Saving host disk speed result')
@@ -459,8 +479,10 @@ class DockerBootTime_Measurement(performing_actions):
             for p in run.processes:
                 # logger.info('RUN RESULT of %s - stdout: %s' % (c['id'], p.stdout.strip()))
                 start, end = p.stdout.strip().split('\n')
-                start = datetime.strptime(start.strip()[:-4], '%Y-%m-%dT%H:%M:%S.%f')
-                end = datetime.strptime(end.strip()[:-4], '%Y-%m-%dT%H:%M:%S.%f')
+                start = datetime.strptime(
+                    start.strip()[:-4], '%Y-%m-%dT%H:%M:%S.%f')
+                end = datetime.strptime(
+                    end.strip()[:-4], '%Y-%m-%dT%H:%M:%S.%f')
                 boot_duration[c['id']] = (end - start).total_seconds()
                 break
         logger.info('Boot result: %s' % boot_duration)
@@ -477,9 +499,11 @@ class DockerBootTime_Measurement(performing_actions):
         # TODO: fix 21- count
         count = 20
         while count > 0:
-            logger.info('Destroying all containers ... try attempt #%s' % (21 - count))
+            logger.info(
+                'Destroying all containers ... try attempt #%s' % (21 - count))
             execute_cmd('''docker rm $(docker ps -a -q)''', host)
-            error_host, run = execute_cmd('''docker ps -a -q | wc -l''', host, get_run_result=True)
+            error_host, run = execute_cmd(
+                '''docker ps -a -q | wc -l''', host, get_run_result=True)
             for p in run.processes:
                 for line in p.stdout.strip():
                     try:
@@ -537,10 +561,13 @@ class DockerBootTime_Measurement(performing_actions):
 
         try:
             # containers variable has ids of all e-docker and co-docker containers
-            e_containers = [{'id': 'e-c-%s' % _} for _ in range(comb['n_dockers'])]
-            co_containers = [{'id': 'co-c-%s' % _} for _ in range(comb['n_co_dockers'])]
+            e_containers = [{'id': 'e-c-%s' % _}
+                            for _ in range(comb['n_dockers'])]
+            co_containers = [{'id': 'co-c-%s' % _}
+                             for _ in range(comb['n_co_dockers'])]
             # get container index for outputing ordered result
-            e_containers_index = {container['id']: str(index) for index, container in enumerate(e_containers)}
+            e_containers_index = {container['id']: str(
+                index) for index, container in enumerate(e_containers)}
 
             # run co-workloads
             if len(co_containers) > 0:
@@ -559,14 +586,18 @@ class DockerBootTime_Measurement(performing_actions):
             if comb.get('network_iperf', None):
                 logger.info('[%s] Trigger network injector on %s with bandwidth %s' %
                             (slugify(comb), host, comb['bandwidths']))
-                logger.info('Run network stress on HOST up to %sG bandwidths' % self.settings['exp_env']['bandwidth'])
-                self.limit_network_host(host, self.settings['exp_env']['bandwidth'])
-                logger.info('Sleep 15 seconds to wait for stress network to reach its maximum')
+                logger.info('Run network stress on HOST up to %sG bandwidths' %
+                            self.settings['exp_env']['bandwidth'])
+                self.limit_network_host(
+                    host, self.settings['exp_env']['bandwidth'])
+                logger.info(
+                    'Sleep 15 seconds to wait for stress network to reach its maximum')
                 sleep(15)
 
             # Clear cache on host
             if comb['co_workload'] != 'io':
-                logger.info('clear cache on host %s before booting containers' % host)
+                logger.info(
+                    'clear cache on host %s before booting containers' % host)
                 cmd = '''free && sync && echo 3 > /proc/sys/vm/drop_caches && free'''
                 execute_cmd(cmd, host)
 
@@ -602,7 +633,8 @@ class DockerBootTime_Measurement(performing_actions):
             # update the state of this combination
             self.sweeper.done(comb)
             logger.info('%s  has been done' % slugify(comb))
-            logger.info('-----> %s combinations remaining', len(self.sweeper.get_remaining()))
+            logger.info('-----> %s combinations remaining',
+                        len(self.sweeper.get_remaining()))
         except Exception as e:
             logger.error('Exception: %s' % e, exc_info=True)
             self.sweeper.cancel(comb)
@@ -667,7 +699,8 @@ class DockerBootTime_Measurement(performing_actions):
         host = self._get_available_host()
         host_name = host.split('.')[0]
         comb = self.sweeper.get_next()
-        t = Thread(target=self.workflow, args=(comb, host), name='thread-%s' % host_name)
+        t = Thread(target=self.workflow, args=(
+            comb, host), name='thread-%s' % host_name)
         t.daemon = True
         t.start()
 
@@ -676,7 +709,8 @@ class DockerBootTime_Measurement(performing_actions):
         self.settings = parse_config_file(self.args.exp_setting_file_path)
         # create all combinations for the experiment from the parameters
         self.define_parameters()
-        self.sweeper = g5k_utils.create_paramsweeper(self.parameters, self.result_dir)
+        self.sweeper = g5k_utils.create_paramsweeper(
+            self.parameters, self.result_dir)
         self.available_hosts = list()
         self.n_cores_hosts = dict()
         while len(self.sweeper.get_remaining()) > 0:
@@ -709,7 +743,8 @@ if __name__ == "__main__":
         logger.info("Start engine in %s" % __file__)
         engine.start()
     except Exception as e:
-        logger.error('Program is terminated by the following exception: %s' % e, exc_info=True)
+        logger.error(
+            'Program is terminated by the following exception: %s' % e, exc_info=True)
     except KeyboardInterrupt:
         logger.error('Program is terminated by keyboard interrupt.')
 

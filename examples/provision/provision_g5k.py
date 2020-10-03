@@ -2,7 +2,7 @@ import traceback
 
 from cloudal.utils import get_logger
 from cloudal.action import performing_actions_g5k
-from cloudal.provisioning.g5k_provisioner import g5k_provisioner
+from cloudal.provisioner import g5k_provisioner
 from execo_g5k import oardel
 
 logger = get_logger()
@@ -50,7 +50,8 @@ if __name__ == "__main__":
         logger.info("Start engine in %s" % __file__)
         engine.start()
     except Exception as e:
-        logger.error('Program is terminated by the following exception: %s' % e, exc_info=True)
+        logger.error(
+            'Program is terminated by the following exception: %s' % e, exc_info=True)
         traceback.print_exc()
     except KeyboardInterrupt:
         logger.info('Program is terminated by keyboard interrupt.')

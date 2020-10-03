@@ -10,7 +10,7 @@ from execo import Process, Local, Host, sleep
 logger = get_logger()
 
 
-class vm_debian_configuring(object):
+class vm_debian_configurator(object):
     """ This is a base class of host_configuring,
         and it can be used to config servers on different OS."""
 
@@ -86,7 +86,8 @@ class vm_debian_configuring(object):
         logger.info('Retrieving bridge on hosts %s' %
                     ", ".join([host for host in hosts]))
         cmd = "brctl show |grep -v 'bridge name' | awk '{ print $1 }' |head -1"
-        self.error_hosts, bridge_exists = execute_cmd(cmd, hosts, get_run_result=True)
+        self.error_hosts, bridge_exists = execute_cmd(
+            cmd, hosts, get_run_result=True)
         # bridge_exists.nolog_exit_code = True
         # bridge_exists.run()
         hosts_br = {}
@@ -109,12 +110,14 @@ class vm_debian_configuring(object):
                 nobr_hosts.append(host)
             elif br != name:
                 logger.info('Wrong bridge on host %s, destroying it' % host)
-                self.error_hosts = execute_cmd('ip link set ' + br + ' down ; brctl delbr ' + br, host)
+                self.error_hosts = execute_cmd(
+                    'ip link set ' + br + ' down ; brctl delbr ' + br, host)
                 nobr_hosts.append(host)
             else:
                 logger.info('Bridge %s is present on host %s' % 'name'), host
 
-        nobr_hosts = map(lambda x: x.address if isinstance(x, Host) else x, nobr_hosts)
+        nobr_hosts = map(lambda x: x.address if isinstance(
+            x, Host) else x, nobr_hosts)
 
         if len(nobr_hosts) > 0:
             logger.info('Creating bridge on %s' % nobr_hosts)
@@ -143,7 +146,8 @@ class vm_debian_configuring(object):
                 f.write(script)
 
             self.remote_executor.get_fileput(nobr_hosts, [br_script]).run()
-            self.error_hosts = execute_cmd('nohup sh ' + br_script.split('/')[-1], nobr_hosts)
+            self.error_hosts = execute_cmd(
+                'nohup sh ' + br_script.split('/')[-1], nobr_hosts)
 
             logger.info('Waiting for network restart')
             if_up = False
@@ -197,7 +201,8 @@ class vm_debian_configuring(object):
         self.error_hosts = execute_cmd('virsh net-destroy default; ' +
                                        'virsh net-undefine default',
                                        self.hosts)
-        put = self.remote_executor.get_fileput(self.hosts, [network_xml], remote_location='/root/')
+        put = self.remote_executor.get_fileput(
+            self.hosts, [network_xml], remote_location='/root/')
         self.error_hosts = execute_cmd(
             'virsh net-define /root/' +
             network_xml.split('/')[-1] + ' ; ' +
@@ -210,7 +215,7 @@ class vm_debian_configuring(object):
         """
         # Post configuration to load KVM
         self.error_hosts = execute_cmd('modprobe kvm; modprobe kvm-intel; modprobe kvm-amd ; ' +
-                    'chown root:kvm /dev/kvm ;', self.hosts)
+                                       'chown root:kvm /dev/kvm ;', self.hosts)
 
         print 'Starting configuring libvirt'
         self._enable_bridge()

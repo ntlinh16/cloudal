@@ -3,9 +3,9 @@ import traceback
 
 from cloudal.utils import get_logger, get_file
 from cloudal.action import performing_actions_g5k
-from cloudal.provisioning.g5k_provisioner import g5k_provisioner
-from cloudal.configuring.kubernetes_configurator import kubernetes_configurator
-from cloudal.configuring.docker_configurator import docker_configurator
+from cloudal.provisioner import g5k_provisioner
+from cloudal.configurator import kubernetes_configurator
+from cloudal.configurator import docker_configurator
 
 from kubernetes import config
 
@@ -23,7 +23,7 @@ class provision_g5k_k8s(performing_actions_g5k):
                                       out_of_chart=self.args.out_of_chart,
                                       oar_job_ids=self.args.oar_job_ids)
 
-        provisioner.make_reservation()
+        provisioner.make_reservation(job_name='k8s_cluster')
 
         """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
         return the resources which is a dict needed by g5k_provisioner """
@@ -39,7 +39,8 @@ class provision_g5k_k8s(performing_actions_g5k):
 
         if not os.path.exists(kube_dir):
             os.mkdir(kube_dir)
-        get_file(host=kube_master, remote_file_paths=['~/.kube/config'], local_dir=kube_dir)
+        get_file(host=kube_master, remote_file_paths=[
+                 '~/.kube/config'], local_dir=kube_dir)
         config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
         logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
@@ -73,7 +74,8 @@ if __name__ == "__main__":
         logger.info("Start engine in %s" % __file__)
         engine.start()
     except Exception as e:
-        logger.error('Program is terminated by the following exception: %s' % e, exc_info=True)
+        logger.error(
+            'Program is terminated by the following exception: %s' % e, exc_info=True)
         traceback.print_exc()
     except KeyboardInterrupt:
         logger.info('Program is terminated by keyboard interrupt.')

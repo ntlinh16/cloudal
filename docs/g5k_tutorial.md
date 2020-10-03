@@ -98,7 +98,7 @@ Then, run the configurator script to configure Docker container.
 1. If you already run Example 1, and you still have your resevation, you can quickly install Docker container on these nodes (without making a provisioning process again):
 
 ```
-cd cloudal/examples/configuration/
+cd cloudal/examples/configuration/docker/
 python config_docker_env_g5k.py -j nantes:<your_oar_job_id_on_nantes>,rennes:<your_oar_job_id_on_rennes>,grenoble:<your_oar_job_id_on_grenoble> -k 
 ```
 
@@ -106,7 +106,7 @@ This `config_docker_env_g5k.py` will install Docker on the provisioned nodes you
 
 2. If you do not have any running nodes on Grid5000, run the following command to provision and then configure nodes:
 ```
-cd cloudal/examples/configuration/
+cd cloudal/examples/configuration/docker/
 python config_docker_env_g5k.py --system_config_file provisioning_config_g5k.yaml -k
 ```
 
@@ -120,7 +120,7 @@ First, you still need to describe your infrastructure in `provisioning_config_g5
 
 Then, run the following command:
 ```
-cd cloudal/examples/configuration/
+cd cloudal/examples/configuration/antidote/
 python config_antidotedb_env_g5k.py --system_config_file provisioning_config_g5k.yaml -k
 ```
 

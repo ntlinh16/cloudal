@@ -4,8 +4,8 @@ from tempfile import NamedTemporaryFile
 
 from cloudal.utils import get_logger
 from cloudal.action import performing_actions
-from cloudal.provisioning.gke_provisioner import gke_provisioner
-from cloudal.configuring.antidotedb_cluster_on_k8scluster_configurator import antidotedb_configurator
+from cloudal.provisioner import gke_provisioner
+from cloudal.configurator import antidotedb_configurator
 
 from kubernetes import client
 
@@ -27,7 +27,8 @@ class config_antidotedb_cluster_gke(performing_actions):
 
     def provisioning(self):
         logger.info("Init provisioner: gke_provisioner")
-        provisioner = gke_provisioner(config_file_path=self.args.config_file_path)
+        provisioner = gke_provisioner(
+            config_file_path=self.args.config_file_path)
         provisioner.make_reservation()
         self.clusters = provisioner.clusters
         self.configs = provisioner.configs
@@ -56,7 +57,8 @@ class config_antidotedb_cluster_gke(performing_actions):
             kube_config = self._get_credential(cluster)
 
             logger.info("Init configurator: antidotedb_configurator")
-            configurator = antidotedb_configurator(kube_config=kube_config, path=self.args.yaml_path)
+            configurator = antidotedb_configurator(
+                kube_config=kube_config, path=self.args.yaml_path)
             configurator.deploy_antidotedb_cluster()
 
     def run(self):
@@ -77,7 +79,8 @@ if __name__ == "__main__":
         logger.info("Start engine in %s" % __file__)
         engine.start()
     except Exception as e:
-        logger.error('Program is terminated by the following exception: %s' % e, exc_info=True)
+        logger.error(
+            'Program is terminated by the following exception: %s' % e, exc_info=True)
         traceback.print_exc()
     except KeyboardInterrupt:
         logger.info('Program is terminated by keyboard interrupt.')
