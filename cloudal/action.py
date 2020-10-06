@@ -52,3 +52,7 @@ class performing_actions_g5k(performing_actions):
         self.args_parser.add_argument("--no-deploy-os", dest="no_deploy_os",
                                       help="specify not to deploy OS on reserved nodes",
                                       action="store_true")
+
+        self.args_parser.add_argument("-r", dest="is_reservation",
+                                      help="only make a reservation, no deploy hosts",
+                                      action="store_true")

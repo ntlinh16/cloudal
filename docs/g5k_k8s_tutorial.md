@@ -131,6 +131,8 @@ You might want to use `--help` to see all available options:
 ```
 usage: <program> [options] <arguments>
 
+engine: provision_g5k_k8s
+
 optional arguments:
   -h, --help            show this help message and exit
   -l LOG_LEVEL          log level (int or string). Default = inherit execo
@@ -151,4 +153,5 @@ optional arguments:
   -j OAR_JOB_IDS        the reserved oar_job_ids on grid5k. The format is
                         site1:oar_job_id1,site2:oar_job_id2,...
   --no-deploy-os        specify not to deploy OS on reserved nodes
+  -r                    only make a reservation, no deploy hosts
 ```

@@ -26,11 +26,15 @@ logger = get_logger()
 class g5k_provisioner(cloud_provisioning):
     """docstring for grid5k"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, job_name="cloudal", **kwargs):
         self.keep_alive = kwargs.get('keep_alive')
         self.out_of_chart = kwargs.get('out_of_chart')
         self.oar_job_ids = kwargs.get('oar_job_ids')
         self.config_file_path = kwargs.get('config_file_path')
+        self.configs = kwargs.get('configs')
+        self.is_reservation = kwargs.get('is_reservation')
+        self.no_deploy_os = kwargs.get('no_deploy_os')
+        self.job_name = job_name
 
         """self.oar_result containts the list of tuples (oar_job_id, site_name)
         that identifies the reservation on each site,
@@ -64,9 +68,11 @@ class g5k_provisioner(cloud_provisioning):
             logger.error(
                 "Please provide at least a provisioning config file or OAR job IDs.")
             exit()
-
-        super(g5k_provisioner, self).__init__(
-            config_file_path=self.config_file_path)
+        if not self.configs and isinstance(self.configs, dict):
+            logger.debug("Use configs insteads of config file")
+        else:
+            super(g5k_provisioner, self).__init__(
+                config_file_path=self.config_file_path)
         # parse clusters into correct format to be used in g5k
         self.clusters = {each['cluster']: each['n_nodes']
                          for each in self.configs['clusters']}
@@ -98,7 +104,7 @@ class g5k_provisioner(cloud_provisioning):
 
         return startdate
 
-    def make_reservation(self, job_name='cloudal'):
+    def make_reservation(self):
         """Perform a reservation of the required number of nodes.
         """
         if self.oar_result:
@@ -127,7 +133,7 @@ class g5k_provisioner(cloud_provisioning):
                     'What a pity! There is no slot which satisfies your request until %s :(' % format_date(endtime))
                 exit()
 
-        jobs_specs = get_jobs_specs(self.clusters, name=job_name)
+        jobs_specs = get_jobs_specs(self.clusters, name=self.job_name)
         for job_spec, site_name in jobs_specs:
             tmp = str(job_spec.resources).replace('\\', '')
             job_spec.resources = 'slash_22=4+' + tmp.replace('"', '')
@@ -261,3 +267,14 @@ class g5k_provisioner(cloud_provisioning):
 
         self._launch_kadeploy()
         # self._configure_ssh()
+
+    def provisioning(self):
+        self.make_reservation()
+
+        if not self.is_reservation:
+            self.get_resources()
+        else:
+            return
+
+        if not self.no_deploy_os:
+            self.setup_hosts()

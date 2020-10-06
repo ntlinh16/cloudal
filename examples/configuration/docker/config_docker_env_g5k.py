@@ -18,22 +18,6 @@ class config_docker_env_g5k(performing_actions_g5k):
     def __init__(self):
         super(config_docker_env_g5k, self).__init__()
 
-    def provisioning(self):
-        logger.info("Init provisioner: g5k_provisioner")
-        provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
-                                      keep_alive=self.args.keep_alive,
-                                      out_of_chart=self.args.out_of_chart,
-                                      oar_job_ids=self.args.oar_job_ids)
-        provisioner.make_reservation()
-
-        """Retrieve the hosts address list and (ip, mac) list from a list of oar_result and
-        return the resources which is a dict needed by g5k_provisioner """
-        provisioner.get_resources()
-        self.hosts = provisioner.hosts
-
-        if not self.args.no_deploy_os:
-            provisioner.setup_hosts()
-
     def config_host(self):
         logger.info("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
@@ -41,7 +25,16 @@ class config_docker_env_g5k(performing_actions_g5k):
 
     def run(self):
         logger.info("Starting provision nodes")
-        self.provisioning()
+        logger.info("Init provisioner: g5k_provisioner")
+        provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
+                                      keep_alive=self.args.keep_alive,
+                                      out_of_chart=self.args.out_of_chart,
+                                      oar_job_ids=self.args.oar_job_ids,
+                                      no_deploy_os=self.args.no_deploy_os,
+                                      is_reservation=self.args.is_reservation,
+                                      job_name="cloudal")
+        provisioner.provisioning()
+        self.hosts = provisioner.hosts
         logger.info("Provisioning nodes: DONE")
 
         logger.info("Starting configure Docker on nodes")
