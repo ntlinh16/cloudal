@@ -13,4 +13,7 @@ pyyaml
 # to add colors to log
 coloredlogs
 
+# add retrying
+tenacity
+
 
