@@ -1,4 +1,5 @@
 
+from execo import host
 from cloudal.utils import get_logger, execute_cmd, install_packages_on_debian
 
 
@@ -9,8 +10,9 @@ class kubernetes_configurator(object):
     """
     """
 
-    def __init__(self, hosts):
+    def __init__(self, hosts, kube_master=None):
         self.hosts = hosts
+        self.kube_master = kube_master
 
     def _install_kubeadm(self):
         logger.info('Installing kubeadm on all %s nodes' % len(self.hosts))
@@ -37,33 +39,37 @@ class kubernetes_configurator(object):
                 deb https://apt.kubernetes.io/ kubernetes-xenial main'''
         execute_cmd(cmd, self.hosts)
 
-        install_packages_on_debian(['kubelet', 'kubeadm', 'kubectl'], self.hosts)
+        install_packages_on_debian(
+            ['kubelet', 'kubeadm', 'kubectl'], self.hosts)
 
     def deploy_kubernetes_cluster(self):
         self._install_kubeadm()
-
-        kube_master = self.hosts[0]
-        kube_workers = self.hosts[1:]
+        if self.kube_master is None:
+            self.kube_master = self.hosts[0]
+            kube_workers = self.hosts[1:]
+        else:
+            kube_workers = [host for host in self.hosts if host != self.kube_master]
 
         logger.info('Initializing kubeadm on master')
         cmd = 'kubeadm init --pod-network-cidr=10.244.0.0/16'
-        execute_cmd(cmd, [kube_master])
+        execute_cmd(cmd, [self.kube_master])
 
         cmd = '''mkdir -p $HOME/.kube
                  cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
                  chown $(id -u):$(id -g) $HOME/.kube/config'''
-        execute_cmd(cmd, [kube_master])
+        execute_cmd(cmd, [self.kube_master])
 
         cmd = 'kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml'
-        execute_cmd(cmd, [kube_master])
+        execute_cmd(cmd, [self.kube_master])
 
         cmd = 'kubeadm token create --print-join-command'
-        _, result = execute_cmd(cmd, [kube_master])
+        _, result = execute_cmd(cmd, [self.kube_master])
 
         logger.debug('Adding %s kube workers' % len(kube_workers))
-        cmd = 'kubeadm join' + result.processes[0].stdout.split('kubeadm join')[-1]
+        cmd = 'kubeadm join' + \
+            result.processes[0].stdout.split('kubeadm join')[-1]
         execute_cmd(cmd.strip(), kube_workers)
 
         logger.info('Deploying Kubernetes cluster successfully')
 
-        return kube_master, kube_workers
+        return self.kube_master, kube_workers
