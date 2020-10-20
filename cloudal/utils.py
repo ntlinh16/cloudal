@@ -130,7 +130,7 @@ def chunk_list(input_list, n):
     stop=tenacity.stop_after_attempt(10),
     wait=tenacity.wait_random(1, 10),
 )
-def execute_cmd(cmd, hosts, mode='run', batch_size=10):
+def execute_cmd(cmd, hosts, mode='run', batch_size=5):
     """
     2 modes:
         run: start a process and wait until it ends
@@ -188,3 +188,43 @@ def get_file(remote_file_paths, host, local_dir, mode='run'):
         remote_executor.get_fileget(host, remote_file_paths, local_dir).run()
     elif mode == 'start':
         remote_executor.get_fileget(host, remote_file_paths, local_dir).start()
+
+
+def getput_file(hosts, file_paths, dest_location, action, mode='run', batch_size=5):
+    """Perform files copy between local and remote
+
+    Parameters
+    ----------
+    hosts: list of str
+        list of remote hosts to get/send files
+    file_paths: list of str
+        list of file paths to (1) the local files to send to remote hosts or (2) the remote files to get to local
+    dest_location: str
+        the path to the destination directory
+    action: str
+        a type of action to perform between local and remote, there are 2 actions:
+        - get: get file from remote dest_location to local
+        - put: send file from local to remote dest_location
+    mode: str
+        the mode of executing the file copy operation, there are 2 modes:
+        - run: start a process and wait until it ends
+        - start: start a process
+    batch_size: int
+        the list of hosts will be chunked into N chunks of size: batch_size before executing a command
+        as a workaround to the limitation of Grid5k for the number of concurrent ssh connection from local
+    """
+    remote_executor = get_remote_executor()
+    if isinstance(hosts, str):
+        hosts = [hosts]
+    result = list()
+    for chunk in chunk_list(hosts, batch_size):
+        act = None
+        if action == 'get':
+            act = remote_executor.get_fileget(chunk, file_paths, dest_location)
+        elif action == 'put':
+            act = remote_executor.get_fileput(chunk, file_paths, dest_location)
+        if act:
+            if mode == 'run':
+                result.append(act.run())
+            elif mode == 'start':
+                result.append(act.start())
