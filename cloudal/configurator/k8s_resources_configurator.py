@@ -11,23 +11,22 @@ from kubernetes.client.api_client import ApiClient
 logger = get_logger()
 
 
-class antidotedb_configurator(object):
+class k8s_resources_configurator(object):
     """
     """
 
-    def __init__(self, path, kube_config=None):
-        self.kube_config = kube_config
-        self.path = path
-
-    def deploy_antidotedb_cluster(self):
+    def deploy_k8s_resources(self, path, files, kube_config=None):
         if not self.kube_config:
             api_client = ApiClient(self.kube_config)
         else:
             api_client = ApiClient()
 
-        for file in os.listdir(self.path):
-            if not file.endswith('.yaml'):
-                continue
+        if path is not None:
+            files = list()
+            for file in os.listdir(path):
+                if file.endswith('.yaml'):
+                    files.append(file)
+        for file in files:
             logger.info('Deploying file %s' % file)
             try:
                 utils.create_from_yaml(k8s_client=api_client, yaml_file=os.path.join(self.path, file))
