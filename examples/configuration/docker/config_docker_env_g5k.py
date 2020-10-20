@@ -32,7 +32,7 @@ class config_docker_env_g5k(performing_actions_g5k):
                                       oar_job_ids=self.args.oar_job_ids,
                                       no_deploy_os=self.args.no_deploy_os,
                                       is_reservation=self.args.is_reservation,
-                                      job_name="cloudal")
+                                      job_name="cloudal_docker")
         provisioner.provisioning()
         self.hosts = provisioner.hosts
         logger.info("Provisioning nodes: DONE")
