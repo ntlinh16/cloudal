@@ -1,0 +1,66 @@
+---
+#########################
+#                       #
+#     Infrastructures   #
+#                       #
+#########################
+
+
+# the duration to keep the reserved nodes running
+walltime: 2:30:00
+
+# the time when you want the nodes to be started.
+# the date format is "YYYY-MM-DD HH:MM:SS"
+starttime: null
+
+# the OS image name (or environment name) that used to deploy OS on the reserved nodes on G5k system.
+# the list of possible OS images can be found at /https://www.grid5000.fr/w/Advanced_Kadeploy#Search_and_deploy_an_existing_environment
+cloud_provider_image: debian10-x64-big
+
+# the path to your custom image that used to deploy OS on the reserved nodes on G5k system.
+# follow this link to make your custom image: https://www.grid5000.fr/w/Advanced_Kadeploy#How_can_I_make_my_own_environment.3F
+custom_image: null
+
+# the name of the cluster and the number of nodes on each cluster that you want to make a reservation
+clusters:
+  - cluster: null
+    n_nodes: 0
+  - cluster: null
+    n_nodes: 0
+
+
+#################################
+#                               #
+#     Experiment Parameters     #
+#                               #
+#################################
+parameters:
+    # the number of repetition for each experiment
+    connection_pool_size: [30]
+    iteration: 0
+
+#############################################
+#                                           #
+#     Experiment Environment SEttings       #
+#                                           #
+#############################################
+exp_env:
+    # the path to th results directory
+    results_dir: /cloudal/examples/experiment/antidotedb/results
+    # the path to the kubernetes yaml files to deploy antidote cluster and FMKe benchmark
+    antidote_yaml_path: /cloudal/examples/experiment/antidotedb/config_files/antidotedb_yaml
+    fmke_yaml_path: /cloudal/examples/experiment/antidotedb/config_files/fmke_yaml
+
+    # the site that kube master node will be deployed in.
+    # if it is null, then the k8s master node will be deployed on the first site you specify in the file clusters below
+    kube_master_site: econome
+
+    # the sites that all the data centers will be deployed.
+    # each site has one data center
+    clusters: [dahu, nova, econome]
+
+    # each data center consists of 3 types of node.
+    # you should specify the number of each type of node per data center:
+    n_antidotedb_per_dc: 3
+    n_fmke_app_per_dc: 1
+    n_fmke_client_per_dc: 2

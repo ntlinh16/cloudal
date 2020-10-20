@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: fmke-client
+  name: stress-database-from-econome
+spec:
+  parallelism: 2
+  completions: 2
+  backoffLimit: 4
+  template:
+    spec:
+      containers:
+      - image: ntlinh/fmke_client:latest
+        imagePullPolicy: IfNotPresent
+        name: fmke-client
+        lifecycle:
+          postStart:
+            exec:
+              command: ["cp", "/cluster_node/fmke_client_econome.config", "/fmke_client/fmke_client.config"]
+        volumeMounts:
+        - mountPath: /cluster_node/
+          name: cluster-node
+        - mountPath: /results/
+          name: cluster-node-results
+      nodeSelector:
+        cluster_g5k: econome
+        service_g5k: fmke_client
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - hostPath:
+          path: /tmp/fmke_client
+        name: cluster-node
+      - hostPath:
+          path: /tmp/results
+        name: cluster-node-results
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 5
