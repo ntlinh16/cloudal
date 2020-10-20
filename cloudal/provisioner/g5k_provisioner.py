@@ -2,6 +2,8 @@ import sys
 import time
 import datetime
 
+from humanfriendly.terminal import message
+
 from cloudal.provisioner.provisioning import cloud_provisioning
 from cloudal.utils import get_remote_executor, get_logger
 
@@ -64,12 +66,12 @@ class g5k_provisioner(cloud_provisioning):
                     exit()
                 self.oar_result.append((int(oar_job_id), str(site_name)))
             return
+        elif self.configs and isinstance(self.configs, dict):
+            logger.debug("Use configs insteads of config file")
         elif self.config_file_path is None:
             logger.error(
                 "Please provide at least a provisioning config file or OAR job IDs.")
             exit()
-        if not self.configs and isinstance(self.configs, dict):
-            logger.debug("Use configs insteads of config file")
         else:
             super(g5k_provisioner, self).__init__(
                 config_file_path=self.config_file_path)
@@ -87,7 +89,6 @@ class g5k_provisioner(cloud_provisioning):
                                 endtime=endtime,
                                 out_of_chart=self.out_of_chart)
         slots = compute_slots(planning, self.configs['walltime'])
-
         startdate = None
         for slot in slots:
             is_enough_nodes = True
@@ -99,8 +100,7 @@ class g5k_provisioner(cloud_provisioning):
                 startdate = slot[0]
                 break
         if startdate is not None:
-            logger.info('A slot is found for your request at %s' %
-                        format_date(startdate))
+            logger.info('A slot is found for your request at %s' % format_date(startdate))
 
         return startdate
 
@@ -108,12 +108,20 @@ class g5k_provisioner(cloud_provisioning):
         """Perform a reservation of the required number of nodes.
         """
         if self.oar_result:
+            message = "Validated OAR_JOB_ID:"
+            for each in self.oar_result:
+                message += "\n%s: %s" % (each[1], each[0])
+            logger.info(message)
             return
+
+        message = 'You are requesting %s nodes:' % sum(self.clusters.values())
+        for cluster, n_nodes in self.clusters.items():
+            message += "\n%s: %s nodes" % (cluster, n_nodes)
+        logger.info(message)
 
         logger.info('Performing reservation')
         if 'starttime' not in self.configs or self.configs['starttime'] is None:
-            self.configs['starttime'] = int(
-                time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
+            self.configs['starttime'] = int(time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
 
         starttime = int(get_unixts(self.configs['starttime']))
         endtime = int(
@@ -164,14 +172,14 @@ class g5k_provisioner(cloud_provisioning):
 
         for oar_job_id, site in self.oar_result:
             logger.info(
-                'Waiting for the reserved nodes of %s on %s to be up' % (oar_job_id, site))
+                'Waiting for the reserved nodes on %s to be up' % site)
             if not wait_oar_job_start(oar_job_id, site):
                 logger.error(
                     'The reserved resources cannot be used.\nThe program is terminated.')
                 exit()
 
         for oar_job_id, site in self.oar_result:
-            logger.info('Retrieving resource of %s on %s' % (oar_job_id, site))
+            logger.info('Retrieving resource information on %s' % site)
             logger.debug('Retrieving hosts')
             hosts = [host.address for host in get_oar_job_nodes(
                 oar_job_id, site)]
@@ -191,7 +199,7 @@ class g5k_provisioner(cloud_provisioning):
         for site, resource in self.resources.items():
             self.hosts += resource['hosts']
 
-    def _launch_kadeploy(self, max_tries=1, check_deploy=True):
+    def _launch_kadeploy(self, max_tries=10, check_deploy=True):
         """Create a execo_g5k.Deployment object, launch the deployment and
         return a tuple (deployed_hosts, undeployed_hosts)
         """
@@ -242,6 +250,7 @@ class g5k_provisioner(cloud_provisioning):
         cr = '\n' if len(undeployed_hosts) > 0 else ''
         logger.info('Failed %s hosts %s%s', len(undeployed_hosts),
                     cr, hosts_list(undeployed_hosts))
+
         return deployed_hosts, undeployed_hosts
 
     def _configure_ssh(self):
