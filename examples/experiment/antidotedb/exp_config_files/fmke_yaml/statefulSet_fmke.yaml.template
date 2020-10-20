@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: fmke
+    type: fmke-deployment
+  name: fmke-econome
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fmke
+      type: instance
+  serviceName: fmke
+  template:
+    metadata:
+      labels:
+        app: fmke
+        type: instance
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: fmke
+      containers:
+      - env:
+        - name: DATABASE_ADDRESSES
+          value: 10.99.22.164
+        image: ntlinh/fmke:latest
+        imagePullPolicy: IfNotPresent
+        name: fmke
+        ports:
+        - containerPort: 9090
+          name: fmke-pb
+        startupProbe:
+          failureThreshold: 60
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: fmke-pb
+      nodeSelector:
+        cluster_g5k: econome
+        service_g5k: fmke
+      terminationGracePeriodSeconds: 10

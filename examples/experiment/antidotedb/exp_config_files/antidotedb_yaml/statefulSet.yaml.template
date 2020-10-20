@@ -19,6 +19,13 @@ spec:
         app: antidote
         type: instance
     spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: antidote
       containers:
       - env:
         - name: SHORT_NAME_PREFIX

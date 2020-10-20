@@ -4,10 +4,10 @@ metadata:
   labels:
     app: fmke
     type: fmke-deployment
-  name: fmke-econome
+  name: fmke-paravance
 spec:
   podManagementPolicy: Parallel
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: fmke
@@ -22,7 +22,7 @@ spec:
       containers:
       - env:
         - name: DATABASE_ADDRESSES
-          value: 10.99.22.164
+          value: 10.104.90.236
         image: ntlinh/fmke:latest
         imagePullPolicy: IfNotPresent
         name: fmke
@@ -36,6 +36,6 @@ spec:
           tcpSocket:
             port: fmke-pb
       nodeSelector:
-        cluster_g5k: econome
+        cluster_g5k: paravance
         service_g5k: fmke
       terminationGracePeriodSeconds: 10
