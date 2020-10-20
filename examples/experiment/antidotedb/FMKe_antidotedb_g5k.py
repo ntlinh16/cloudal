@@ -48,12 +48,14 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                     except OSError:
                         logger.debug("Error while deleting file")
 
-        logger.info('Create fmke_client folder on each Antidote DC')
-        remote_executor = get_remote_executor()
+        logger.debug('Create fmke_client folder on each Antidote DC')
+        cmd = """kubectl get nodes --selector="service_g5k=fmke_client" | tail -n +2 | awk '{print $1}'"""
+        _, r = execute_cmd(cmd, kube_master)
+        exp_nodes = r.processes[0].stdout.strip().split('\r\n')
         cmd = 'mkdir -p /tmp/fmke_client'
-        execute_cmd(cmd, self.hosts)
+        execute_cmd(cmd, exp_nodes)
 
-        logger.info('Create fmke_client config files for each Antidote DC')
+        logger.debug('Create fmke_client config files to stress database for each Antidote DC')
         file_path = os.path.join(fmke_client_k8s_dir, 'fmke_client.config.template')
         for cluster in self.configs['exp_env']['clusters']:
             fmke_IPs = list()
@@ -71,9 +73,9 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             with open(file_path2, 'w') as f:
                 f.write(doc)
             logger.debug('Upload fmke_client config files to kube_master to be used by kubectl to run fmke_client pods')
-            getput_file(hosts=self.hosts, file_paths=[file_path2], dest_location='/tmp/fmke_client/', action='put')
+            getput_file(hosts=exp_nodes, file_paths=[file_path2], dest_location='/tmp/fmke_client/', action='put')
 
-        logger.info('Create create_fmke_client files for each DC')
+        logger.debug('Create create_fmke_client.yaml files to run job stress for each Antidote DC')
         file_path = os.path.join(fmke_client_k8s_dir, 'create_fmke_client.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
@@ -96,15 +98,16 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         configurator = k8s_resources_configurator()
         configurator.deploy_k8s_resources(files=fmke_client_files)
 
-        logger.info("Stressing database")
+        logger.info("Stressing database .....")
         with open(os.path.join(fmke_client_k8s_dir, 'fmke_client.config.template')) as search:
             for line in search:
                 line = line.rstrip()  # remove '\n' at end of line
                 if "{duration" in line:
-                    timeout = line.split(',')[1].split('}')[0].strip()
+                    t = line.split(',')[1].split('}')[0].strip()
+        timeout = int(t) + 5
         cmd = 'kubectl wait --for=condition=complete job -l "app=fmke-client" --timeout=%sm' % timeout
         execute_cmd(cmd, kube_master)
-        logger.info("Finish stress database")
+        logger.info("Finish stressing Antidote database")
 
     def config_fmke(self, kube_master):
         logger.info('=================================')
@@ -119,12 +122,12 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 except OSError:
                     logger.debug("Error while deleting file")
 
-        logger.info('Create headless service file')
+        logger.debug('Create headless service file')
         file1 = os.path.join(fmke_k8s_dir, 'headlessService.yaml.template')
         file2 = os.path.join(fmke_k8s_dir, 'headlessService.yaml')
         shutil.copyfile(file1, file2)
 
-        logger.info('Create FMKe statefulSet files for each DC')
+        logger.debug('Create FMKe statefulSet files for each DC')
         file_path = os.path.join(fmke_k8s_dir, 'statefulSet_fmke.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
@@ -143,7 +146,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
 
-        logger.info("Starting FMKe service instances on each DC")
+        logger.info("Starting FMKe instances on each Antidote DC")
         logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
         configurator.deploy_k8s_resources(path=fmke_k8s_dir)
@@ -170,10 +173,11 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         logger.info("Populating the FMKe benchmark data ")
         configurator.deploy_k8s_resources(files=[os.path.join(fmke_k8s_dir, 'populate_data.yaml')])
 
-        logger.info('Waiting until finishing populating data')
-        cmd = 'kubectl wait --for=condition=complete job -l "app=fmke_pop" --timeout=600s'
+        logger.debug('Waiting until finishing populating data')
+        cmd = 'kubectl wait --for=condition=complete job -l "app=fmke_pop" --timeout=800s'
         execute_cmd(cmd, kube_master)
 
+        logger.debug('Modify the populate_data file to populate prescriptions')
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml.template')) as f:
             doc = yaml.safe_load(f)
         # TODO: give -d as a parameter
@@ -181,49 +185,20 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         doc['spec']['template']['spec']['containers'][0]['args'] = ['-f --onlyprescriptions -p 1'] + fmke_IPs
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml'), 'w') as f:
             yaml.safe_dump(doc, f)
-        logger.info("Populating the FMKe benchmark data ")
+
+        logger.info("Populating the FMKe benchmark data with prescriptions")
         configurator.deploy_k8s_resources(files=[os.path.join(fmke_k8s_dir, 'populate_data.yaml')])
 
-        logger.info('Waiting until finishing populating data')
-        cmd = 'kubectl wait --for=condition=complete job -l "app=fmke_pop" --timeout=600s'
+        logger.debug('Waiting until finishing populating data')
+        cmd = 'kubectl wait --for=condition=complete job -l "app=fmke_pop" --timeout=800s'
         execute_cmd(cmd, kube_master)
 
-    def set_label_kube_node(self, host, label, kube_master):
-        cmd = 'kubectl label node %s %s' % (host, label)
-        execute_cmd(cmd, kube_master)
-
-    def set_labels(self, kube_master):
-        clusters = dict()
-        kube_workers = [host for host in self.hosts if host != kube_master]
-        for host in kube_workers:
-            cluster = host.split('-')[0]
-            clusters[cluster] = [host] + clusters.get(cluster, list())
-            self.set_label_kube_node(host=host,
-                                     label='cluster_g5k=%s' % cluster,
-                                     kube_master=kube_master)
-
-        n_fmke_app_per_dc = self.configs['exp_env']['n_fmke_app_per_dc']
-        n_fmke_client_per_dc = self.configs['exp_env']['n_fmke_client_per_dc']
-        n_antidotedb_per_dc = self.configs['exp_env']['n_antidotedb_per_dc']
-
-        for cluster, list_of_hosts in clusters.items():
-            for n, service_name in [(n_antidotedb_per_dc, 'antidote'),
-                                    (n_fmke_app_per_dc, 'fmke'),
-                                    (n_fmke_client_per_dc, 'fmke_client')]:
-                for host in list_of_hosts[0: n]:
-                    self.set_label_kube_node(host=host,
-                                             label='service_g5k=%s' % service_name,
-                                             kube_master=kube_master)
-                list_of_hosts = list_of_hosts[n:]
+        logger.info('Finish deploying FMKe benchmark')
 
     def config_antidote(self, kube_master):
         logger.info('====================================')
-        logger.info('Starting deploying Antidote clusters')
+        logger.info('Starting deploying Antidote cluster')
         antidote_k8s_dir = self.configs['exp_env']['antidote_yaml_path']
-
-        # temp run
-        logger.info('Set labels for kuber workers')
-        self.set_labels(kube_master)
 
         # TODO: delete all antidote service on kube cluster if existed
 
@@ -259,14 +234,14 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 yaml.safe_dump(doc, f)
             statefulSet_files.append(file_path)
 
-        logger.info("Deploying AntidoteDB instance")
+        logger.info("Deploying AntidoteDB instances")
         configurator.deploy_k8s_resources(files=statefulSet_files)
 
         logger.info('Waiting until all antidote instances are up')
         cmd = 'kubectl wait --for=condition=Ready pod -l "app=antidote" --timeout=300s'
         execute_cmd(cmd, kube_master)
 
-        logger.info('Creating createDc.yaml file for each Antidote DC')
+        logger.debug('Creating createDc.yaml file for each Antidote DC')
         dcs = dict()
         for cluster in self.configs['exp_env']['clusters']:
             dcs[cluster] = list()
@@ -293,7 +268,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 yaml.safe_dump(doc, f)
             createdc_files.append(file_path)
 
-        logger.info('Creating exposer-service files')
+        logger.debug('Creating exposer-service.yaml files')
         file_path = os.path.join(antidote_k8s_dir, 'exposer-service.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
@@ -305,14 +280,14 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 yaml.safe_dump(doc, f)
                 createdc_files.append(file_path)
 
-        logger.info("Creating Antidote DCs and expose service")
+        logger.info("Creating Antidote DCs and exposing services")
         configurator.deploy_k8s_resources(files=createdc_files)
 
         logger.info('Waiting until all antidote DCs are created')
         cmd = 'kubectl wait --for=condition=complete job -l "app=antidote" --timeout=300s'
         execute_cmd(cmd, kube_master)
 
-        logger.info('Creating connectDCs_antidote.yaml to connect all Antidote DCs')
+        logger.debug('Creating connectDCs_antidote.yaml to connect all Antidote DCs')
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
@@ -321,13 +296,42 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         with open(file_path, 'w') as f:
             yaml.safe_dump(doc, f)
 
-        logger.info("Connecting Antidote cluster")
+        logger.info("Connecting all Antidote DCs into a cluster")
         configurator.deploy_k8s_resources(files=[file_path])
+
         logger.info('Waiting until connecting all Antidote DCs')
         cmd = 'kubectl wait --for=condition=complete job -l "app=antidote" --timeout=300s'
         execute_cmd(cmd, kube_master)
 
-        logger.info('Finish deploying Antidote clusters')
+        logger.info('Finish deploying the Antidote cluster')
+
+    def _set_label(self, host, label, kube_master):
+        cmd = 'kubectl label node %s %s' % (host, label)
+        execute_cmd(cmd, kube_master)
+
+    def _set_kube_workers_label(self, kube_master):
+        clusters = dict()
+        kube_workers = [host for host in self.hosts if host != kube_master]
+        for host in kube_workers:
+            cluster = host.split('-')[0]
+            clusters[cluster] = [host] + clusters.get(cluster, list())
+            self._set_label(host=host,
+                            label='cluster_g5k=%s' % cluster,
+                            kube_master=kube_master)
+
+        n_fmke_app_per_dc = self.configs['exp_env']['n_fmke_app_per_dc']
+        n_fmke_client_per_dc = self.configs['exp_env']['n_fmke_client_per_dc']
+        n_antidotedb_per_dc = self.configs['exp_env']['n_antidotedb_per_dc']
+
+        for cluster, list_of_hosts in clusters.items():
+            for n, service_name in [(n_antidotedb_per_dc, 'antidote'),
+                                    (n_fmke_app_per_dc, 'fmke'),
+                                    (n_fmke_client_per_dc, 'fmke_client')]:
+                for host in list_of_hosts[0: n]:
+                    self._set_label(host=host,
+                                    label='service_g5k=%s' % service_name,
+                                    kube_master=kube_master)
+                list_of_hosts = list_of_hosts[n:]
 
     def _setup_g5k_kube_volumes(self, kube_workers, n_pv=3):
         logger.info("Setting volumes on %s kubernetes workers" % len(kube_workers))
@@ -362,24 +366,31 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         logger.debug("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(hosts=self.hosts,
                                                kube_master=kube_master)
-        kube_master, kube_workers = configurator.deploy_kubernetes_cluster()
-        logger.info('Kubernetes master: %s' % kube_master)
+        configurator.deploy_kubernetes_cluster()
 
         self._get_credential(kube_master)
 
         self._setup_g5k_kube_volumes(kube_workers, n_pv=10)
 
-        logger.info("Finish deploying Kubernetes cluster")
+        logger.info('Set labels for kuber workers')
+        self._set_kube_workers_label(kube_master)
+
+        logger.info("Finish deploying the Kubernetes cluster")
 
     def config_host(self, kube_master):
         # # temp re-run
-        # self._get_credential(kube_master)
+        self._get_credential(kube_master)
 
-        self.config_kube(kube_master)
+        # self.config_kube(kube_master)
         self.config_antidote(kube_master)
         self.config_fmke(kube_master)
 
     def create_configs(self):
+        logger.debug('Get the kube master node')
+        kube_master_site = self.configs['exp_env']['kube_master_site']
+        if kube_master_site is None or kube_master_site not in self.configs['exp_env']['clusters']:
+            kube_master_site = self.configs['exp_env']['clusters'][0]
+
         n_nodes_per_cluster = (
             self.configs['exp_env']['n_fmke_client_per_dc'] +
             self.configs['exp_env']['n_fmke_app_per_dc'] +
@@ -387,17 +398,18 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
 
         clusters = list()
         for cluster in self.configs['exp_env']['clusters']:
-            if cluster == self.configs['exp_env']['kube_master_site']:
+            if cluster == kube_master_site:
                 clusters.append({'cluster': cluster, 'n_nodes': n_nodes_per_cluster + 1})
             else:
                 clusters.append({'cluster': cluster, 'n_nodes': n_nodes_per_cluster})
         self.configs['clusters'] = clusters
+        return kube_master_site
 
     def run(self):
         logger.info("STARTING PROVISIONING NODES")
         logger.debug('Parse and convert configs for G5K provisioner')
         self.configs = parse_config_file(self.args.config_file_path)
-        self.create_configs()
+        kube_master_site = self.create_configs()
 
         logger.info("Init provisioner: g5k_provisioner")
         provisioner = g5k_provisioner(configs=self.configs,
@@ -414,17 +426,14 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
 
         logger.info("STARTING CONFIGURING THE EXPERIMENT ENVIRONMENT")
         # temp run
-        logger.debug('Get the kube master node')
-        kube_master_site = self.configs['exp_env']['kube_master_site']
-        if kube_master_site is None or kube_master_site not in self.configs['exp_env']['clusters']:
-            kube_master_site = self.configs['exp_env']['clusters'][0]
-        kube_master = None
-        for host in self.hosts:
-            if host.startswith(kube_master_site):
-                kube_master = host
-                break
+        # kube_master = None
+        # for host in self.hosts:
+        #     if host.startswith(kube_master_site):
+        #         kube_master = host
+        #         break
         # # temp re-run
-        # kube_master = 'econome-9.nantes.grid5000.fr'
+        kube_master = 'paravance-60.rennes.grid5000.fr'
+        logger.info('Kubernetes master: %s' % kube_master)
         self.config_host(kube_master)
         logger.info("FINISH CONFIGURING THE EXPERIMENT ENVIRONMENT\n")
 
