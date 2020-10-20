@@ -7,7 +7,6 @@ from kubernetes import utils
 from kubernetes.utils import FailToCreateError
 from kubernetes.client.api_client import ApiClient
 
-
 logger = get_logger()
 
 
@@ -15,9 +14,9 @@ class k8s_resources_configurator(object):
     """
     """
 
-    def deploy_k8s_resources(self, path, files, kube_config=None):
-        if not self.kube_config:
-            api_client = ApiClient(self.kube_config)
+    def deploy_k8s_resources(self, path=None, files=None, kube_config=None):
+        if not kube_config:
+            api_client = ApiClient(kube_config)
         else:
             api_client = ApiClient()
 
@@ -29,7 +28,7 @@ class k8s_resources_configurator(object):
         for file in files:
             logger.info('Deploying file %s' % file)
             try:
-                utils.create_from_yaml(k8s_client=api_client, yaml_file=os.path.join(self.path, file))
+                utils.create_from_yaml(k8s_client=api_client, yaml_file=os.path.join(path, file))
                 logger.debug('Deploy file %s successfully' % file)
             except FailToCreateError as e:
                 for api_exception in e.api_exceptions:
