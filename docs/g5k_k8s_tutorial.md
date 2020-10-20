@@ -104,7 +104,7 @@ First, edit the provision config file in `cloudal/examples/provision/provisionin
 Then, run the following command to create a Kubernetes:
 ```
 cd cloudal/examples/provision/
-python provision_g5k_k8s.py --system_config_file provisioning_config_g5k.yaml -k
+python provision_g5k_k8s.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml -k
 ```
 
 This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS enviroments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install and setup kubernetes on these nodes to create a Kubernetes cluster
@@ -121,7 +121,7 @@ First, edit the provision config file in `cloudal/examples/provision/provisionin
 Then, run the following command to create a Kubernetes:
 ```
 cd cloudal/examples/configuration/antidote/
-python config_antidotedb_cluster_g5k.py --system_config_file provisioning_config_g5k.yaml -k --antidote_yaml_dir antidotedb_yaml_g5k/ 
+python config_antidotedb_cluster_g5k.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml -k --antidote_yaml_dir antidotedb_yaml_g5k/ 
 ```
 
 This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resoures after finishing your testing.

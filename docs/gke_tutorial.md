@@ -34,7 +34,7 @@ First, edit the parameters in the provisioning config file `provisioning_config_
 Then, run the following command to perform the provisioning process on GKE:
 ```
 cd cloudal/examples/provision/
-python provision_gke.py --system_config_file provisioning_config_gke.yaml
+python provision_gke.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_gke.yaml
 ```
 
 The `provision_gke.py` script checks if the required clusters existed or not. If not, it creates clusters that is described in `provisioning_config_gke.yaml` file: cluter _test-1_ with 4 nodes in data center _europe-west3-a_, and cluter _test-2_ with 3 nodes in _us-central1-a_.
@@ -49,7 +49,7 @@ First, you still have to describe your GKE authentication information and your c
 Then, run the following command:
 ```
 cd cloudal/examples/configuration/antidote/
-python config_antidotedb_cluster_env_gke.py --system_config_file provisioning_config_gke.yaml --antidote_yaml_dir antidotedb_yaml_gce/ 
+python config_antidotedb_cluster_env_gke.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_gke.yaml --antidote_yaml_dir antidotedb_yaml_gce/ 
 ```
 
 This `config_antidotedb_env_gke.py` script creates all required clusters, then performs the necessary setup and deploy the AntidoteDB from given yaml files. These antidote deployment yaml files are stored in the `antidotedb_yaml` directory. You can also modify the `config_host()` function in this script to install and configure your custom applications.

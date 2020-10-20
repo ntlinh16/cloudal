@@ -41,7 +41,7 @@ First, edit the parameters in the provisioning config file `provisioning_config_
 Then, run the following command to perform the provisioning process on GCP:
 ```
 cd cloudal/examples/provision/
-python provision_gcp.py --system_config_file provisioning_config_gcp.yaml
+python provision_gcp.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_gcp.yaml
 ```
 
 The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 node on datacenter _us-central1-a_ with the type of node is _e2-standard-2_, and 2 _f1-micro_ nodes on _europe-west3-a_. These nodes are deployed with the given `cloud_provider_image`. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
@@ -59,7 +59,7 @@ First, you still need to describe your infrastructure in  `provisioning_config_g
 Then, run the following command:
 ```
 cd cloudal/examples/configuration/antidote/
-python config_antidotedb_env_gcp.py --system_config_file provisioning_config_gcp.yaml -k
+python config_antidotedb_env_gcp.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_gcp.yaml -k
 ```
 
 This `config_antidotedb_env_gcp.py` script makes a reservation for required nodes, then installs Docker on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.

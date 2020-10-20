@@ -78,7 +78,7 @@ First, edit the provision config file in `cloudal/examples/provision/provisionin
 Then, run the following command to perform the provisioning process:
 ```
 cd cloudal/examples/provision/
-python provision_g5k.py --system_config_file provisioning_config_g5k.yaml -k
+python provision_g5k.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml -k
 ```
 
 This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS enviroments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). 
@@ -107,7 +107,7 @@ This `config_docker_env_g5k.py` will install Docker on the provisioned nodes you
 2. If you do not have any running nodes on Grid5000, run the following command to provision and then configure nodes:
 ```
 cd cloudal/examples/configuration/docker/
-python config_docker_env_g5k.py --system_config_file provisioning_config_g5k.yaml -k
+python config_docker_env_g5k.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml -k
 ```
 
 In this case, the `config_docker_env_g5k.py` script makes a reservation for nodes then installs Docker container on them. You can modify the `config_host()` function in this script to install and configure your own necessary applications.
@@ -121,7 +121,7 @@ First, you still need to describe your infrastructure in `provisioning_config_g5
 Then, run the following command:
 ```
 cd cloudal/examples/configuration/antidote/
-python config_antidotedb_env_g5k.py --system_config_file provisioning_config_g5k.yaml -k
+python config_antidotedb_env_g5k.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml -k
 ```
 
 This `config_antidotedb_env_g5k.py` script makes a reservation for required nodes, then installs Docker container on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
@@ -135,7 +135,7 @@ First, edit the provision config file `provisioning_config_g5k.yaml` and the exp
 Then, run the following command to perform experiment:
 ```
 cd cloudal/examples/experiments/boottime/docker/
-python docker_boottime_g5k.py --system_config_file provisioning_config_g5k.yaml --exp_setting_file exp_setting_docker_boottime.yaml -c /path/to/your/result/dir -k
+python docker_boottime_g5k.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml --exp_setting_file exp_setting_docker_boottime.yaml -c /path/to/your/result/dir -k
 ```
 
 The `docker_boottime_g5k.py` script (i) makes a reservation for nodes base on descreibe in `provisioning_config_g5k.yaml`; then (ii) installs Docker contianer on provisioned nodes and (iii) measures Docker boot time with different scenarios (base on parameters in `exp_setting_docker_boottime.yaml`) and saves all the results in the indicated result directory.
