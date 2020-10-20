@@ -6,7 +6,7 @@ from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
 from cloudal.configurator import kubernetes_configurator
 from cloudal.configurator import docker_configurator
-from cloudal.configurator import antidotedb_configurator
+from cloudal.configurator import k8s_resources_configurator
 
 from kubernetes import config
 
@@ -61,9 +61,9 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
 
         self._setup_g5k_kube_volumes(kube_workers)
 
-        logger.info("Init configurator: antidotedb_configurator")
-        configurator = antidotedb_configurator(path=self.args.yaml_path)
-        configurator.deploy_antidotedb_cluster()
+        logger.info("Init configurator: k8s_resources_configurator")
+        configurator = k8s_resources_configurator()
+        configurator.deploy_k8s_resources(path=self.args.yaml_path)
 
     def run(self):
         logger.info("STARTING PROVISIONING NODES")
@@ -74,7 +74,7 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
                                       oar_job_ids=self.args.oar_job_ids,
                                       no_deploy_os=self.args.no_deploy_os,
                                       is_reservation=self.args.is_reservation,
-                                      job_name="cloudal")
+                                      job_name="cloudal_k8s")
         provisioner.provisioning()
         self.hosts = provisioner.hosts
         logger.info("FINISH PROVISIONING NODES")

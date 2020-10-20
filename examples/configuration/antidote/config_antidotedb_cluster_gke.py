@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 from cloudal.utils import get_logger
 from cloudal.action import performing_actions
 from cloudal.provisioner import gke_provisioner
-from cloudal.configurator import antidotedb_configurator
+from cloudal.configurator import k8s_resources_configurator
 
 from kubernetes import client
 
@@ -56,10 +56,9 @@ class config_antidotedb_cluster_gke(performing_actions):
             logger.info('Deploying AntidoteDB on cluster %s' % cluster.name)
             kube_config = self._get_credential(cluster)
 
-            logger.info("Init configurator: antidotedb_configurator")
-            configurator = antidotedb_configurator(
-                kube_config=kube_config, path=self.args.yaml_path)
-            configurator.deploy_antidotedb_cluster()
+            logger.info("Init configurator: k8s_resources_configurator")
+            configurator = k8s_resources_configurator()
+            configurator.deploy_k8s_resources(kube_config=kube_config, path=self.args.yaml_path)
 
     def run(self):
         logger.info("Starting create Kubernetes clusters")
