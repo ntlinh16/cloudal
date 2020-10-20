@@ -1,4 +1,4 @@
-from .antidotedb_cluster_on_k8scluster_configurator import antidotedb_configurator
+from .k8s_resources_configurator import k8s_resources_configurator
 from .docker_configurator import docker_configurator
 from .kubernetes_configurator import kubernetes_configurator
 from .vm_debian10_configuring import vm_debian_configurator
