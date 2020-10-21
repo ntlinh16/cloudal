@@ -9,10 +9,13 @@ spec:
   completions: 2
   backoffLimit: 4
   template:
+    metadata:
+      labels:
+        app: fmke-client
     spec:
       topologySpreadConstraints:
       - maxSkew: 1
-        topologyKey: hostname
+        topologyKey: kubernetes.io/hostname
         whenUnsatisfiable: DoNotSchedule
         labelSelector:
           matchLabels:
