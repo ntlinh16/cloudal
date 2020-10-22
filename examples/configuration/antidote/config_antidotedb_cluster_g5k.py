@@ -8,6 +8,8 @@ from cloudal.configurator import kubernetes_configurator
 from cloudal.configurator import docker_configurator
 from cloudal.configurator import k8s_resources_configurator
 
+from execo_g5k import oardel
+
 from kubernetes import config
 
 logger = get_logger()
@@ -97,3 +99,10 @@ if __name__ == "__main__":
         traceback.print_exc()
     except KeyboardInterrupt:
         logger.info('Program is terminated by keyboard interrupt.')
+
+    if not engine.args.keep_alive:
+        logger.info('Deleting reservation')
+        oardel(engine.provisioner.oar_result)
+        logger.info('Reservation deleted')
+    else:
+        logger.info('Reserved nodes are kept alive for inspection purpose.')
