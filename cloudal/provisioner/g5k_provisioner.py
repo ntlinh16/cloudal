@@ -56,13 +56,10 @@ class g5k_provisioner(cloud_provisioning):
                 site_name, oar_job_id = each.split(':')
                 oar_job_id = int(oar_job_id)
                 # check validity of oar_job_id
-                job_info = get_oar_job_info(
-                    oar_job_id=oar_job_id, frontend=site_name)
+                job_info = get_oar_job_info(oar_job_id=oar_job_id, frontend=site_name)
                 if job_info is None or len(job_info) == 0:
-                    logger.error("Job id: %s in %s is not a valid Grid5000 oar job id" %
-                                 (oar_job_id, site_name))
-                    logger.error(
-                        "Please rerun the script with a correct oar job id")
+                    logger.error("Job id: %s in %s is not a valid Grid5000 oar_job_id" % (oar_job_id, site_name))
+                    logger.error("Please rerun the script with a correct oar_job_id")
                     exit()
                 self.oar_result.append((int(oar_job_id), str(site_name)))
             return
@@ -70,11 +67,10 @@ class g5k_provisioner(cloud_provisioning):
             logger.debug("Use configs insteads of config file")
         elif self.config_file_path is None:
             logger.error(
-                "Please provide at least a provisioning config file or OAR job IDs.")
+                "Please provide at least a provisioning config file or oar_job_id.")
             exit()
         else:
-            super(g5k_provisioner, self).__init__(
-                config_file_path=self.config_file_path)
+            super(g5k_provisioner, self).__init__(config_file_path=self.config_file_path)
         # parse clusters into correct format to be used in g5k
         self.clusters = {each['cluster']: each['n_nodes']
                          for each in self.configs['clusters']}
@@ -109,17 +105,24 @@ class g5k_provisioner(cloud_provisioning):
         """
         if self.oar_result:
             message = "Validated OAR_JOB_ID:"
-            for each in self.oar_result:
-                message += "\n%s: %s" % (each[1], each[0])
+            for job_id, site in self.oar_result:
+                message += "\n%s: %s" % (site, job_id)
+            logger.info(message)
+            message = "The list of hosts:"
+            for job_id, site in self.oar_result:
+                hosts = get_oar_job_nodes(oar_job_id=job_id, frontend=site)
+                message += "\n--- %s: %s nodes ---" % (site, len(hosts))
+                for host in hosts:
+                    message += "\n%s" % (host.address)
             logger.info(message)
             return
 
-        message = 'You are requesting %s nodes:' % sum(self.clusters.values())
+        message = 'You are requesting %s nodes for %s:' % (sum(self.clusters.values()), self.configs['walltime'])
         for cluster, n_nodes in self.clusters.items():
             message += "\n%s: %s nodes" % (cluster, n_nodes)
         logger.info(message)
 
-        logger.info('Performing reservation')
+        logger.info('Performing reservation .......')
         if 'starttime' not in self.configs or self.configs['starttime'] is None:
             self.configs['starttime'] = int(time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
 

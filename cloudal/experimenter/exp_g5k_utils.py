@@ -2,10 +2,7 @@ import os
 
 from cloudal.utils import get_logger
 
-from execo_engine import (
-    utils,
-    sweep, ParamSweeper
-)
+from execo_engine import utils, sweep, ParamSweeper
 from execo_g5k import get_host_attributes
 
 
@@ -66,7 +63,7 @@ def create_paramsweeper(parameters, result_dir):
         an instance of the `ParamSweeper` object.
     """
 
-    logger.debug(parameters)
+    logger.debug('Parameters:\n%s' % parameters)
     sweeps = sweep(parameters)
     logger.info('-----> TOTAL COMBINATIONS: %s', len(sweeps))
     return ParamSweeper(os.path.join(result_dir, "sweeps"), sweeps)
@@ -96,7 +93,7 @@ def create_combination_dir(comb, result_dir):
     if not os.path.exists(comb_dir):
         os.mkdir(comb_dir)
     else:
-        logger.warning('old result already existed, removing it')
+        logger.warning('%s already exists, removing existing files' % comb_dir)
         for f in os.listdir(comb_dir):
             try:
                 os.remove(os.path.join(comb_dir, f))
