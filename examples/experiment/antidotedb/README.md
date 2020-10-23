@@ -47,7 +47,7 @@ python cloudal/examples/experiment/antidotedb/antidotedb_fmke_g5k.py --system_co
 
 ### 3. Results of the experiments
 
-A figure of the results of this experiment can be found at [here]()
+A figure of the results of this experiment can be found at [here](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/results)
 
 
 ## Image used in the experiments
