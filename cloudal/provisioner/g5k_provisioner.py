@@ -17,12 +17,13 @@ from execo_g5k import (
 from execo_g5k.planning import get_planning, compute_slots, get_jobs_specs
 from execo_g5k.utils import hosts_list
 from execo_g5k.api_utils import canonical_host_name
-from execo_g5k.oar import get_oar_job_info
+from execo_g5k.oar import get_oar_job_info, oardel
 
 
 logger = get_logger()
 
 # default_connection_params['user'] = 'root'
+MAX_RETRY_DEPLOY = 10
 
 
 class g5k_provisioner(cloud_provisioning):
@@ -37,6 +38,8 @@ class g5k_provisioner(cloud_provisioning):
         self.is_reservation = kwargs.get('is_reservation')
         self.no_deploy_os = kwargs.get('no_deploy_os')
         self.job_name = job_name
+
+        self.max_deploy = MAX_RETRY_DEPLOY
 
         """self.oar_result containts the list of tuples (oar_job_id, site_name)
         that identifies the reservation on each site,
@@ -174,11 +177,9 @@ class g5k_provisioner(cloud_provisioning):
         self.hosts = list()
 
         for oar_job_id, site in self.oar_result:
-            logger.info(
-                'Waiting for the reserved nodes on %s to be up' % site)
+            logger.info('Waiting for the reserved nodes on %s to be up' % site)
             if not wait_oar_job_start(oar_job_id, site):
-                logger.error(
-                    'The reserved resources cannot be used.\nThe program is terminated.')
+                logger.error('The reserved resources cannot be used.\nThe program is terminated.')
                 exit()
 
         for oar_job_id, site in self.oar_result:
@@ -236,6 +237,8 @@ class g5k_provisioner(cloud_provisioning):
             stdout = None
             stderr = None
 
+        # deploy() function will iterate through each frontend to run kadeploy
+        # so that the deployment hosts will be performed squentially site after site
         deployed_hosts, undeployed_hosts = deploy(deployment,
                                                   stdout_handlers=stdout,
                                                   stderr_handlers=stderr,
@@ -251,8 +254,7 @@ class g5k_provisioner(cloud_provisioning):
         #         undeployed_hosts[i] = get_kavlan_host_name(host, self.kavlan)
         logger.info('Deployed %s hosts successfully', len(deployed_hosts))
         cr = '\n' if len(undeployed_hosts) > 0 else ''
-        logger.info('Failed %s hosts %s%s', len(undeployed_hosts),
-                    cr, hosts_list(undeployed_hosts))
+        logger.info('Failed %s hosts %s%s', len(undeployed_hosts), cr, hosts_list(undeployed_hosts))
 
         return deployed_hosts, undeployed_hosts
 
@@ -271,22 +273,31 @@ class g5k_provisioner(cloud_provisioning):
                                                    self.hosts,
                                                    connection_params={'taktuk_options': taktuk_conf}).run()
 
-    def setup_hosts(self):
-
-        n_nodes = sum([len(resource['hosts'])
-                       for site, resource in self.resources.items()])
-        logger.info('Starting setup on %s hosts' % n_nodes)
-
-        self._launch_kadeploy()
-        # self._configure_ssh()
-
     def provisioning(self):
         self.make_reservation()
 
+        # skip waiting for resources to be up in case of making reservations for the future
         if not self.is_reservation:
             self.get_resources()
         else:
-            return
+            exit()
 
         if not self.no_deploy_os:
-            self.setup_hosts()
+            n_nodes = sum([len(resource['hosts']) for site, resource in self.resources.items()])
+            logger.info('Starting setup on %s hosts' % n_nodes)
+            deployed_hosts, undeployed_hosts = self._launch_kadeploy()
+            # self._configure_ssh()
+
+            # Retry provisioing again if all reserved hosts are not deployed successfully
+            if len(undeployed_hosts) > 0:
+                if self.max_deploy > 0:
+                    self.max_deploy -= 1
+                    if self.oar_job_ids is None:
+                        logger.info('Deleting the current reservation')
+                        oardel(self.oar_result)
+                        time.sleep(60)
+                        self.oar_result = list()
+                    logger.info('---> Retrying provisioning nodes: attempt #%s' % (MAX_RETRY_DEPLOY - self.max_deploy))
+                    self.provisioning()
+                else:
+                    raise Exception('Failed to deploy all reserved nodes. Terminate the program.')
