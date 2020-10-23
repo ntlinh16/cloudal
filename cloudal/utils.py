@@ -133,6 +133,7 @@ def chunk_list(input_list, n):
 @retry(
     stop=tenacity.stop_after_attempt(10),
     wait=tenacity.wait_random(1, 10),
+    reraise=True
 )
 def execute_cmd(cmd, hosts, mode='run', batch_size=5):
     """
