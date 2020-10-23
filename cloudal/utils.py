@@ -36,8 +36,10 @@ def install_packages_on_debian(packages, hosts):
     ----------
     packages: list of string
         the list of package names to be installed
+
     hosts: list of string
         the list of hostnames
+
     '''
     logger = get_logger()
     cmd = (
@@ -98,8 +100,10 @@ def get_remote_executor(remote_tool=SSH, fileput_tool=SCP, fileget_tool=SCP):
     ----------
     remote_tool: str
         can be `execo.config.SSH` or `execo.config.TAKTUK`
+
     fileput_tool: str
         can be `execo.config.SCP`, `execo.config.TAKTUK` or `execo.config.CHAINPUT`
+
     fileget_tool: str
         can be `execo.config.SCP` or `execo.config.TAKTUK`
 
@@ -153,7 +157,7 @@ def execute_cmd(cmd, hosts, mode='run', batch_size=5):
         for process in chunk.processes:
             if process.error_reason == 'taktuk connection failed':
                 host_errors.append(process.host)
-            if 'ssh_exchange_identification' in process.stderr:
+            if 'ssh_exchange_identification' in process.stderr or process.ok == False:
                 print('---> retrying %s' % cmd)
                 raise Exception(process.stderr.strip())
             # config host -> check for alive hosts at the end of the configuration
@@ -197,21 +201,27 @@ def getput_file(hosts, file_paths, dest_location, action, mode='run', batch_size
     ----------
     hosts: list of str
         list of remote hosts to get/send files
+
     file_paths: list of str
         list of file paths to (1) the local files to send to remote hosts or (2) the remote files to get to local
+
     dest_location: str
         the path to the destination directory
+
     action: str
         a type of action to perform between local and remote, there are 2 actions:
         - get: get file from remote dest_location to local
         - put: send file from local to remote dest_location
+
     mode: str
         the mode of executing the file copy operation, there are 2 modes:
         - run: start a process and wait until it ends
         - start: start a process
+
     batch_size: int
         the list of hosts will be chunked into N chunks of size: batch_size before executing a command
         as a workaround to the limitation of Grid5k for the number of concurrent ssh connection from local
+
     """
     remote_executor = get_remote_executor()
     if isinstance(hosts, str):
