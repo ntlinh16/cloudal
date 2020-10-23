@@ -36,7 +36,7 @@ class k8s_resources_configurator(object):
                     logger.error('Error: %s, because: %s' % (api_exception.reason, body['message']))
 
     def wait_k8s_resources(self, resource, label_selectors,
-                           kube_master, kube_namespace='default', timeout='60s', is_continue=False):
+                           kube_master, kube_namespace='default', timeout='300s', is_continue=False):
         '''Wait until specified k8s resources are completed or ready
 
         Parameters
@@ -55,7 +55,7 @@ class k8s_resources_configurator(object):
             the default namespace is 'default'
 
         timeout: string
-            the length of time to wait before giving up, the format looks like: 60s, 1m, etc.
+            the length of time to wait before giving up, the format looks like: 300s, 5m, etc.
 
         is_continue: bool
             when set to True no exception raises even if the wait operation fails,

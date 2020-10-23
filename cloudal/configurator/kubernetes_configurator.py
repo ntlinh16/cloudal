@@ -15,7 +15,7 @@ class kubernetes_configurator(object):
         self.kube_master = kube_master
 
     def _install_kubeadm(self):
-        logger.info('Starting installing kubeadm on all %s nodes' % len(self.hosts))
+        logger.info('Starting installing kubeadm on %s nodes' % len(self.hosts))
 
         logger.debug('Turning off Firewall on hosts')
         cmd = '''cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
