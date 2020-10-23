@@ -1,6 +1,6 @@
 import os
 
-from cloudal.utils import get_logger
+from cloudal.utils import get_logger, getput_file
 
 from execo_engine import utils, sweep, ParamSweeper
 from execo_g5k import get_host_attributes
@@ -101,3 +101,11 @@ def create_combination_dir(comb, result_dir):
                 logger.error(e, exc_info=True)
                 continue
     return comb_dir
+
+
+def get_results(self, comb, hosts, remote_result_files, local_result_dir):
+    comb_dir = create_combination_dir(comb, local_result_dir)
+    getput_file(hosts=hosts,
+                file_paths=remote_result_files,
+                dest_location=comb_dir,
+                action='get')
