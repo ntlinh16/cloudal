@@ -71,5 +71,6 @@ class kubernetes_configurator(object):
         execute_cmd(cmd.strip(), kube_workers)
 
         logger.info('Deploying Kubernetes cluster successfully')
+        logger.info('Kubernetes master: %s' % self.kube_master)
 
         return self.kube_master, kube_workers
