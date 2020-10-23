@@ -121,7 +121,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 line = line.rstrip()  # remove '\n' at end of line
                 if "{duration" in line:
                     t = line.split(',')[1].split('}')[0].strip()
-        timeout = t + 'm'
+        timeout = int(t) + 5
+        timeout = str(timeout) + 'm'
 
         logger.info("Stressing database in %s minutes ....." % t)
         configurator.wait_k8s_resources(resource='job',
@@ -228,8 +229,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         logger.info('Waiting for populating data')
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=fmke_pop",
-                                        timeout=timeout,
                                         kube_master=kube_master,
+                                        timeout='60s',
                                         kube_namespace=self.kube_namespace)
         logger.info('Finish populating data')
 
@@ -266,7 +267,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         configurator = k8s_resources_configurator()
         configurator.deploy_k8s_resources(files=statefulSet_files, namespace=self.kube_namespace)
 
-        logger.info('Waiting until all antidote instances are up')
+        logger.info('Waiting until all Antidote instances are up')
         configurator.wait_k8s_resources(resource='pod',
                                         label_selectors="app=antidote",
                                         kube_master=kube_master,
@@ -405,30 +406,6 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         config.load_kube_config(config_file=kube_config_file)
         logger.info('Kubernetes config file is stored at: %s' % kube_config_file)
 
-    def config_host(self, kube_master):
-        logger.debug("Init configurator: docker_configurator")
-        configurator = docker_configurator(self.hosts)
-        configurator.config_docker()
-
-        logger.debug("Init configurator: kubernetes_configurator")
-        configurator = kubernetes_configurator(hosts=self.hosts,
-                                               kube_master=kube_master)
-        configurator.deploy_kubernetes_cluster()
-
-        logger.info('Create k8s namespace "%s" for this experiment' % self.kube_namespace)
-        cmd = "kubectl create namespace %s && kubectl config set-context --current --namespace=%s" % (
-            self.kube_namespace, self.kube_namespace)
-        execute_cmd(cmd, kube_master)
-
-        self._get_credential(kube_master)
-
-        self._setup_g5k_kube_volumes(kube_master, n_pv=3)
-
-        logger.info('Set labels for all kuber workers')
-        self._set_kube_workers_label(kube_master)
-
-        logger.info("Finish deploying the Kubernetes cluster")
-
     def clean_k8s_resources(self, kube_master):
         logger.info('1. Deleting all k8s resource from the previous run in namespace "%s"' % self.kube_namespace)
         logger.debug('Delete namespace "%s" to delete all the resource, then create it again' % self.kube_namespace)
@@ -468,6 +445,30 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 self.sweeper.cancel(comb)
                 logger.warning(slugify(comb) + ' is canceled')
             logger.info('%s combinations remaining\n' % len(self.sweeper.get_remaining()))
+
+    def config_host(self, kube_master):
+        logger.debug("Init configurator: docker_configurator")
+        configurator = docker_configurator(self.hosts)
+        configurator.config_docker()
+
+        logger.debug("Init configurator: kubernetes_configurator")
+        configurator = kubernetes_configurator(hosts=self.hosts,
+                                               kube_master=kube_master)
+        configurator.deploy_kubernetes_cluster()
+
+        logger.info('Create k8s namespace "%s" for this experiment' % self.kube_namespace)
+        cmd = "kubectl create namespace %s && kubectl config set-context --current --namespace=%s" % (
+            self.kube_namespace, self.kube_namespace)
+        execute_cmd(cmd, kube_master)
+
+        self._get_credential(kube_master)
+
+        self._setup_g5k_kube_volumes(kube_master, n_pv=3)
+
+        logger.info('Set labels for all kuber workers')
+        self._set_kube_workers_label(kube_master)
+
+        logger.info("Finish deploying the Kubernetes cluster")
 
     def setup_env(self, kube_master_site):
         logger.info("STARTING SETTING THE EXPERIMENT ENVIRONMENT")
