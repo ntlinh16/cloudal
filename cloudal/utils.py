@@ -14,45 +14,6 @@ default_connection_params['taktuk_connector_options'] = ('-o', 'BatchMode=yes',
                                                          '-o', 'UserKnownHostsFile=~/.ssh/known_hosts',
                                                          '-o', 'ConnectTimeout=20')
 
-
-def parse_config_file(config_file_path):
-    if config_file_path is None or config_file_path == "":
-        raise IOError("Please enter the configuration file path.")
-    elif not os.path.exists(config_file_path):
-        raise IOError("Please enter an existing configuration file path.")
-    else:
-        with open(config_file_path, 'r') as f:
-            content = yaml.full_load(f)
-            try:
-                return {key: str(value) if isinstance(value, str) else value for key, value in content.items()}
-            except NameError:
-                return content
-
-
-def install_packages_on_debian(packages, hosts):
-    '''Install a list of given packages
-
-    Parameters
-    ----------
-    packages: list of string
-        the list of package names to be installed
-
-    hosts: list of string
-        the list of hostnames
-
-    '''
-    logger = get_logger()
-    cmd = (
-        "export DEBIAN_FRONTEND=noninteractive; "
-        "apt-get update && apt-get "
-        "install --yes --allow-change-held-packages --no-install-recommends %s"
-    ) % ' '.join(packages)
-    try:
-        execute_cmd(cmd, hosts)
-    except Exception as e:
-        logger.error("---> Bug [%s] with command: %s" % (e, cmd), exc_info=True)
-
-
 logger_singleton = list()
 
 
@@ -88,6 +49,46 @@ def get_logger(log_level=logging.INFO):
         except Exception as e:
             logger.error('Exception: %s' % e, exc_info=True)
     return logger
+
+
+logger = get_logger()
+
+
+def parse_config_file(config_file_path):
+    if config_file_path is None or config_file_path == "":
+        raise IOError("Please enter the configuration file path.")
+    elif not os.path.exists(config_file_path):
+        raise IOError("Please enter an existing configuration file path.")
+    else:
+        with open(config_file_path, 'r') as f:
+            content = yaml.full_load(f)
+            try:
+                return {key: str(value) if isinstance(value, str) else value for key, value in content.items()}
+            except NameError:
+                return content
+
+
+def install_packages_on_debian(packages, hosts):
+    '''Install a list of given packages
+
+    Parameters
+    ----------
+    packages: list of string
+        the list of package names to be installed
+
+    hosts: list of string
+        the list of hostnames
+
+    '''
+    cmd = (
+        "export DEBIAN_FRONTEND=noninteractive; "
+        "apt-get update && apt-get "
+        "install --yes --allow-change-held-packages --no-install-recommends %s"
+    ) % ' '.join(packages)
+    try:
+        execute_cmd(cmd, hosts)
+    except Exception as e:
+        logger.error("---> Bug [%s] with command: %s" % (e, cmd), exc_info=True)
 
 
 executor_singleton = list()
@@ -130,12 +131,28 @@ def chunk_list(input_list, n):
         yield input_list[i:i + n]
 
 
+class ExecuteCommandException(Exception):
+    def __init__(self, message, is_continue=False):
+        self.message = message
+        self.is_continue = is_continue
+        super(ExecuteCommandException, self).__init__(message)
+
+
+def custom_retry_return(state):
+    if state.exception().is_continue == True:
+        logger.warning('Retrying maximum times, continue without raising exception (%s)' % state.exception().message)
+        return None
+    else:
+        logger.warning('Retrying maximum times')
+        raise(state.exception())
+
+
 @retry(
-    stop=tenacity.stop_after_attempt(10),
+    stop=tenacity.stop_after_attempt(5),
     wait=tenacity.wait_random(1, 10),
-    reraise=True
+    retry_error_callback=custom_retry_return
 )
-def execute_cmd(cmd, hosts, mode='run', batch_size=5):
+def execute_cmd(cmd, hosts, mode='run', batch_size=5, is_continue=False):
     """
     2 modes:
         run: start a process and wait until it ends
@@ -151,7 +168,6 @@ def execute_cmd(cmd, hosts, mode='run', batch_size=5):
             result.append(remote_executor.get_remote(cmd, chunk).run())
         elif mode == 'start':
             result.append(remote_executor.get_remote(cmd, chunk).start())
-    logger = get_logger()
 
     host_errors = list()
     for chunk in result:
@@ -159,8 +175,8 @@ def execute_cmd(cmd, hosts, mode='run', batch_size=5):
             if process.error_reason == 'taktuk connection failed':
                 host_errors.append(process.host)
             if 'ssh_exchange_identification' in process.stderr or process.ok == False:
-                print('---> retrying %s' % cmd)
-                raise Exception(process.stderr.strip())
+                logger.info('---> Retrying: %s\n' % cmd)
+                raise ExecuteCommandException(message=process.stderr.strip(), is_continue=is_continue)
             # config host -> check for alive hosts at the end of the configuration
         # workflow -> detect by wrap the execute_cmd by another command and check
         #             for return host_errors --> remove host from all hosts/available host
