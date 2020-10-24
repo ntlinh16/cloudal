@@ -15,4 +15,4 @@ spec:
         imagePullPolicy: Always
         args: []
       restartPolicy: Never
-  backoffLimit: 4
+  backoffLimit: 10

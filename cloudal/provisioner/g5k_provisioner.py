@@ -23,6 +23,7 @@ from execo_g5k.oar import get_oar_job_info, oardel
 logger = get_logger()
 
 # default_connection_params['user'] = 'root'
+
 MAX_RETRY_DEPLOY = 10
 
 
@@ -81,6 +82,19 @@ class g5k_provisioner(cloud_provisioning):
     def _get_nodes(self, starttime, endtime):
         """ return the nearest slot (startdate) that has enough available nodes
         to perform the client's actions
+
+        Parameters
+        ----------
+        starttime: str
+            the time to start the reservation
+
+        endtime: str
+            the time to stop the reservation
+
+        Returns
+        -------
+        str
+        the start time of the reservation
         """
 
         planning = get_planning(elements=self.clusters.keys(),
@@ -105,6 +119,13 @@ class g5k_provisioner(cloud_provisioning):
 
     def make_reservation(self):
         """Perform a reservation of the required number of nodes.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+
         """
         if self.oar_result:
             message = "Validated OAR_JOB_ID:"
@@ -204,7 +225,7 @@ class g5k_provisioner(cloud_provisioning):
             self.hosts += resource['hosts']
 
     def _launch_kadeploy(self, max_tries=10, check_deploy=True):
-        """Create a execo_g5k.Deployment object, launch the deployment and
+        """Create an execo_g5k.Deployment object, launch the deployment and
         return a tuple (deployed_hosts, undeployed_hosts)
         """
 
@@ -274,6 +295,8 @@ class g5k_provisioner(cloud_provisioning):
                                                    connection_params={'taktuk_options': taktuk_conf}).run()
 
     def provisioning(self):
+        """Provision nodes on Grid5000 based on client's requirements
+        """
         self.make_reservation()
 
         # skip waiting for resources to be up in case of making reservations for the future
