@@ -18,8 +18,6 @@
     </a>
 </p>
 
-
-
 # Introduction
 
 <p align="center">
@@ -41,6 +39,24 @@ Users modify the `Performing Actions` script to perform one or multiple actions,
 - __configurator__: this module contains some ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
 - __experimenter__: users have to wirte their own experimenter to describe sequential steps to perform their specific experimental scenarios. Users can execute this experiment workflow with different input parameters and repeat it the number of times on the same environment in order to obtain a statistically significant result. In this way, users can perform reproducible and repetitive experiments automatically. We use `execo` as an experiment toolkits which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
 
+
+# An experiment flow with cloudal
+
+cloudal helps you to run a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) by defining a queue of all possible combinations from the experiment parameters and then run a user-defined workflow over them automatically and repeatedly. The progress of running these combinations is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
+
+<p align="center">
+    <br>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/experiment_flowchart.png" width="500"/>
+    <br>
+<p>
+
+The above figure present a general cloud experiment flowchart that manage by cloudal.
+
+First of all, we have to prepare the environment to perform the experiment. The `setup_env()` function (1) provisions the required infrastructure; (2) configures all the neccessary packages; (3) create the queue of combinations from the given experiment parameters. Experiment parameters represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect.
+
+Each time, the `run_workflow()` function takes a combination from the queue of combination as the input, and then run an experiment workflow with a set of specific values of parameters. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue of combinations to be run later. Different experiments need to implement different workflows.
+
+If all combinations are performed, the experiment is done. While we are performing experiments, if the reserved nodes are dead (end of reservation time or unexpected problems), cloudal will execute `setup_env()` to prepare the infrastructure again.
 
 # Installation
 This repo uses Python 2.7+ due to `execo`.
