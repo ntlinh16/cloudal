@@ -42,7 +42,7 @@ Users modify the `Performing Actions` script to perform one or multiple actions,
 
 # An experiment flow with cloudal
 
-cloudal helps you to run a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) by defining a queue of all possible combinations from the experiment parameters and then run a user-defined workflow over them automatically and repeatedly. The progress of running these combinations is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
+`cloudal` helps you to run a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) by defining a queue of all possible combinations from the experiment parameters and then run a user-defined workflow over them automatically and repeatedly. The progress of running these combinations is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
 
 <p align="center">
     <br>
@@ -50,9 +50,9 @@ cloudal helps you to run a [full factorial experiment](https://en.wikipedia.org/
     <br>
 <p>
 
-The above figure present a general cloud experiment flowchart that manage by cloudal.
+The above figure presents a general cloud experiment flowchart.
 
-First of all, we have to prepare the environment to perform the experiment. The `setup_env()` function (1) provisions the required infrastructure; (2) configures all the neccessary packages; (3) create the queue of combinations from the given experiment parameters. Experiment parameters represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect.
+First of all, we have to prepare the environment to perform the experiment. The `setup_env()` function (1) provisions the required infrastructure; (2) configures all the neccessary packages/services; (3) create the queue of combinations from the given experiment parameters. Experiment parameters represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect.
 
 Each time, the `run_workflow()` function takes a combination from the queue of combination as the input, and then run an experiment workflow with a set of specific values of parameters. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue of combinations to be run later. Different experiments need to implement different workflows.
 
