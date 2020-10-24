@@ -7,7 +7,7 @@ The flow of the experiment follows the flowchart [here](https://github.com/ntlin
 
 The `setup_env` function  (1) makes a resevation for the infrastructure; (2) deploys a Kubernetes cluster to managed all required services of this experiment which will be deployed by using containers; (3) creates a list of combinations from the given parameters.
 
-The `run_workflow` function to perform the experiment is described detail in the following Figure.
+The `run_workflow` function to perform the experiment is described detail in the following figure.
 
 <p align="center">
     <br>
@@ -41,12 +41,12 @@ If you do not need special things, you do not have to modify these files
 Run the following command:
 
 ```
-python cloudal/examples/experiment/antidotedb/antidotedb_fmke_g5k.py --system_config_file cloudal/examples/experiment/antidotedb/exp_setting_fmke_antidotedb.yaml -k &> cloudal/examples/experiment/antidotedb/good_result_23Oct/test.log
+python cloudal/examples/experiment/antidotedb/antidotedb_fmke_g5k.py --system_config_file cloudal/examples/experiment/antidotedb/exp_setting_fmke_antidotedb.yaml -k &> cloudal/examples/experiment/antidotedb/result/test.log
 ```
 Then, you can watch the log by:
 
 ```
-tail -f cloudal/examples/experiment/antidotedb/good_result_23Oct/test.log
+tail -f cloudal/examples/experiment/antidotedb/result/test.log
 ```
 
 ### 3. Results of the experiments
