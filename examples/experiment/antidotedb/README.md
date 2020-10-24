@@ -3,6 +3,11 @@ This experiment performs the FMKe benchmark to test the performance of an Antido
 
 ### Workflow
 The workflow of this experiment is as follow:
+<p align="center">
+    <br>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/exp_fmke_antidotedb.png" width="600"/>
+    <br>
+<p>
             
             Step 1: clean_k8s_resources()
             
@@ -49,6 +54,9 @@ python cloudal/examples/experiment/antidotedb/antidotedb_fmke_g5k.py --system_co
 
 A figure of the results of this experiment can be found at [here](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/results)
 
+How to get the results
+HOw to plot the results
+Where is the results? (file store)
 
 ## Image used in the experiments
 
