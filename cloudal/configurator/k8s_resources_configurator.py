@@ -15,6 +15,22 @@ class k8s_resources_configurator(object):
     """
 
     def deploy_k8s_resources(self, path=None, files=None, kube_config=None, namespace="default"):
+        """Deploy k8s resources on a k8s cluster from deployment yaml files 
+
+        Parameters
+        ----------
+        path: str
+            the path to the directory which stores all the deployment yaml files
+
+        files: list
+            a list of yaml files to use for deployment
+
+        kube_config: 
+
+        namespace: str
+            a namespace for k8s working with
+
+        """
         if not kube_config:
             api_client = ApiClient(kube_config)
         else:

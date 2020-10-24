@@ -75,12 +75,12 @@ def create_combination_dir(comb, result_dir):
     Parameters
     ----------
     comb: dict
-        a dictionary contains the combination values
+        a dictionay that contains the set of parameters for a specific run
         key: str, the name of the experiment parameter
         value: object, the value of the experiment parameter in this combination
 
     result_dir: str
-        the path to the result directory on the disk
+        the path to the directory to store the result on the local node
 
     Returns
     -------
@@ -104,6 +104,25 @@ def create_combination_dir(comb, result_dir):
 
 
 def get_results(self, comb, hosts, remote_result_files, local_result_dir):
+    """Get all the results files from remote hosts to a local result directory
+
+    Parameters
+    ----------
+    comb: dict
+        a dictionay that contains the set of parameters for a specific run
+        key: str, the name of the experiment parameter
+        value: object, the value of the experiment parameter in this combination
+
+    hosts: list
+        a list of hosts to get the results from
+
+    remote_result_files: list
+        a list of results files on the remote nodes
+
+    local_result_dir: str
+        the path to the directory to store the results on the local node
+
+    """
     comb_dir = create_combination_dir(comb, local_result_dir)
     getput_file(hosts=hosts,
                 file_paths=remote_result_files,

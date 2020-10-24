@@ -5,13 +5,18 @@ logger = get_logger()
 
 
 class docker_configurator(object):
-    """
-    """
 
     def __init__(self, hosts):
         self.hosts = hosts
 
     def config_docker(self):
+        """Install Docker on the given hosts
+
+        Parameters
+        ----------
+        hosts: str
+            a list of hosts
+        """
         logger.info('Starting installing Docker on %s hosts' % len(self.hosts))
         logger.info('Installing wget package')
         install_packages_on_debian(['wget'], self.hosts)

@@ -148,7 +148,7 @@ def custom_retry_return(state):
 
 
 @retry(
-    stop=tenacity.stop_after_attempt(5),
+    stop=tenacity.stop_after_attempt(10),
     wait=tenacity.wait_random(1, 10),
     retry_error_callback=custom_retry_return
 )

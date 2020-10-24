@@ -15,8 +15,7 @@ class config_antidotedb_env_gcp(performing_actions):
 
     def provisioning(self):
         logger.info("Init provisioner: gcp_provisioner")
-        provisioner = gcp_provisioner(
-            config_file_path=self.args.config_file_path)
+        provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
         logger.info("Making reservation")
         provisioner.make_reservation()
         logger.info("Getting resources of nodes:")
