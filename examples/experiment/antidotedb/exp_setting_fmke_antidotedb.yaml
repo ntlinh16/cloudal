@@ -7,7 +7,7 @@
 
 
 # the duration to keep the reserved nodes running
-walltime: 2:30:00
+walltime: 1:00:00
 
 # the time when you want the nodes to be started.
 # the date format is "YYYY-MM-DD HH:MM:SS"
@@ -35,9 +35,10 @@ clusters:
 #                               #
 #################################
 parameters:
-    # the number of repetition for each experiment
-    connection_pool_size: [30]
-    iteration: 0
+    # the number of concurrent clients
+    concurrent_clients: [16, 32]
+    # the number of repetitions for each experiment
+    iteration: 5
 
 #############################################
 #                                           #
@@ -46,7 +47,7 @@ parameters:
 #############################################
 exp_env:
     # the path to th results directory
-    results_dir: /cloudal/examples/experiment/antidotedb/results
+    results_dir: /cloudal/examples/experiment/antidotedb/result
     # the path to the kubernetes yaml files to deploy antidote cluster and FMKe benchmark
     antidote_yaml_path: /cloudal/examples/experiment/antidotedb/config_files/antidotedb_yaml
     fmke_yaml_path: /cloudal/examples/experiment/antidotedb/config_files/fmke_yaml
@@ -62,5 +63,5 @@ exp_env:
     # each data center consists of 3 types of node.
     # you should specify the number of each type of node per data center:
     n_antidotedb_per_dc: 3
-    n_fmke_app_per_dc: 1
+    n_fmke_app_per_dc: 2
     n_fmke_client_per_dc: 2
