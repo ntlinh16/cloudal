@@ -25,13 +25,14 @@ class k8s_resources_configurator(object):
         files: list
             a list of yaml files to use for deployment
 
-        kube_config: 
+        kube_config: kubernetes.client.configuration.Configuration
+            the configuration to the kubernetes cluster
 
         namespace: str
             a namespace for k8s working with
 
         """
-        if not kube_config:
+        if kube_config:
             api_client = ApiClient(kube_config)
         else:
             api_client = ApiClient()

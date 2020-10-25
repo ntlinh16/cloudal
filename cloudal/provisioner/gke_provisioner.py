@@ -11,7 +11,6 @@ logger = get_logger()
 
 
 class gke_provisioner(cloud_provisioning):
-    # def __init__(self, config_file_path):
     def __init__(self, **kwargs):
         self.config_file_path = kwargs.get('config_file_path')
         self.clusters = list()
@@ -53,6 +52,8 @@ class gke_provisioner(cloud_provisioning):
 
         logger.info("Validating Kubernetes clusters")
         clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones)
+        logger.info("Deploying cluster: %s" %
+                    ', '.join([cluster['cluster_name'] for cluster in self.configs['clusters']]))
 
         for cluster in self.configs['clusters']:
             key = '%s:%s' % (cluster['data_center'], cluster['cluster_name'])
@@ -64,14 +65,15 @@ class gke_provisioner(cloud_provisioning):
                 logger.info('Cluster %s on data center %s already existed but not running' % (
                     cluster['cluster_name'], cluster['data_center']))
             else:
-                logger.info("Deploying cluster %s: %s nodes on data center %s" %
-                            (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
+                # logger.info("Deploying cluster %s: %s nodes on data center %s" %
+                # (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
                 cluster_specs = Cluster(mapping={'name': cluster['cluster_name'],
                                                  'locations': [cluster['data_center']],
                                                  'initial_node_count': cluster['n_nodes']})
                 cluster_manager_client.create_cluster(cluster=cluster_specs,
                                                       parent='projects/%s/locations/%s' % (project_id, cluster['data_center']))
 
+                sleep(40 * cluster['n_nodes'])
                 i = 0
                 while i < 10:
                     c = cluster_manager_client.get_cluster(project_id=project_id,
@@ -82,6 +84,5 @@ class gke_provisioner(cloud_provisioning):
                         break
                     i += 1
                     # nodes take a while to boot up
-                    sleep(40 * cluster['n_nodes'])
-
-        logger.info("Deploying Kubernetes clusters on GCP: DONE")
+                    sleep(20)
+        logger.info("Finish deploying Kubernetes clusters on GKE")

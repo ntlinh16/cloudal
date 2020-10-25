@@ -65,8 +65,11 @@ def create_paramsweeper(parameters, result_dir):
 
     logger.debug('Parameters:\n%s' % parameters)
     sweeps = sweep(parameters)
+    sweeper = ParamSweeper(os.path.join(result_dir, "sweeps"), sweeps)
     logger.info('-----> TOTAL COMBINATIONS: %s', len(sweeps))
-    return ParamSweeper(os.path.join(result_dir, "sweeps"), sweeps)
+    if len(sweeper.get_remaining()) < len(sweeps):
+        logger.info('%s combinations remaining\n' % len(sweeper.get_remaining()))
+    return sweeper
 
 
 def create_combination_dir(comb, result_dir):

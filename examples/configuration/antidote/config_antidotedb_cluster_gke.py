@@ -27,8 +27,7 @@ class config_antidotedb_cluster_gke(performing_actions):
 
     def provisioning(self):
         logger.info("Init provisioner: gke_provisioner")
-        provisioner = gke_provisioner(
-            config_file_path=self.args.config_file_path)
+        provisioner = gke_provisioner(config_file_path=self.args.config_file_path)
         provisioner.make_reservation()
         self.clusters = provisioner.clusters
         self.configs = provisioner.configs
@@ -43,8 +42,7 @@ class config_antidotedb_cluster_gke(performing_actions):
         kube_config = client.Configuration()
         kube_config.host = 'https://%s' % cluster.endpoint
         with NamedTemporaryFile(delete=False) as ca_cert:
-            ca_cert.write(
-                base64.b64decode(cluster.master_auth.cluster_ca_certificate))
+            ca_cert.write(base64.b64decode(cluster.master_auth.cluster_ca_certificate))
         kube_config.ssl_ca_cert = ca_cert.name
         kube_config.api_key_prefix['authorization'] = 'Bearer'
         kube_config.api_key['authorization'] = creds.token
@@ -61,13 +59,13 @@ class config_antidotedb_cluster_gke(performing_actions):
             configurator.deploy_k8s_resources(kube_config=kube_config, path=self.args.yaml_path)
 
     def run(self):
-        logger.info("Starting create Kubernetes clusters")
+        logger.info("Starting provisioning Kubernetes clusters")
         self.provisioning()
-        logger.info("Finish create Kubernetes clusters")
+        logger.info("Finish provisioning Kubernetes clusters\n")
 
         logger.info("Starting configure AntidoteDB on Kubernetes clusters")
         self.config_host()
-        logger.info("Finish configure AntidoteDB on Kubernetes clusters")
+        logger.info("Finish configure AntidoteDB on Kubernetes clusters\n")
 
 
 if __name__ == "__main__":
