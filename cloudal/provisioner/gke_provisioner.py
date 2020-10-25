@@ -52,8 +52,7 @@ class gke_provisioner(cloud_provisioning):
             list_zones.append(cluster['data_center'])
 
         logger.info("Validating Kubernetes clusters")
-        clusters_ok, clusters_ko = self._get_existed_clusters(
-            project_id, list_zones)
+        clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones)
 
         for cluster in self.configs['clusters']:
             key = '%s:%s' % (cluster['data_center'], cluster['cluster_name'])

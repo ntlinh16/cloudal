@@ -34,7 +34,7 @@ spec:
           tcpSocket:
             port: antidote-pb
           periodSeconds: 10
-          successThreshold: 2
+          successThreshold: 1
           failureThreshold: 60
           
         resources:

@@ -230,7 +230,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=fmke_pop",
                                         kube_master=kube_master,
-                                        timeout='60s',
+                                        timeout='90s',
                                         kube_namespace=self.kube_namespace)
         logger.info('Finish populating data')
 
@@ -341,6 +341,46 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
 
         logger.info('Finish deploying the Antidote cluster')
 
+    def clean_k8s_resources(self, kube_master):
+        logger.info('1. Deleting all k8s resource from the previous run in namespace "%s"' % self.kube_namespace)
+        logger.debug('Delete namespace "%s" to delete all the resource, then create it again' % self.kube_namespace)
+        cmd = '''kubectl config set-context --current --namespace=default &&
+                kubectl delete namespaces %s &&
+                kubectl create namespace %s  &&
+                kubectl config set-context --current --namespace=%s ''' % (self.kube_namespace, self.kube_namespace, self.kube_namespace)
+        execute_cmd(cmd, kube_master)
+
+        logger.debug('Delete all files in /tmp/results folder on fmke_client nodes')
+        cmd = """kubectl get nodes --selector="service_g5k=fmke_client" | tail -n +2 | awk '{print $1}'"""
+        _, r = execute_cmd(cmd, kube_master)
+        results_nodes = r.processes[0].stdout.strip().split('\r\n')
+        cmd = 'rm -rf /tmp/results && mkdir -p /tmp/results'
+        execute_cmd(cmd, results_nodes)
+
+    def workflow(self, comb, kube_master):
+        comb_ok = False
+        try:
+            logger.info('=======================================')
+            logger.info('Performing combination: ' + slugify(comb))
+
+            self.clean_k8s_resources(kube_master)
+            self.config_antidote(kube_master)
+            self.config_fmke(kube_master)
+            self.config_fmke_pop(kube_master)
+            self.perform_exp(kube_master, comb['concurrent_clients'])
+            self.save_results(kube_master, comb)
+            comb_ok = True
+        except ExecuteCommandException as e:
+            comb_ok = False
+        finally:
+            if comb_ok:
+                self.sweeper.done(comb)
+                logger.info('Finish combination: %s' % slugify(comb))
+            else:
+                self.sweeper.cancel(comb)
+                logger.warning(slugify(comb) + ' is canceled')
+            logger.info('%s combinations remaining\n' % len(self.sweeper.get_remaining()))
+
     def _set_label(self, host, label, kube_master):
         cmd = 'kubectl label node %s %s' % (host, label)
         execute_cmd(cmd, kube_master)
@@ -405,46 +445,6 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         kube_config_file = os.path.join(kube_dir, 'config')
         config.load_kube_config(config_file=kube_config_file)
         logger.info('Kubernetes config file is stored at: %s' % kube_config_file)
-
-    def clean_k8s_resources(self, kube_master):
-        logger.info('1. Deleting all k8s resource from the previous run in namespace "%s"' % self.kube_namespace)
-        logger.debug('Delete namespace "%s" to delete all the resource, then create it again' % self.kube_namespace)
-        cmd = '''kubectl config set-context --current --namespace=default &&
-                kubectl delete namespaces %s &&
-                kubectl create namespace %s  &&
-                kubectl config set-context --current --namespace=%s ''' % (self.kube_namespace, self.kube_namespace, self.kube_namespace)
-        execute_cmd(cmd, kube_master)
-
-        logger.debug('Delete all files in /tmp/results folder on fmke_client nodes')
-        cmd = """kubectl get nodes --selector="service_g5k=fmke_client" | tail -n +2 | awk '{print $1}'"""
-        _, r = execute_cmd(cmd, kube_master)
-        results_nodes = r.processes[0].stdout.strip().split('\r\n')
-        cmd = 'rm -rf /tmp/results && mkdir -p /tmp/results'
-        execute_cmd(cmd, results_nodes)
-
-    def workflow(self, comb, kube_master):
-        comb_ok = False
-        try:
-            logger.info('=======================================')
-            logger.info('Performing combination: ' + slugify(comb))
-
-            self.clean_k8s_resources(kube_master)
-            self.config_antidote(kube_master)
-            self.config_fmke(kube_master)
-            self.config_fmke_pop(kube_master)
-            self.perform_exp(kube_master, comb['concurrent_clients'])
-            self.save_results(kube_master, comb)
-            comb_ok = True
-        except ExecuteCommandException as e:
-            comb_ok = False
-        finally:
-            if comb_ok:
-                self.sweeper.done(comb)
-                logger.info('Finish combination: %s' % slugify(comb))
-            else:
-                self.sweeper.cancel(comb)
-                logger.warning(slugify(comb) + ' is canceled')
-            logger.info('%s combinations remaining\n' % len(self.sweeper.get_remaining()))
 
     def config_host(self, kube_master):
         logger.debug("Init configurator: docker_configurator")
@@ -571,6 +571,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             if not self.is_job_alive(oar_job_ids):
                 oardel(oar_job_ids)
                 oar_job_ids = None
+        logger.info('Finish the experiment!!!')
 
 
 if __name__ == "__main__":
