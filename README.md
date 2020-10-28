@@ -20,43 +20,42 @@
 
 # Introduction
 
-<p align="center">
-    <br>
-    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/architecture.png" width="600"/>
-    <br>
-<p>
+## An experiment workflow with cloudal
 
-The main goal of `cloudal` is to perform large-scale reproducible experiments and collecting results automatically on different cloud systems. _cloudal_ is composed of:  
-- a performing actions script that conducts user defined experiment workflow
-- a cloud provisioning module that reserves resources (nodes, clusters, etc.) from cloud systems
-
-In order to set up a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning nodes; (2) configuring the enviroment; (3) writing the experiment workflow scripts. 
-_cloudal_ implements this workflow and provide templates so that users can customize to their needs. 
-
-Users modify the `Performing Actions` script to perform one or multiple actions, and they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts, or perform experiments which require all three steps). There are three main components in this script:
-
-- __provisioner__: Each provisioner is an instance of `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
-- __configurator__: this module contains some ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
-- __experimenter__: users have to wirte their own experimenter to describe sequential steps to perform their specific experimental scenarios. Users can execute this experiment workflow with different input parameters and repeat it the number of times on the same environment in order to obtain a statistically significant result. In this way, users can perform reproducible and repetitive experiments automatically. We use `execo` as an experiment toolkits which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
-
-
-# An experiment flow with cloudal
-
-`cloudal` helps you to run a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) by defining a queue of all possible combinations from the experiment parameters and then run a user-defined workflow over them automatically and repeatedly. The progress of running these combinations is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
+In order to set up a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning somw nodes; (2) configuring the enviroment; (3) performing the experiment workflow. The main goal of `cloudal` is to helps you to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collects the results automatically on different cloud systems in a large-scale and reproducible manner. The following figure presents a general experiment flowchart on a specific cloud system when you use _cloudal_.
 
 <p align="center">
     <br>
-    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/experiment_flowchart.png" width="500"/>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/experiment_flowchart.png" width="700"/>
     <br>
 <p>
 
-The above figure presents a general cloud experiment flowchart.
+First of all, cloudal performs `create_combinations queue` function to create a list of combinations. So what is a combinations list? Let say, when you perform an experiment, you want to examize various aspects of the system, so that you have to run the same experiment repeatedly with different parameters. Each parameter contains a list of possible values of that aspect. For example, the disk type (SSD or HDD or remote storage) can be one of the parameters. cloudal will combine all the given parameters to create a list of combinations. 
 
-First of all, we have to prepare the environment to perform the experiment. The `setup_env()` function (1) provisions the required infrastructure; (2) configures all the neccessary packages/services; (3) create the queue of combinations from the given experiment parameters. Experiment parameters represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect.
+Next, we have to prepare the machines with the requirements which is the duty of `setup_env()` function. The `setup_env()` function (1) provisions the required infrastructure; and (2) configures all the neccessary packages/services.
 
-Each time, the `run_workflow()` function takes a combination from the queue of combination as the input, and then run an experiment workflow with a set of specific values of parameters. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue of combinations to be run later. Different experiments need to implement different workflows.
+Each time, the `run_workflow()` function takes a combination from the queue as the input, and then run an user-defined experiment workflow with a set of specific values of parameters. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue to be run later. Different experiments need to implement different run_workflow funtions. The progress of running one combination is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
 
 If all combinations are performed, the experiment is done. While we are performing experiments, if the reserved nodes are dead (end of reservation time or unexpected problems), cloudal will execute `setup_env()` to prepare the infrastructure again.
+
+## Architecture
+
+<p align="center">
+    <br>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/architecture.png" width="800"/>
+    <br>
+<p>
+
+The design of _cloudal_ is a `Performing Actions` class which inherits the `execo_engine`. We use `execo` as an experiment toolkits which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
+
+_cloudal_ provides 3 main modules to heps user perform their actions (i.e., provisioning, configuring or experimenting action) easyly and quickly"
+
+- __provisioner__: Each provisioner is an instance of `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
+- __configurator__: this module contains many ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
+- __experimenter__: this module contains some ready-to-use experimenter that used to manage the experiments, meaning that creating and controling the combinations queue and handling the results.
+
+By using the 3 provided modules as lego blocks, users can assemble them to write a `Performing Actions` script to describe sequential steps to perform their specific experimental scenarios. And they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts for manually testing, or perform experiments automatically which require the whole workflow).
+
 
 # Installation
 This repo uses Python 2.7+ due to `execo`.
