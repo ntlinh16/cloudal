@@ -112,7 +112,7 @@ This `provision_g5k.py` script makes a reservation with the description in the p
 This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resoures after finishing your testing.
 
 
-## Example 2: Deploy an AntidoteDB cluster
+## Example 2: Configure an AntidoteDB cluster
 
 In this example, we deploy an AntidoteDB cluster on top of a Kubernetes cluster in Grid5000 system.
 
@@ -121,10 +121,14 @@ First, edit the provision config file in `cloudal/examples/provision/provisionin
 Then, run the following command to create a Kubernetes:
 ```
 cd cloudal/examples/configuration/antidote/
-python config_antidotedb_cluster_g5k.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml -k --antidote_yaml_dir antidotedb_yaml_g5k/ 
+python config_antidotedb_cluster_g5k.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml --antidote_yaml_dir antidotedb_yaml_g5k/ -k
 ```
 
 This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resoures after finishing your testing.
+
+## Example 3: Perform an experiment: Benchmarking the performance of an AntidoteDB cluster
+
+A detail shows how to run the FMKe benchmark experiment on Antidote cluster is described [here](https://github.com/ntlinh16/cloudal/blob/master/examples/experiment/antidotedb/README.md)
 
 ## Options
 You might want to use `--help` to see all available options:

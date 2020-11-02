@@ -22,7 +22,7 @@
 
 ## An experiment workflow with cloudal
 
-In order to set up a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning somw nodes; (2) configuring the enviroment; (3) performing the experiment workflow. The main goal of `cloudal` is to helps you to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collects the results automatically on different cloud systems in a large-scale and reproducible manner. The following figure presents a general experiment flowchart on a specific cloud system when you use _cloudal_.
+In order to set up a cloud system for running rigorous experiments, we usually follow a typical workflow which consists of the following steps: (1) provisioning some machines; (2) configuring the enviroment; (3) performing the experiment workflow. The main goal of `cloudal` is to helps you to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collects the results automatically on different cloud systems in a large-scale and reproducible manner. The following figure presents a general experiment flowchart on a specific cloud system when you use _cloudal_.
 
 <p align="center">
     <br>
@@ -30,11 +30,11 @@ In order to set up a cloud system for running rigorous experiments, we usually f
     <br>
 <p>
 
-First of all, cloudal performs `create_combinations queue` function to create a list of combinations. So what is a combinations list? Let say, when you perform an experiment, you want to examize various aspects of the system, so that you have to run the same experiment repeatedly with different parameters. Each parameter contains a list of possible values of that aspect. For example, the disk type (SSD or HDD or remote storage) can be one of the parameters. cloudal will combine all the given parameters to create a list of combinations. 
+First of all, _cloudal_ performs `create_combinations_queue()` function to create a list of combinations. So what is a combinations list? Let say, when you perform an experiment, you want to examize various aspects of the system, so that you have to run the same experiment repeatedly with different setting of parameters. Each parameter contains a list of possible values of an aspect. For example, the disk type (SSD or HDD or remote storage) can be one of the parameters. _cloudal_ will combine all the given parameters to create a list of combinations. You just need to define all the parameters that you want to test for your experiment, then _cloudal_ will manage and ensure the run of all combinations automatically.
 
-Next, we have to prepare the machines with the requirements which is the duty of `setup_env()` function. The `setup_env()` function (1) provisions the required infrastructure; and (2) configures all the neccessary packages/services.
+Next, _cloudal_ run `setup_env()` function to prepare the environment on reserved machines with the clients'requirements. The `setup_env()` function (1) provisions the required infrastructure; and (2) installs and deploys all the neccessary packages/services.
 
-Each time, the `run_workflow()` function takes a combination from the queue as the input, and then run an user-defined experiment workflow with a set of specific values of parameters. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue to be run later. Different experiments need to implement different run_workflow funtions. The progress of running one combination is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
+The `run_workflow()` function takes a combination from the queue as the input, and then run an user-defined experiment workflow with that combination info. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue to be run later. Different _run_workflow_ funtions need to be implemented for different experiments. The progress of running one combination is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
 
 If all combinations are performed, the experiment is done. While we are performing experiments, if the reserved nodes are dead (end of reservation time or unexpected problems), cloudal will execute `setup_env()` to prepare the infrastructure again.
 
@@ -46,7 +46,8 @@ If all combinations are performed, the experiment is done. While we are performi
     <br>
 <p>
 
-The design of _cloudal_ is a `Performing Actions` class which inherits the `execo_engine`. We use `execo` as an experiment toolkits which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
+The design of _cloudal_ is a `Performing Actions` class which inherits the `execo_engine`. 
+We use `execo` as an experiment toolkits which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
 
 _cloudal_ provides 3 main modules to heps user perform their actions (i.e., provisioning, configuring or experimenting action) easyly and quickly"
 
@@ -55,7 +56,6 @@ _cloudal_ provides 3 main modules to heps user perform their actions (i.e., prov
 - __experimenter__: this module contains some ready-to-use experimenter that used to manage the experiments, meaning that creating and controling the combinations queue and handling the results.
 
 By using the 3 provided modules as lego blocks, users can assemble them to write a `Performing Actions` script to describe sequential steps to perform their specific experimental scenarios. And they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts for manually testing, or perform experiments automatically which require the whole workflow).
-
 
 # Installation
 This repo uses Python 2.7+ due to `execo`.
@@ -110,6 +110,6 @@ Execo reads `~/.execo.conf.py` file to set up the connection. If this file is no
 We provide some quick tutorials to get you started with `cloudal`:
 - [Working on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
 - [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
-- [Working on Google Cloud Platform](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
-- [Working with Google Kubernetes Engine](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
+- [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
+- [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
 

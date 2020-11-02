@@ -14,6 +14,7 @@ The `run_workflow` function to perform the experiment is described detail in the
     <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/exp_fmke_antidotedb_workflow.png" width="600"/>
     <br>
 <p>
+                
 
 ## How to run the experiment
 
