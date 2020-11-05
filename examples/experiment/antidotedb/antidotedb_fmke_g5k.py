@@ -1,6 +1,3 @@
-from datetime import datetime
-import re
-from time import sleep, time
 import os
 import shutil
 import traceback
@@ -9,9 +6,9 @@ from cloudal.utils import get_logger, execute_cmd, parse_config_file, getput_fil
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
 from cloudal.configurator import kubernetes_configurator, docker_configurator, k8s_resources_configurator
-from cloudal.experimenter import create_paramsweeper, create_combination_dir, get_results
+from cloudal.experimenter import create_combs_queue, is_job_alive, get_results
 
-from execo_g5k import get_oar_job_info, oardel
+from execo_g5k import oardel
 from execo_engine import slugify
 from kubernetes import config
 import yaml
@@ -27,14 +24,6 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                                       default=None,
                                       type=str)
 
-    def define_parameters(self):
-        parameters = {
-            'iteration': range(1, self.configs['parameters']['iteration'] + 1),
-            'concurrent_clients': self.configs['parameters']['concurrent_clients']
-        }
-        logger.info('Parameters:\n%s' % parameters)
-        return parameters
-
     def save_results(self, kube_master, comb):
         logger.info("----------------------------------")
         logger.info("6. Starting dowloading the results")
@@ -43,14 +32,14 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         _, r = execute_cmd(cmd, kube_master)
         results_nodes = r.processes[0].stdout.strip().split('\r\n')
 
-        get_results(self, comb,
+        get_results(comb=comb,
                     hosts=results_nodes,
                     remote_result_files=['/tmp/results/'],
                     local_result_dir=self.configs['exp_env']['results_dir'])
 
         logger.info("Finish dowloading the results")
 
-    def perform_exp(self, kube_master, concurrent_clients):
+    def perform_combination(self, kube_master, concurrent_clients):
         logger.info('-----------------------------------------------------------------')
         logger.info('5. Starting deploying fmke client to stress the Antidote database')
         fmke_client_k8s_dir = self.configs['exp_env']['fmke_yaml_path']
@@ -197,7 +186,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             doc = yaml.safe_load(f)
         # TODO: give -d as a parameter
         doc['metadata']['name'] = 'populate-data-without-prescriptions'
-        doc['spec']['template']['spec']['containers'][0]['args'] = ['-f --noprescriptions'] + fmke_IPs
+        doc['spec']['template']['spec']['containers'][0]['args'] = ['-f -d small --noprescriptions'] + fmke_IPs
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml'), 'w') as f:
             yaml.safe_dump(doc, f)
 
@@ -218,7 +207,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             doc = yaml.safe_load(f)
         # TODO: give -d as a parameter
         doc['metadata']['name'] = 'populate-data-with-onlyprescriptions'
-        doc['spec']['template']['spec']['containers'][0]['args'] = ['-f --onlyprescriptions -p 1'] + fmke_IPs
+        doc['spec']['template']['spec']['containers'][0]['args'] = ['-f -d small --onlyprescriptions -p 1'] + fmke_IPs
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml'), 'w') as f:
             yaml.safe_dump(doc, f)
 
@@ -357,7 +346,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         cmd = 'rm -rf /tmp/results && mkdir -p /tmp/results'
         execute_cmd(cmd, results_nodes)
 
-    def workflow(self, comb, kube_master):
+    def run_workflow(self, comb, kube_master, sweeper):
         comb_ok = False
         try:
             logger.info('=======================================')
@@ -367,19 +356,20 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             self.config_antidote(kube_master)
             self.config_fmke(kube_master)
             self.config_fmke_pop(kube_master)
-            self.perform_exp(kube_master, comb['concurrent_clients'])
+            self.perform_combination(kube_master, comb['concurrent_clients'])
             self.save_results(kube_master, comb)
             comb_ok = True
         except ExecuteCommandException as e:
             comb_ok = False
         finally:
             if comb_ok:
-                self.sweeper.done(comb)
+                sweeper.done(comb)
                 logger.info('Finish combination: %s' % slugify(comb))
             else:
-                self.sweeper.cancel(comb)
+                sweeper.cancel(comb)
                 logger.warning(slugify(comb) + ' is canceled')
-            logger.info('%s combinations remaining\n' % len(self.sweeper.get_remaining()))
+            logger.info('%s combinations remaining\n' % len(sweeper.get_remaining()))
+        return sweeper
 
     def _set_label(self, host, label, kube_master):
         cmd = 'kubectl label node %s %s' % (host, label)
@@ -507,16 +497,6 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         logger.info("FINISH SETTING THE EXPERIMENT ENVIRONMENT\n")
         return kube_master, oar_job_ids
 
-    def is_job_alive(self, oar_job_ids):
-        for oar_job_id, site in oar_job_ids:
-            job_info = get_oar_job_info(oar_job_id, site)
-            while 'state' not in job_info:
-                job_info = get_oar_job_info(oar_job_id, site)
-                sleep(5)
-            if job_info['state'] == 'Error':
-                return False
-        return True
-
     def create_configs(self):
         logger.debug('Get the k8s master node')
         kube_master_site = self.configs['exp_env']['kube_master_site']
@@ -542,8 +522,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         self.configs = parse_config_file(self.args.config_file_path)
         kube_master_site = self.create_configs()
 
-        logger.info('''Your topology: 
-                        Antidote DCs: %s 
+        logger.info('''Your topology:
+                        Antidote DCs: %s
                         n_antidotedb_per_DC: %s
                         n_fmke_per_DC: %s
                         n_fmke_client_per_DC: %s ''' % (
@@ -553,22 +533,19 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             self.configs['exp_env']['n_fmke_client_per_dc'])
         )
 
-        result_dir = self.configs['exp_env']['results_dir']
-        if not os.path.exists(result_dir):
-            os.mkdir(result_dir)
-        parameters = self.define_parameters()
-        self.sweeper = create_paramsweeper(parameters, result_dir)
+        logger.debug('Creating the combination list')
+        sweeper = create_combs_queue(result_dir=self.configs['exp_env']['results_dir'],
+                                     parameters=self.configs['parameters'])
 
         oar_job_ids = None
-        kube_master = None
-        while len(self.sweeper.get_remaining()) > 0:
+        while len(sweeper.get_remaining()) > 0:
             if oar_job_ids is None:
                 kube_master, oar_job_ids = self.setup_env(kube_master_site)
 
-            comb = self.sweeper.get_next()
-            self.workflow(kube_master=kube_master, comb=comb)
+            comb = sweeper.get_next()
+            sweeper = self.run_workflow(kube_master=kube_master, comb=comb, sweeper=sweeper)
 
-            if not self.is_job_alive(oar_job_ids):
+            if not is_job_alive(oar_job_ids):
                 oardel(oar_job_ids)
                 oar_job_ids = None
         logger.info('Finish the experiment!!!')
@@ -582,8 +559,7 @@ if __name__ == "__main__":
         logger.info("Start engine in %s" % __file__)
         engine.start()
     except Exception as e:
-        logger.error(
-            'Program is terminated by the following exception: %s' % e, exc_info=True)
+        logger.error('Program is terminated by the following exception: %s' % e, exc_info=True)
         traceback.print_exc()
     except KeyboardInterrupt:
         logger.info('Program is terminated by keyboard interrupt.')

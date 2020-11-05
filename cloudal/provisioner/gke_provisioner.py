@@ -52,6 +52,7 @@ class gke_provisioner(cloud_provisioning):
 
         logger.info("Validating Kubernetes clusters")
         clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones)
+
         logger.info("Deploying cluster: %s" %
                     ', '.join([cluster['cluster_name'] for cluster in self.configs['clusters']]))
 
@@ -66,7 +67,7 @@ class gke_provisioner(cloud_provisioning):
                     cluster['cluster_name'], cluster['data_center']))
             else:
                 # logger.info("Deploying cluster %s: %s nodes on data center %s" %
-                # (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
+                #             (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
                 cluster_specs = Cluster(mapping={'name': cluster['cluster_name'],
                                                  'locations': [cluster['data_center']],
                                                  'initial_node_count': cluster['n_nodes']})

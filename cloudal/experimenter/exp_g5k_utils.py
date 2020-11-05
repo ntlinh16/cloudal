@@ -1,9 +1,11 @@
+from time import sleep
 import os
+import re
 
 from cloudal.utils import get_logger, getput_file
 
 from execo_engine import utils, sweep, ParamSweeper
-from execo_g5k import get_host_attributes
+from execo_g5k import get_host_attributes, get_oar_job_info
 
 
 logger = get_logger()
@@ -36,6 +38,43 @@ def get_cores_hosts(hosts):
             logger.error('Cannot get number of cores from host [%s]' % host_name)
             logger.error('Exception: %s' % e, exc_info=True)
     return n_cores_hosts
+
+
+def define_parameters(parameters):
+    """Normalize a parameters dictionary from the user input
+
+    Parameters
+    ----------
+    parameters: dict
+        a dictionary contains the parameters space defined by user which is paresed from the config file
+        key: str, the name of the experiment parameter
+        value: list, str, int
+
+    Returns
+    -------
+    dictionary
+        a normalized dictionary contains the parameters space
+        key: str, the name of the experiment parameter
+        value: list, a list of possible values for a parameter of the experiment
+    """
+    normalized_parameters = dict()
+    pattern = re.compile(r"^\d+\.\.+\d+$")
+    for param, values in parameters.items():
+        if not values or isinstance(values, dict):
+            continue
+        elif not isinstance(values, list):
+            normalized_parameters[param] = [values]
+        elif len(values) > 1:
+            normalized_parameters[param] = values
+        elif isinstance(values[0], str) and len(pattern.findall(values[0])) > 0:
+            start = int(values[0].split('.')[0])
+            end = int(values[0].split('.')[-1])
+            normalized_parameters[param] = range(start, end + 1)
+        else:
+            normalized_parameters[param] = values
+
+    logger.info('Parameters:\n%s' % normalized_parameters)
+    return normalized_parameters
 
 
 def create_paramsweeper(parameters, result_dir):
@@ -72,8 +111,34 @@ def create_paramsweeper(parameters, result_dir):
     return sweeper
 
 
+def create_combs_queue(result_dir, parameters):
+    """Generate a combination queue that holds all the experimental combinations
+
+    Parameters
+    ----------
+    result_dir: str
+        the path to the directory to store the results on the local node
+
+    parameters: dict
+        a normalized dictionary contains the parameters space
+        key: str, the name of the experiment parameter
+        value: list, a list of possible values for a parameter of the experiment
+
+    Returns
+    -------
+    ParamSweeper
+        an instance of the `ParamSweeper` object.
+
+    """
+    if not os.path.exists(result_dir):
+        os.mkdir(result_dir)
+    normalized_parameters = define_parameters(parameters)
+    sweeper = create_paramsweeper(normalized_parameters, result_dir)
+    return sweeper
+
+
 def create_combination_dir(comb, result_dir):
-    """Create the directory to save result for a combination
+    """Create the directory to save result for a specific combination
 
     Parameters
     ----------
@@ -106,7 +171,7 @@ def create_combination_dir(comb, result_dir):
     return comb_dir
 
 
-def get_results(self, comb, hosts, remote_result_files, local_result_dir):
+def get_results(comb, hosts, remote_result_files, local_result_dir):
     """Get all the results files from remote hosts to a local result directory
 
     Parameters
@@ -131,3 +196,30 @@ def get_results(self, comb, hosts, remote_result_files, local_result_dir):
                 file_paths=remote_result_files,
                 dest_location=comb_dir,
                 action='get')
+
+
+def is_job_alive(oar_job_ids):
+    """Check if the given OAR_JOB_IDs are still alive on Grid5000 system or not
+
+    Parameters
+    ----------
+    oar_job_ids: dict
+        a dictionay that contains the reserved information 
+        key: str, the name of the site on Grid5000 system
+        value: int, the number of the reservation on that site
+
+    Returns
+    ------
+    bool
+        True: if the given oar_job_ids is still alive
+        False: if  the given oar_job_ids is dead
+
+    """
+    for oar_job_id, site in oar_job_ids:
+        job_info = get_oar_job_info(oar_job_id, site)
+        while 'state' not in job_info:
+            job_info = get_oar_job_info(oar_job_id, site)
+            sleep(5)
+        if job_info['state'] == 'Error':
+            return False
+    return True
