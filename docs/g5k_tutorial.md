@@ -125,7 +125,7 @@ python config_antidotedb_env_g5k.py --system_config_file cloudal/examples/provis
 ```
 
 This `config_antidotedb_env_g5k.py` script makes a reservation for required nodes, then installs Docker container on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
-
+<!-- 
 
 ## Example 4: Perform an experiment: measuring Docker boottime on configured Grid5000 nodes
 In this example, we perform a workflow to measure a Docker container boottime.
@@ -140,7 +140,7 @@ python docker_boottime_g5k.py --system_config_file cloudal/examples/provisioning
 
 The `docker_boottime_g5k.py` script (i) makes a reservation for nodes base on descreibe in `provisioning_config_g5k.yaml`; then (ii) installs Docker contianer on provisioned nodes and (iii) measures Docker boot time with different scenarios (base on parameters in `exp_setting_docker_boottime.yaml`) and saves all the results in the indicated result directory.
 
-You can modify the `_perform_experiments()` function in the script to design your own experiment workflow scenarios.
+You can modify the `_perform_experiments()` function in the script to design your own experiment workflow scenarios. -->
 
 ## Options
 You might want to use `--help` to see all available options:

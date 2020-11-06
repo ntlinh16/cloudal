@@ -34,8 +34,8 @@ You need to clarify all these information in `exp_setting_fmke_antidotedb.yaml` 
 
 #### Experiment config files 
 
-This experiment need to deploy an AntidoteDB cluster and FMKe as a benchmark, we are using k8s deployment files to deploy them. So you need to provide these config files.
-We already provided the template files which work well with this experiment in folder [exp_config_files](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/exp_config_files). If you do not require special configurations, you do not have to modify these files.
+This experiment need to deploy an AntidoteDB cluster and FMKe as a benchmark, I am using k8s deployment files to deploy them. So you need to provide these config files.
+I already provided the template files which work well with this experiment in folder [exp_config_files](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/exp_config_files). If you do not require special configurations, you do not have to modify these files.
 
 ### 2. Run the experiment
 Run the following command:
