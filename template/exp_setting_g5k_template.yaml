@@ -1,0 +1,66 @@
+---
+#########################
+#                       #
+#     Infrastructures   #
+#                       #
+#########################
+
+
+# the duration to keep the reserved nodes running
+walltime: 1:00:00
+
+# the time when you want the nodes to be started.
+# the date format is "YYYY-MM-DD HH:MM:SS"
+starttime: null
+
+# the OS image name (or environment name) that used to deploy OS on the reserved nodes on G5k system.
+# the list of possible OS images can be found at /https://www.grid5000.fr/w/Advanced_Kadeploy#Search_and_deploy_an_existing_environment
+cloud_provider_image: debian10-x64-big
+
+# the path to your custom image that used to deploy OS on the reserved nodes on G5k system.
+# follow this link to make your custom image: https://www.grid5000.fr/w/Advanced_Kadeploy#How_can_I_make_my_own_environment.3F
+custom_image: null
+
+# the name of the cluster and the number of nodes on each cluster that you want to make a reservation
+# you need to specify this section if you don't declare your clusters information
+# in the section: Experiment Environment Settings (see below)
+clusters:
+  - cluster: econome
+    n_nodes: 1
+  - cluster: paravance
+    n_nodes: 2
+
+
+#################################
+#                               #
+#     Experiment Parameters     #
+#                               #
+#################################
+parameters:
+    # the list of different aspects that you want to examine in your experiment
+    # each aspect has a list of possible values to try,
+    # cloudal support the following ways to describe this list
+
+    # a single scalar of number or string
+    parameter_1: 5
+    parameter_2: small
+    # a range of consecutive numbers, format: [<start_number>..<end_number>]
+    parameter_3: [1..5]
+    # a list of numbers or strings (or mixed)   
+    parameter_4: [ssd, hdd]
+    parameter_5: [16, 32, 64]
+
+#############################################
+#                                           #
+#     Experiment Environment Settings       #
+#                                           #
+#############################################
+exp_env:
+    # the path to the results directory
+    #results_dir: /path/to/your/results/dir 
+    results_dir: /tmp/results
+
+    # put here more information used for setting up the environment
+    # for your specific experiment
+
+
