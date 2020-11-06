@@ -106,8 +106,9 @@ default_connection_params = {
 Execo reads `~/.execo.conf.py` file to set up the connection. If this file is not exist, execo uses the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
 
 # Tutorials
+To write your custom a _performing action_ script, you could use the provided template in `cloudal/template` directory. 
 
-We provide some quick tutorials to get you started with `cloudal`:
+We provide here some quick tutorials on how to run your _performing action_ script with `cloudal`:
 - [Working on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
 - [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
 - [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
