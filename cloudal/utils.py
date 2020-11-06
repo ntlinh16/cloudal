@@ -80,6 +80,7 @@ def install_packages_on_debian(packages, hosts):
         the list of hostnames
 
     '''
+    logger.info("Installing packages: %s" % ', '.join(packages))
     cmd = (
         "export DEBIAN_FRONTEND=noninteractive; "
         "apt-get update && apt-get "
