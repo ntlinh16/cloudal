@@ -18,6 +18,18 @@
     </a>
 </p>
 
+--------------------------------------------------------------------------------
+
+- [Introduction](#introduction)
+  - [An experiment workflow with cloudal](#an-experiment-workflow-with-cloudal)
+  - [Architecture](#architecture)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Tutorials](#tutorials)
+  - [Provisioning](#provisioning)
+  - [Configuring](#configuring)
+  - [Experimenting](#experimenting)
+
 # Introduction
 
 ## An experiment workflow with cloudal
@@ -26,7 +38,7 @@ In order to set up a cloud system for running rigorous experiments, we usually f
 
 <p align="center">
     <br>
-    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/experiment_flowchart.png" width="700"/>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/experiment_flowchart.png" width="650"/>
     <br>
 <p>
 
@@ -34,9 +46,9 @@ First of all, _cloudal_ performs `create_combinations_queue()` function to creat
 
 Next, _cloudal_ run `setup_env()` function to prepare the environment on reserved machines with the clients'requirements. The `setup_env()` function (1) provisions the required infrastructure; and (2) installs and deploys all the neccessary packages/services.
 
-The `run_workflow()` function takes a combination from the queue as the input, and then run an user-defined experiment workflow with that combination info. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue to be run later. Different _run_workflow_ funtions need to be implemented for different experiments. The progress of running one combination is checkpointed on the disk so that an experiment can continue the current progress if interrupted.
+The `run_workflow()` function takes a combination from the queue as the input, and then run an user-defined experiment workflow with that combination info. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue to be run later. Different _run_workflow_ funtions need to be implemented for different experiments. The progress of running one combination is checkpointed on the disk so that if a run is interrupted, the experiment can continue the current progress when you re-run.
 
-If all combinations are performed, the experiment is done. While we are performing experiments, if the reserved nodes are dead (end of reservation time or unexpected problems), cloudal will execute `setup_env()` to prepare the infrastructure again.
+If all combinations are performed, the experiment is done. While we are performing experiments, if the reserved nodes are dead (due to end of reservation time or unexpected problems), cloudal will execute `setup_env()` to prepare the infrastructure again.
 
 ## Architecture
 
@@ -105,12 +117,30 @@ default_connection_params = {
 
 Execo reads `~/.execo.conf.py` file to set up the connection. If this file is not exist, execo uses the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
 
-# Tutorials
-To write your custom _performing action_ script, you could use the provided template in `cloudal/template` directory. 
-
-We provide here some quick tutorials on how to run your _performing action_ script with `cloudal`:
+To working on specific cloudal systems, you need more installation. Please fint the instruction in the following link:
 - [Working on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
 - [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
 - [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
 - [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
 
+# Getting started
+
+To write your custom _performing action_ script, you could use the provided template in `cloudal/template` directory. 
+
+# Tutorials
+
+We provide here some quick tutorials on how to perform some actions with `cloudal`:
+
+## Provisioning
+- [Provisioning on G5K: some hosts or a K8s cluster](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
+- [Provisioning some hosts on GCP](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
+- [Provisioning K8s clusters on GKE](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
+
+## Configuring
+- [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md#example-2-configure-docker-on-running-nodes)
+- [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md#example-3-configure-antidotedb-on-running-nodes)
+- [Configuring an AntidoteDB cluster on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md#example-2-configure-an-antidotedb-cluster)
+
+## Experimenting
+- [Benchmarking FMKe on AntidoteDB cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb)
+- [Experiment with elmerfs](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs)
