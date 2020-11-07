@@ -12,7 +12,7 @@ from cloudal.utils import (ExecuteCommandException,
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
 from cloudal.configurator import docker_configurator
-from cloudal.experimenter import create_combs_queue, get_results
+from cloudal.experimenter import create_combs_queue, is_job_alive, get_results
 
 
 logger = get_logger()
@@ -29,23 +29,22 @@ class performing_action_template(performing_actions_g5k):
 
         comb_ok = False
         try:
+            logger.info('Performing combination: ' + slugify(comb))
             # write your code here to perform a run of your experiment
             # you can get the current combination of parameters
             # (specified in the config file exp_setting.yaml)
             # and use them in this run of your experiment
             # For example, you can get the parameters out of the combination
             # and then use them.
-            logger.info('Performing this run of your experiment with the following inputs:')
-            logger.info(comb['parameter_1'])
-            logger.info(comb['parameter_2'])
-            logger.info(comb['parameter_3'])
-            logger.info(comb['parameter_4'])
-            logger.info(comb['parameter_5'])
+            message = "parameter_1: %s, parameter_2: %s, parameter_3: %s, parameter_4: %s, parameter_5: %s" % (
+                comb['parameter_1'], comb['parameter_2'], comb['parameter_3'], comb['parameter_4'], comb['parameter_5'])
+            cmd = "echo %s > /tmp/result_$(hostname).txt" % message
+            execute_cmd(cmd, self.hosts)
 
             # then download the remote_result_files on the remote hosts and save it to local_result_dir
             get_results(comb=comb,
                         hosts=self.hosts,
-                        remote_result_files=['/tmp/results/'],
+                        remote_result_files=['/tmp/result_*.txt'],
                         local_result_dir=self.configs['exp_env']['results_dir'])
             comb_ok = True
         except ExecuteCommandException as e:
@@ -61,7 +60,7 @@ class performing_action_template(performing_actions_g5k):
         return sweeper
 
     def setup_env(self):
-        """Setting up the experiment environment base on the user's requirements
+        """Setting the experiment environment base on the user's requirements
 
         This funtion normally contains two steps:
             1. Provisioning hosts on G5k if needed
@@ -78,6 +77,7 @@ class performing_action_template(performing_actions_g5k):
                                       job_name="cloudal")
         provisioner.provisioning()
         self.hosts = provisioner.hosts
+        oar_job_ids = provisioner.oar_result
 
         ##################################################
         #  Configuring hosts with your applications here #
@@ -87,12 +87,15 @@ class performing_action_template(performing_actions_g5k):
         install_packages_on_debian(['sysstat', 'htop'], self.hosts)
 
         # or perform some commands on all of hosts
+        logger.info("Downloading cloudal")
         cmd = "cd /tmp/ && git clone https://github.com/ntlinh16/cloudal.git"
         execute_cmd(cmd, self.hosts)
 
         # or call the provided configurator (by cloudal) to deploy some well-known services
         configurator = docker_configurator(self.hosts)
         configurator.config_docker()
+
+        return oar_job_ids
 
     def run(self):
         logger.debug('Parse and convert configs for G5K provisioner')
@@ -102,13 +105,19 @@ class performing_action_template(performing_actions_g5k):
         sweeper = create_combs_queue(result_dir=self.configs['exp_env']['results_dir'],
                                      parameters=self.configs['parameters'])
 
-        logger.info('Setting the experiment enviroment')
-        self.setup_env()
-
+        oar_job_ids = None
         logger.info('Running the experiment workflow')
         while len(sweeper.get_remaining()) > 0:
+            if oar_job_ids is None:
+                logger.info('Setting the experiment enviroment')
+                oar_job_ids = self.setup_env()
+
             comb = sweeper.get_next()
             sweeper = self.run_workflow(comb=comb, sweeper=sweeper)
+
+            if not is_job_alive(oar_job_ids):
+                oardel(oar_job_ids)
+                oar_job_ids = None
 
         logger.info('Finish the experiment!!!')
 
