@@ -7,7 +7,7 @@
 
 
 # the duration to keep the reserved nodes running
-walltime: 1:00:00
+walltime: 2:00:00
 
 # the time when you want the nodes to be started.
 # the date format is "YYYY-MM-DD HH:MM:SS"
@@ -22,13 +22,11 @@ cloud_provider_image: debian10-x64-big
 custom_image: null
 
 # the name of the cluster and the number of nodes on each cluster that you want to make a reservation
-# you need to specify this section if you don't declare your clusters information
-# in the section: Experiment Environment Settings (see below)
 clusters:
   - cluster: econome
-    n_nodes: 1
-  - cluster: paravance
     n_nodes: 2
+  - cluster: paravance
+    n_nodes: 0
 
 
 #################################
