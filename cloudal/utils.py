@@ -140,6 +140,9 @@ class ExecuteCommandException(Exception):
 
 
 def custom_retry_return(state):
+    logger.warning("Exception when running command: %s" % state.exception())
+    if not hasattr(state.exception(), 'is_continue'):
+        raise(state.exception())
     if state.exception().is_continue == True:
         logger.warning('Retrying maximum times, continue without raising exception (%s)' % state.exception().message)
         return None
@@ -149,9 +152,11 @@ def custom_retry_return(state):
 
 
 @retry(
+    reraise=True,
     stop=tenacity.stop_after_attempt(10),
     wait=tenacity.wait_random(1, 10),
-    retry_error_callback=custom_retry_return
+    retry_error_callback=custom_retry_return,
+    retry=tenacity.retry_if_exception_type(ExecuteCommandException)
 )
 def execute_cmd(cmd, hosts, mode='run', batch_size=5, is_continue=False):
     """
@@ -159,6 +164,8 @@ def execute_cmd(cmd, hosts, mode='run', batch_size=5, is_continue=False):
         run: start a process and wait until it ends
         start: start a process
     """
+    if hosts is None:
+        raise Exception("Hosts cannot be None")
     if isinstance(hosts, str):
         hosts = [hosts]
     remote_executor = get_remote_executor()
