@@ -442,8 +442,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         configurator.config_docker()
 
         logger.debug("Init configurator: kubernetes_configurator")
-        configurator = kubernetes_configurator(hosts=self.hosts,
-                                               kube_master=kube_master)
+        configurator = kubernetes_configurator(hosts=self.hosts, kube_master=kube_master)
         configurator.deploy_kubernetes_cluster()
 
         logger.info('Create k8s namespace "%s" for this experiment' % self.kube_namespace)
