@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: antidote
+    type: antidote-util-tmp
+  name: createdc-uvb
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+      - args:
+        - --createDc
+        - antidote-uvb-0.antidote:8087
+        - antidote@antidote-uvb-0.antidote
+        - antidote@antidote-uvb-1.antidote
+        - antidote@antidote-uvb-2.antidote
+        image: peterzel/antidote-connect
+        imagePullPolicy: Always
+        name: antidote-connect
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 5
