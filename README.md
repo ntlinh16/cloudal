@@ -132,14 +132,14 @@ To write your custom _performing action_ script, you could use the provided temp
 We provide here some quick tutorials on how to perform some actions with _cloudal_.
 
 ### Provisioning
-- [Provisioning on G5K: some hosts or a K8s cluster](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
-- [Provisioning some hosts on GCP](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
-- [Provisioning K8s clusters on GKE](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
+- [Provisioning on G5K: reserve hosts or a K8s cluster](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
+- [Provisioning on GCP: reserve hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
+- [Provisioning on GKE: reserve K8s clusters](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
 
 ### Configuring
 - [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md#example-2-configure-docker-on-running-nodes)
 - [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md#example-3-configure-antidotedb-on-running-nodes)
-- [Configuring an AntidoteDB cluster on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md#example-2-configure-an-antidotedb-cluster)
+- [Configuring an AntidoteDB cluster on K8s clusters](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md#example-2-configure-an-antidotedb-cluster)
 
 ### Experimenting
 - [Benchmarking FMKe on AntidoteDB cluster on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb)
