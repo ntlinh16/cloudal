@@ -52,12 +52,12 @@ parameters:
 #############################################
 exp_env:
     # the path to the results directory
-    results_dir: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs/results
+    results_dir: cloudal/examples/experiment/elmerfs/results
     # the path to the kubernetes yaml files to deploy antidote cluster 
-    antidote_yaml_path: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs/antidotedb_yaml
+    antidote_yaml_path: cloudal/examples/experiment/elmerfs/antidotedb_yaml
     # the path to the elmerfs binary file on your local machine
-    # elmerfs_file_path: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs/elmerfs
-    elmerfs_file_path:
+    elmerfs_file_path: cloudal/examples/experiment/elmerfs/elmerfs
+    
 
     # the site that kube master node will be deployed in (used for deploying antidote cluster).
     # if it is null, then the k8s master node will be deployed on the first site you specify in the file clusters below
