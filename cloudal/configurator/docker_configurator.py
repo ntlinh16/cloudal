@@ -18,7 +18,6 @@ class docker_configurator(object):
             a list of hosts
         """
         logger.info('Starting installing Docker on %s hosts' % len(self.hosts))
-        logger.info('Installing wget package')
         install_packages_on_debian(['wget'], self.hosts)
         logger.info('Downloading the official get_docker script')
         cmd = 'wget https://get.docker.com -O get-docker.sh'
