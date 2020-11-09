@@ -1,9 +1,11 @@
+Here are some examples to perform the provisioning process on different cloud system.
+
 ## Example 1: Provisioning some hosts on G5k
 In this example, we provision some nodes on Grid5000 system.
 
 First, edit the provision config file in `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
 
-Then, run the following command to perform the provisioning process:
+Then, run the following command to perform the provisioning process on G5K:
 ```
 cd cloudal/examples/provision/
 python provision_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
@@ -67,11 +69,14 @@ With GKE, all the provisioned clusters are kept alive until you deleted it, so t
 
 
 ## Options
-You might want to use `--help` to see all available options:
+You might want to use `--help` to see more supported options:
+
+For example: `python provision_g5k.py --help`
+
 ```
 usage: <program> [options] <arguments>
 
-engine: provision_g5k_k8s
+engine: provision_g5k
 
 optional arguments:
   -h, --help            show this help message and exit

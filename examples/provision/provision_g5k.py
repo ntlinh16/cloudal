@@ -6,13 +6,6 @@ from cloudal.provisioner import g5k_provisioner
 from execo_g5k import oardel
 
 logger = get_logger()
-# from execo import default_connection_params
-# from execo_g5k.config import default_frontend_connection_params
-
-
-# current_user = os.getlogin()
-# default_connection_params['user'] = 'root'
-# default_frontend_connection_params['user'] = current_user
 
 
 class provision_g5k(performing_actions_g5k):

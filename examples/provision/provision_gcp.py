@@ -13,8 +13,7 @@ class provision_gcp(performing_actions):
 
     def provisioning(self):
         logger.info("Init provisioner: gcp_provisioner")
-        self.provisioner = gcp_provisioner(
-            config_file_path=self.args.config_file_path)
+        self.provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
         logger.info("Making reservation")
         self.provisioner.make_reservation()
         logger.info("Getting resources")

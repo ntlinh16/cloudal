@@ -24,8 +24,7 @@ class provision_g5k_k8s(performing_actions_g5k):
 
         if not os.path.exists(kube_dir):
             os.mkdir(kube_dir)
-        get_file(host=kube_master, remote_file_paths=[
-                 '~/.kube/config'], local_dir=kube_dir)
+        get_file(host=kube_master, remote_file_paths=['~/.kube/config'], local_dir=kube_dir)
         config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
         logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
@@ -36,7 +35,7 @@ class provision_g5k_k8s(performing_actions_g5k):
 
         logger.info("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(self.hosts)
-        kube_master, kube_workers = configurator.deploy_kubernetes_cluster()
+        kube_master = configurator.deploy_kubernetes_cluster()
         logger.info('Kubernetes master: %s' % kube_master)
 
         self._get_credential(kube_master=kube_master)
