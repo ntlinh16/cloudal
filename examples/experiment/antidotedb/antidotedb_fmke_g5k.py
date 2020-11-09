@@ -454,7 +454,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
 
         self._setup_g5k_kube_volumes(kube_master, n_pv=3)
 
-        logger.info('Set labels for all kuber workers')
+        logger.info('Set labels for all kubernetes workers')
         self._set_kube_workers_label(kube_master)
 
         logger.info("Finish deploying the Kubernetes cluster")

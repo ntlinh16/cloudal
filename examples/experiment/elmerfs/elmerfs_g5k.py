@@ -15,9 +15,9 @@ import yaml
 logger = get_logger()
 
 
-class elmerfs_exp(performing_actions_g5k):
+class elmerfs_g5k(performing_actions_g5k):
     def __init__(self, **kwargs):
-        super(elmerfs_exp, self).__init__()
+        super(elmerfs_g5k, self).__init__()
         self.args_parser.add_argument("--kube-master", dest="kube_master",
                                       help="name of kube master node",
                                       default=None,
@@ -30,7 +30,7 @@ class elmerfs_exp(performing_actions_g5k):
         elmerfs_file_path = self.configs['exp_env']['elmerfs_file_path']
 
         if elmerfs_file_path is None:
-            logger.debug("Buiding elmerfs project on kube_master node and then downloading to local machine")
+            logger.debug("Building elmerfs project on kube_master node and then downloading to local machine")
 
             logger.info("Downloading elmerfs project")
             cmd = " rm -rf /tmp/elmerfs_repo \
@@ -76,7 +76,9 @@ class elmerfs_exp(performing_actions_g5k):
         antidote_options = ["--antidote=%s:8087" % ip for ip in antidote_ips]
 
         logger.info("Starting elmerfs on elmerfs hosts: %s" % elmerfs_hosts)
-        cmd = "/tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks &" % " ".join(antidote_options)
+        cmd = "/tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks" % " ".join(antidote_options)
+        logger.info(cmd)
+        logger.info('host = %s' % self.hosts)
         for host in elmerfs_hosts:
             execute_cmd(cmd, [host], mode='start')
             sleep(5)
@@ -261,7 +263,7 @@ class elmerfs_exp(performing_actions_g5k):
 
         self._setup_g5k_kube_volumes(kube_master, antidote_hosts, n_pv=3)
 
-        logger.info('Set labels for all kuber workers')
+        logger.info('Set labels for all kubernetes workers')
         self._set_kube_workers_label(kube_master, antidote_hosts)
 
         logger.info("Finish deploying the Kubernetes cluster")
@@ -291,14 +293,15 @@ class elmerfs_exp(performing_actions_g5k):
             self.config_antidote(kube_master)
             self.deploy_elmerfs(kube_master, elmerfs_hosts)
         else:
-            logger.info('Kubernetes master: %s' % kube_master)
-            self._get_credential(kube_master)
-            # self.config_antidote(kube_master)
             cmd = "kubectl get nodes --show-labels | grep antidote | awk '{print$1}'"
             _, p = execute_cmd(cmd, kube_master)
             antidote_hosts = p.processes[0].stdout.strip().split('\r\n')
             elmerfs_hosts = [host for host in self.hosts if host not in antidote_hosts]
             elmerfs_hosts.remove(kube_master)
+
+            logger.info('Kubernetes master: %s' % kube_master)
+            self._get_credential(kube_master)
+            self.config_antidote(kube_master)
             self.deploy_elmerfs(kube_master, elmerfs_hosts)
 
     def setup_env(self, kube_master_site):
@@ -361,13 +364,13 @@ class elmerfs_exp(performing_actions_g5k):
             self.configs['exp_env']['n_elmerfs_per_site'])
         )
 
-        logger.info('Setting the enviroment')
+        logger.info('Setting the environment')
         self.setup_env(kube_master_site)
 
 
 if __name__ == "__main__":
     logger.info("Init engine in %s" % __file__)
-    engine = elmerfs_exp()
+    engine = elmerfs_g5k()
 
     try:
         logger.info("Start engine in %s" % __file__)

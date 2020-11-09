@@ -7,7 +7,7 @@
 
 
 # the duration to keep the reserved nodes running
-walltime: 2:00:00
+walltime: 6:00:00
 
 # the time when you want the nodes to be started.
 # the date format is "YYYY-MM-DD HH:MM:SS"
@@ -24,7 +24,7 @@ custom_image: null
 # the name of the cluster and the number of nodes on each cluster that you want to make a reservation
 # you need to specify this section. 
 # If you declare your clusters information in the section: Experiment Environment Settings (see below),
-# you can igrorge this section
+# you can ignore this section
 clusters:
   - cluster: econome
     n_nodes: 1
@@ -56,8 +56,9 @@ exp_env:
     # the path to the kubernetes yaml files to deploy antidote cluster 
     antidote_yaml_path: cloudal/examples/experiment/elmerfs/antidotedb_yaml
     # the path to the elmerfs binary file on your local machine
-    elmerfs_file_path: cloudal/examples/experiment/elmerfs/elmerfs
-    
+    # if you do not have the elmerfs binary file, do not worry, 
+    # let the elmerfs_file_path empty and it will be built from the repository.
+    elmerfs_file_path:
 
     # the site that kube master node will be deployed in (used for deploying antidote cluster).
     # if it is null, then the k8s master node will be deployed on the first site you specify in the file clusters below
@@ -65,10 +66,10 @@ exp_env:
 
     # the sites that all the data centers will be deployed.
     antidote_clusters: [dahu, uvb]
-    n_antidotedb_per_dc: 3
+    n_antidotedb_per_dc: 2
 
     # the sites that elmerfs will be deployed.
-    elmerfs_site: [econome, uvb]
+    elmerfs_site: [uvb]
     # the number of hosts on each site
     n_elmerfs_per_site: 2
 

@@ -4,7 +4,7 @@ This experiment performs some tests (which not design yet) of [elmerfs](https://
 
 ## Introduction
 
-The steps of this experiment follows the general flowchart of cloudal [here](https://github.com/ntlinh16/cloudal#an-experiment-flow-with-cloudal).
+The steps of this experiment follows the general flowchart of cloudal [here](https://github.com/ntlinh16/cloudal#an-experiment-workflow-with-cloudal).
 
 The `create_combs_queue()` function is not called because the parameters are not design yet.
 
@@ -49,12 +49,12 @@ If the script is interrupted by unexpected reasons. You can re-run the experimen
 1. If your reserved hosts are dead, you just run the same above command:
 ```
 cd cloudal/examples/experiment/elmerfs/
-python elmerfs_g5k.py --system_config_file exp_setting_elmerfs.yaml -k &> result/test2.log
+python elmerfs_g5k.py --system_config_file exp_setting_elmerfs.yaml -k
 ```
 
 2. If your reserved hosts are still alive, you can give it to the script (to ignore the provisioning process):
 
 ```
 cd cloudal/examples/experiment/elmerfs/
-python elmerfs_g5k.py --system_config_file exp_setting_elmerfs.yaml -k -j < site1:oar_job_id1,site2:oar_job_id2,...> --no-deploy-os --kube-master <the host name of the kubernetes master> &> result/test2.log
+python elmerfs_g5k.py --system_config_file exp_setting_elmerfs.yaml -k -j <site1:oar_job_id1,site2:oar_job_id2,...> --no-deploy-os --kube-master <the host name of the kubernetes master>
 ```

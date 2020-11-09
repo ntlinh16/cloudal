@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: fmke_pop
+  name: populate-data-with-onlyprescriptions
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+      - args:
+        - -f --onlyprescriptions -p 1
+        - fmke@10.244.82.15
+        - fmke@10.244.83.15
+        - fmke@10.244.84.15
+        - fmke@10.244.87.15
+        - fmke@10.244.81.15
+        - fmke@10.244.24.15
+        - fmke@10.244.29.15
+        - fmke@10.244.26.15
+        - fmke@10.244.30.15
+        - fmke@10.244.27.15
+        - fmke@10.244.6.15
+        - fmke@10.244.10.15
+        - fmke@10.244.8.15
+        - fmke@10.244.7.15
+        - fmke@10.244.9.15
+        - fmke@10.244.65.15
+        - fmke@10.244.67.15
+        - fmke@10.244.64.15
+        - fmke@10.244.61.15
+        - fmke@10.244.69.15
+        - fmke@10.244.41.18
+        - fmke@10.244.50.37
+        - fmke@10.244.47.18
+        - fmke@10.244.45.22
+        - fmke@10.244.49.20
+        image: ntlinh/fmke_pop:latest
+        imagePullPolicy: IfNotPresent
+        name: fmke-pop
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 5

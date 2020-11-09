@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: antidote
+    type: antidote-util-tmp
+  name: createdc-nova
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+      - args:
+        - --createDc
+        - antidote-nova-0.antidote:8087
+        - antidote@antidote-nova-0.antidote
+        - antidote@antidote-nova-1.antidote
+        - antidote@antidote-nova-2.antidote
+        - antidote@antidote-nova-3.antidote
+        - antidote@antidote-nova-4.antidote
+        - antidote@antidote-nova-5.antidote
+        - antidote@antidote-nova-6.antidote
+        - antidote@antidote-nova-7.antidote
+        - antidote@antidote-nova-8.antidote
+        image: peterzel/antidote-connect
+        imagePullPolicy: Always
+        name: antidote-connect
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 5

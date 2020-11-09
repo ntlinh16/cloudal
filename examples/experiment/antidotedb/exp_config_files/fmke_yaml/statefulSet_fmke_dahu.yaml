@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: fmke
+    type: fmke-deployment
+  name: fmke-dahu
+spec:
+  podManagementPolicy: Parallel
+  replicas: 5
+  selector:
+    matchLabels:
+      app: fmke
+      type: instance
+  serviceName: fmke
+  template:
+    metadata:
+      labels:
+        app: fmke
+        type: instance
+    spec:
+      containers:
+      - env:
+        - name: DATABASE_ADDRESSES
+          value: 10.105.180.182
+        image: ntlinh/fmke:latest
+        imagePullPolicy: IfNotPresent
+        name: fmke
+        ports:
+        - containerPort: 9090
+          name: fmke-pb
+        startupProbe:
+          failureThreshold: 60
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: fmke-pb
+      nodeSelector:
+        cluster_g5k: dahu
+        service_g5k: fmke
+      terminationGracePeriodSeconds: 10
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app: fmke
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
