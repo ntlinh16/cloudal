@@ -10,7 +10,7 @@ The `create_combs_queue()` function is not called because the parameters are not
 
 The `setup_env()` function (1) makes a reservation for the required infrastructure; and then (2) configuring these hosts by: deploys a Kubernetes cluster to manage a AntidoteDB cluster and installs elmerfs is deploy on hosts which connect to AntidoteDB cluster.
 
-The `run_workflow()` is not design yet.
+The `run_workflow()` is not designed yet.
 
 ## How to run the experiment
 
@@ -27,7 +27,7 @@ The system config file provides three following information:
 
 * Parameters: is a list of experiment parameters that represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect. For example, I want to examine the effect of the number of concurrent clients that connect to an AntidoteDB database, so I define a parameter such as `concurrent_clients: [16, 32]`
 
-You need to clarify all these information in `exp_setting_fmke_antidotedb.yaml` file
+You need to clarify all these information in `exp_setting_elmerfs.yaml` file
 
 #### Experiment config files 
 
