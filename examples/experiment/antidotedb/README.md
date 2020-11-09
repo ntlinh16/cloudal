@@ -51,7 +51,7 @@ Then, you can watch the log by:
 ```
 tail -f cloudal/examples/experiment/antidotedb/result/test.log
 ```
-Depending on how many clusters you are requiring, it might take 35 minutes to 1 hour to fully set up the environment before starting the _run_workflow_ function to execute the combinations
+Depending on how many clusters you are requiring, it might take 35 minutes to 1 hour to fully set up the environment before starting the _run_workflow_ function to execute the combinations.
 
 ### 3. Re-run the experiment
 If the script is interrupted by unexpected reasons. You can re-run the experiment and it will continue with the list of combinations left in the queue. You have to provide the same result directory of the previous one. There are two possible cases:
