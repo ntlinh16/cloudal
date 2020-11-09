@@ -20,9 +20,9 @@ class provision_gke(performing_actions):
         self.clusters = self.provisioner.clusters
 
     def run(self):
-        logger.info("STARTING CREATING KUBERNETES CLUTERS")
+        logger.info("STARTING CREATING KUBERNETES CLUSTERS")
         self.provisioning()
-        logger.info("FINISH CREATING KUBERNETES CLUTERS")
+        logger.info("FINISH CREATING KUBERNETES CLUSTERS")
 
 
 if __name__ == "__main__":
