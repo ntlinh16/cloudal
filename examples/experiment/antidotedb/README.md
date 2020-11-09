@@ -3,7 +3,7 @@ This experiment performs the [FMKe benchmark](https://github.com/ntlinh16/FMKe) 
 
 ## Introduction
 
-The flow of the experiment follows the flowchart [here](https://github.com/ntlinh16/cloudal#an-experiment-flow-with-cloudal).
+The flow of the experiment follows the flowchart [here](https://github.com/ntlinh16/cloudal#an-experiment-workflow-with-cloudal).
 
 The `create_combs_queue()` function creates a list of combinations from the given parameters in the _exp_setting_fmke_antidotedb_ file which is described more in detail later.
 
@@ -51,6 +51,7 @@ Then, you can watch the log by:
 ```
 tail -f cloudal/examples/experiment/antidotedb/result/test.log
 ```
+Depending on how many clusters you are requiring, it might take 35 minutes to 1 hour to fully set up the environment before starting the _run_workflow_ function to execute the combinations
 
 ### 3. Re-run the experiment
 If the script is interrupted by unexpected reasons. You can re-run the experiment and it will continue with the list of combinations left in the queue. You have to provide the same result directory of the previous one. There are two possible cases:
@@ -72,7 +73,7 @@ python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb.y
 A figure of the results of this experiment can be found [here](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/results)
 
 
-## Image used in the experiments
+## Images used in the experiments
 
 I use Docker images to pre-build the environment for FMKe services. All images are on Docker repository.
 
