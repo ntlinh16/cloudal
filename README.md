@@ -118,7 +118,7 @@ default_connection_params = {
 Execo reads `~/.execo.conf.py` file to set up the connection. If this file is not exist, execo uses the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
 
 To working on specific cloudal systems, you need more installation. Please find the detail instruction in the following links:
-- [Working on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
+- [Working on Grid5000 (G5K)](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
 - [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
 - [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
 - [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
@@ -132,14 +132,15 @@ To write your custom _performing action_ script, you could use the provided temp
 We provide here some quick tutorials on how to perform some actions with _cloudal_.
 
 ### Provisioning
-- [Provisioning on G5K: reserve hosts or a K8s cluster](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
-- [Provisioning on GCP: reserve hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
-- [Provisioning on GKE: reserve K8s clusters](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
+- [Provisioning on G5K: reserve some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-1-provision-nodes-on-g5k)
+- [Provisioning on G5K: reserve a K8s cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-2-provision-a-kubernetes-cluster-on-g5k)
+- [Provisioning on GCP: reserve hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-3-provision-nodes-on-gcp)
+- [Provisioning on GKE: reserve K8s clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-4-provision-kubernetes-clusters-on-gke)
 
 ### Configuring
-- [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md#example-2-configure-docker-on-running-nodes)
-- [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md#example-3-configure-antidotedb-on-running-nodes)
-- [Configuring an AntidoteDB cluster on K8s clusters](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md#example-2-configure-an-antidotedb-cluster)
+- [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configure-docker-on-running-nodes-on-g5k)
+- [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-3-configure-an-antidotedb-cluster-on-g5k)
+- [Configuring an AntidoteDB cluster on K8s clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-5--deploy-an-antidotedb-cluster-on-gke)
 
 ### Experimenting
 - [Benchmarking FMKe on AntidoteDB cluster on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb)
