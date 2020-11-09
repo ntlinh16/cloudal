@@ -1,4 +1,4 @@
-## Example 1: Provision nodes on G5k
+## Example 1: Provisioning some hosts on G5k
 In this example, we provision some nodes on Grid5000 system.
 
 First, edit the provision config file in `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
@@ -15,7 +15,7 @@ These provisioned nodes are kept alive after this script is terminated with `-k`
 
 Remember to delete the reservation to release the resoures after finishing your testing.
 
-## Example 2: Provision a Kubernetes cluster on G5K
+## Example 2: Creating a Kubernetes cluster on G5K
 
 In this example, we provision some nodes on Grid5000 system and then create a Kubernetes cluster from that nodes.
 
@@ -32,8 +32,8 @@ This `provision_g5k.py` script makes a reservation with the description in the p
 This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resoures after finishing your testing.
 
 
-## Example 3: Provision nodes on GCP
-In this example, we provision some nodes on GCP.
+## Example 3: Provisioning some hosts on GCP
+In this example, we provision some hosts on GCP.
 
 First, edit the parameters in the provisioning config file `provisioning_config_gcp.yaml` with your authentication information and your infrastructure requirements.
 
@@ -43,14 +43,14 @@ cd cloudal/examples/provision/
 python provision_gcp.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_gcp.yaml
 ```
 
-The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 node on datacenter _us-central1-a_ with the type of node is _e2-standard-2_, and 2 _f1-micro_ nodes on _europe-west3-a_. These nodes are deployed with the given `cloud_provider_image`. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
+The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 host on datacenter _us-central1-a_ with the type of host is _e2-standard-2_, and 2 _f1-micro_ hosts on _europe-west3-a_. These hosts are deployed with the given `cloud_provider_image`. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
 
-With GCP, all the provisioned nodes are kept alive until you deleted it, so that remember to delete your nodes to release the resources (and not losing money) after finishing your testing.
+With GCP, all the provisioned hosts are kept alive until you deleted it, so that remember to delete your hosts to release the resources (and not losing money) after finishing your testing.
 
-If you do not have a free trial account (with $300 credit), you always create nodes with `f1-micro` type and it is free, check out the information in [Always Free usage limits](https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits)
+If you do not have a free trial account (with $300 credit), you always create hosts with `f1-micro` type and it is free, check out the information in [Always Free usage limits](https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits)
 
 
-## Example 4: Provision Kubernetes clusters on GKE
+## Example 4: Provisioning Kubernetes clusters on GKE
 In this example, we create Kubernetes clusters on GCP by using GKE.
 
 First, edit the parameters in the provisioning config file `provisioning_config_gke.yaml` with your authentication information and your infrastructure requirements.
