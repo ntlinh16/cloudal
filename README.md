@@ -44,7 +44,7 @@ To set up a cloud system for running rigorous experiments, we usually follow a t
 
 First of all, _cloudal_ performs the `create_combinations_queue()` function to create a list of combinations. So what is a combinations list? Let say, when you perform an experiment, you want to examine various aspects of the system, so that you have to run the same experiment repeatedly with different setting of parameters. Each parameter contains a list of possible values of an aspect. For example, the disk type (SSD or HDD or remote storage) can be one of the parameters. _cloudal_ will combine all the given parameters to create a list of combinations. You just need to define all the parameters that you want to test for your experiment, then _cloudal_ will manage and ensure the run of all combinations automatically.
 
-Next, _cloudal_ run the `setup_env()` function to prepare the environment on reserved machines with the clients'requirements. The `setup_env()` function (1) provisions the required infrastructure; and (2) installs and deploys all the necessary packages/services.
+Next, _cloudal_ run the `setup_env()` function to prepare the environment on reserved machines with the clients' requirements. The `setup_env()` function (1) provisions the required infrastructure; and (2) installs and deploys all the necessary packages/services.
 
 The `run_workflow()` function takes a combination from the queue as the input, and then run an user-defined experiment workflow with that combination info. This repeats until we have no combinations left. If a run of a combination fails, the combination is put back to the queue to be run later. The _run_workflow_ function needs to be implemented for different experiments. The progress of running one combination is checkpointed on the disk so that if a run is interrupted, the experiment can continue the current progress when you re-run.
 
@@ -58,10 +58,10 @@ If all combinations are performed, the experiment is done. While we are performi
     <br>
 <p>
 
-The design of _cloudal_ is a _Performing Action_ class that inherits the `execo_engine`. 
+The design of _cloudal_ is a _Performing Actions_ class that inherits the `execo_engine`. 
 We use `execo` as an experiment toolkit which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
 
-_cloudal_ provides 3 main modules to heps user perform their actions (i.e., provisioning, configuring or experimenting action) easily and quickly"
+_cloudal_ provides 3 main modules to helps user perform their actions (i.e., provisioning, configuring or experimenting action) easily and quickly"
 
 - __provisioner__: Each provisioner is an instance of the `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
 - __configurator__: this module contains many ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
@@ -133,14 +133,14 @@ We provide here some quick tutorials on how to perform some actions with _clouda
 
 ### Provisioning
 - [Provisioning on G5K: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-1-provisioning-some-hosts-on-g5k)
-- [Provisioning on G5K: creating a Kuberneting cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-2-creating-a-kubernetes-cluster-on-g5k)
+- [Provisioning on G5K: creating a Kubernetes cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-2-creating-a-kubernetes-cluster-on-g5k)
 - [Provisioning on GCP: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-3-provisioning-some-hosts-on-gcp)
 - [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-4-provisioning-kubernetes-clusters-on-gke)
 
 ### Configuring
 - [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-g5k)
-- [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-3-configuring-antidotedb-on_running_hosts-on-g5k)
-- [Deploying an AntidoteDB cluster using Kubernetes](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-5--deploying-an-antidotedb-cluster-using-kubernetes-on-g5k)
+- [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-3-configuring-antidotedb-on-running-hosts-on-g5k)
+- [Deploying an AntidoteDB cluster using Kubernetes](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-5-deploying-an-antidotedb-cluster-using-kubernetes-on-g5k)
 
 ### Experimenting
 - [Running FMKe benchmark on AntidoteDB cluster using Kubernetes on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb)
