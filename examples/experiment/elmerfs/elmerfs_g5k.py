@@ -76,12 +76,11 @@ class elmerfs_g5k(performing_actions_g5k):
         antidote_options = ["--antidote=%s:8087" % ip for ip in antidote_ips]
 
         logger.info("Starting elmerfs on elmerfs hosts: %s" % elmerfs_hosts)
-        cmd = "/tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks" % " ".join(antidote_options)
-        logger.info(cmd)
-        logger.info('host = %s' % self.hosts)
+        cmd = "RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
+            antidote_options)
         for host in elmerfs_hosts:
-            execute_cmd(cmd, [host], mode='start')
-            sleep(5)
+            execute_cmd(cmd, host, mode='start')
+            sleep(3)
 
     def config_antidote(self, kube_master):
         logger.info('Deleting all k8s resource in namespace %s' % self.kube_namespace)
@@ -318,7 +317,6 @@ class elmerfs_g5k(performing_actions_g5k):
 
         provisioner.provisioning()
         self.hosts = provisioner.hosts
-        oar_job_ids = provisioner.oar_result
         logger.info("FINISH PROVISIONING NODES\n")
 
         logger.info("STARTING CONFIGURING NODES")
