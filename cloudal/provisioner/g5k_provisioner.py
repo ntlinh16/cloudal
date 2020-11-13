@@ -5,7 +5,7 @@ import datetime
 from humanfriendly.terminal import message
 
 from cloudal.provisioner.provisioning import cloud_provisioning
-from cloudal.utils import get_remote_executor, get_logger
+from cloudal.utils import get_remote_executor, get_logger, parse_config_file
 
 from execo import format_date, Host
 # from execo.config import default_connection_params
@@ -47,7 +47,6 @@ class g5k_provisioner(cloud_provisioning):
         which can be retrieved from the command line arguments or from make_reservation()
         """
         self.oar_result = list()
-
         """
         TODO:
             + write function to check all nodes in a job is alive
@@ -66,9 +65,11 @@ class g5k_provisioner(cloud_provisioning):
                     logger.error("Please rerun the script with a correct oar_job_id")
                     exit()
                 self.oar_result.append((int(oar_job_id), str(site_name)))
+            if self.config_file_path and not self.configs:
+                self.configs = parse_config_file(self.config_file_path)
             return
         elif self.configs and isinstance(self.configs, dict):
-            logger.debug("Use configs insteads of config file")
+            logger.debug("Use configs instead of config file")
         elif self.config_file_path is None:
             logger.error(
                 "Please provide at least a provisioning config file or oar_job_id.")
@@ -259,7 +260,7 @@ class g5k_provisioner(cloud_provisioning):
             stderr = None
 
         # deploy() function will iterate through each frontend to run kadeploy
-        # so that the deployment hosts will be performed squentially site after site
+        # so that the deployment hosts will be performed sequentially site after site
         deployed_hosts, undeployed_hosts = deploy(deployment,
                                                   stdout_handlers=stdout,
                                                   stderr_handlers=stderr,
@@ -311,7 +312,7 @@ class g5k_provisioner(cloud_provisioning):
             deployed_hosts, undeployed_hosts = self._launch_kadeploy()
             # self._configure_ssh()
 
-            # Retry provisioing again if all reserved hosts are not deployed successfully
+            # Retry provisioning again if all reserved hosts are not deployed successfully
             if len(undeployed_hosts) > 0:
                 if self.max_deploy > 0:
                     self.max_deploy -= 1
