@@ -195,17 +195,13 @@ class elmerfs_g5k(performing_actions_g5k):
 
         logger.info('Finish deploying the Antidote cluster')
 
-    def _set_label(self, host, labels, kube_master):
-        cmd = 'kubectl label node %s %s' % (host, ' '.join(labels))
-        execute_cmd(cmd, kube_master)
-
     def _set_kube_workers_label(self, kube_master, antidote_hosts):
         kube_workers = [host for host in antidote_hosts if host != kube_master]
         for host in kube_workers:
             cluster = host.split('-')[0]
-            self._set_label(host=host,
-                            labels=['cluster_g5k=%s' % cluster, 'service_g5k=antidote'],
-                            kube_master=kube_master)
+            labels = ['cluster_g5k=%s' % cluster, 'service_g5k=antidote']
+            cmd = 'kubectl label node %s %s' % (host, " ".join(labels))
+            execute_cmd(cmd, kube_master)
 
     def _setup_g5k_kube_volumes(self, kube_master, antidote_hosts, n_pv=3):
         kube_workers = [host for host in antidote_hosts if host != kube_master]
