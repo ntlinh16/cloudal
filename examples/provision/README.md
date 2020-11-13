@@ -1,6 +1,6 @@
 Here are some examples to perform the provisioning process on different cloud system.
 
-## Example 1: Provisioning some hosts on G5k
+## Example 1: Provisioning some hosts on Grid5000 (G5k)
 In this example, we provision some nodes on Grid5000 system.
 
 First, edit the provision config file in `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
@@ -11,30 +11,29 @@ cd cloudal/examples/provision/
 python provision_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
 ```
 
-This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). 
+This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Advanced_Kadeploy#Search_and_deploy_an_existing_environment). 
 
-These provisioned nodes are kept alive after this script is terminated with `-k` option. You can connect to these nodes and install or set up your applications manually or you just need to give these nodes to _cloudal_ and it will configure them as your wish (see Example 2).
+These reserved nodes are kept alive after this script is terminated with `-k` option. You can connect to these nodes and install or set up your applications manually or you just need to give these nodes to _cloudal_ and it will configure them as your wish (see [examples in the Configuration](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration)).
 
 Remember to delete the reservation to release the resources after finishing your testing.
 
-## Example 2: Creating a Kubernetes cluster on G5K
+## Example 2: Provisioning a Kubernetes cluster on Grid5000 (G5K)
 
-In this example, we provision some nodes on Grid5000 system and then create a Kubernetes cluster from that nodes.
+You cannot provision a Kubernetes cluster directly from Grid5000. In this example, we help you do that. We first provision some nodes on Grid5000 system and then create a Kubernetes cluster from these nodes using kubeadm.
 
-First, edit the provision config file in `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
+First, you should edit the provisioning config file at `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
 
-Then, run the following command to create a Kubernetes:
+Then, run the following command:
 ```
 cd cloudal/examples/provision/
 python provision_g5k_k8s.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
 ```
-
-This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install and setup kubernetes on these nodes to create a Kubernetes cluster
+s
+The `provision_g5k.py` script makes a reservation with the clusters described in _provisioning_config_g5k.yaml_ file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install kubelet, kubeadm, kubectl and then perform some setups on these nodes to create a Kubernetes cluster.
 
 This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resources after finishing your testing.
 
-
-## Example 3: Provisioning some hosts on GCP
+## Example 3: Provisioning some hosts on Google Cloud Platform (GCP)
 In this example, we provision some hosts on GCP.
 
 First, edit the parameters in the provisioning config file `provisioning_config_gcp.yaml` with your authentication information and your infrastructure requirements.
@@ -49,11 +48,11 @@ The `provision_gcp.py` script makes a reservation with the description in `provi
 
 With GCP, all the provisioned hosts are kept alive until you deleted it, so that remember to delete your hosts to release the resources (and not losing money) after finishing your testing.
 
-If you do not have a free trial account (with $300 credit), you always create hosts with `f1-micro` type and it is free, check out the information in [Always Free usage limits](https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits)
+If you do not have a free trial account (with $300 credit), you can always create hosts with `f1-micro` type and it is free, check out the information in [Always Free usage limits](https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits)
 
 
-## Example 4: Provisioning Kubernetes clusters on GKE
-In this example, we create Kubernetes clusters on GCP by using GKE.
+## Example 4: Provisioning Kubernetes clusters on Google Cloud Engine (GKE)
+In this example, we create some Kubernetes clusters on Google Cloud by using GKE.
 
 First, edit the parameters in the provisioning config file `provisioning_config_gke.yaml` with your authentication information and your infrastructure requirements.
 

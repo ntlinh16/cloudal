@@ -1,7 +1,7 @@
 Here are some examples to configuring some applications/services on reserved hosts.
 
-## Example 1: Configuring Docker on running hosts on G5k
-In this example, we provision some nodes on Grid5000 and then install Docker and configure the environment to ensure that Docker runs on these nodes.
+## Example 1: Configuring Docker on running hosts on Grid5000 (G5K)
+In this example, we provision some nodes on G5K and then install Docker and configure the environment to ensure that Docker runs on these nodes.
 
 First, you also have to edit the provisioning config file `provisioning_config_g5k.yaml` with your own requirements.
 
@@ -16,7 +16,7 @@ python config_docker_env_g5k.py -j nantes:<your_oar_job_id_on_nantes>,rennes:<yo
 
 This `config_docker_env_g5k.py` will install Docker on the provisioned nodes you give them.
 
-2. If you do not have any running nodes on Grid5000, run the following command to provision and then configure nodes:
+2. If you do not have any running nodes on G5K, run the following command to provision and then configure nodes:
 ```
 cd cloudal/examples/configuration/docker/
 python config_docker_env_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
@@ -24,7 +24,7 @@ python config_docker_env_g5k.py --system_config_file cloudal/examples/provisioni
 
 In this case, the `config_docker_env_g5k.py` script makes a reservation for nodes then installs Docker container on them. You can modify the `config_host()` function in this script to install and configure your own necessary applications.
 
-## Example 2: Configuring Docker on running hosts on GCP
+## Example 2: Configuring Docker on running hosts on Google Cloud Platform (GCP)
 In this example, we provision some hosts on GCP and then install Docker and configure the environment to ensure that Docker runs on these hosts.
 
 First, you also have to edit the provisioning config file `provisioning_config_gcp.yaml` with your own requirements.
@@ -36,13 +36,13 @@ cd cloudal/examples/configuration/docker/
 python config_docker_env_gcp.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_gcp.yaml
 ```
 
-This `config_docker_env_g5k.py` will install Docker on the provisioned nodes you give them.
+the `config_docker_env_gcp.py` script makes a reservation for nodes then installs Docker container on them. You can modify the `config_host()` function in this script to install and configure your own necessary applications.
 
 ## Example 3: Configuring AntidoteDB on running hosts on G5K
 
-This example is similar to the Example 2, after provisioning some nodes on Grid5000, it configures to ensure that AntidoteDB runs on these nodes.
+In this example, after provisioning some nodes on G5K, we configure to ensure that AntidoteDB runs on these nodes.
 
-First, you still need to describe your infrastructure in `provisioning_config_g5k.yaml` file.
+First, you need to describe your infrastructure in `cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml` file.
 
 Then, run the following command:
 ```
@@ -50,14 +50,13 @@ cd cloudal/examples/configuration/antidote_env/
 python config_antidotedb_env_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
 ```
 
-This `config_antidotedb_env_g5k.py` script makes a reservation for required nodes, then installs Docker container on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
+This `config_antidotedb_env_g5k.py` script makes a reservation for required nodes, then installs Docker container on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure different applications.
 
+## Example 4: Configuring AntidoteDB on running hosts on Google Cloud Platform (GCP)
 
-## Example 4: Configuring AntidoteDB on running hosts on GCP
+In this example, after provisioning some hosts on GCP, we install Docker and configure to ensure that AntidoteDB runs on these hosts.
 
-In this example, after provisioning some nodes on GCP, we install Docker and configure to ensure that AntidoteDB runs on these nodes.
-
-First, you still need to describe your infrastructure in  `provisioning_config_gcp.yaml` file.
+First, you still need to describe your infrastructure in  `cloudal/examples/provisioning_config_files/provisioning_config_gcp.yaml` file.
 
 Then, run the following command:
 ```
@@ -65,7 +64,7 @@ cd cloudal/examples/configuration/antidote_env/
 python config_antidotedb_env_gcp.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_gcp.yaml -k
 ```
 
-This `config_antidotedb_env_gcp.py` script makes a reservation for required nodes, then installs Docker on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
+This `config_antidotedb_env_gcp.py` script makes a reservation for required hosts, then installs Docker on them, next pulls the AntidoteDB docker image, and finally runs the AntidoteDB container. You can modify the `config_host()` function in this script to install and configure your necessary applications.
 
 Now on your GCP, you have the number of your required nodes running the AntidoteDB, you can connect to them and perform your testing.
 
@@ -83,7 +82,7 @@ Then, run the following command:
 cd cloudal/examples/configuration/antidote_cluster/
 python config_antidotedb_cluster_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml --antidote_yaml_dir antidotedb_yaml_g5k/ -k
 ```
-The `config_antidotedb_cluster_g5k.py` script will deploy a Kubernetes cluster will all the nodes. Then, using the Kubernetes deployment files in _antidotedb_yaml_g5k_ to deploy an AntidoteDB cluster.
+The `config_antidotedb_cluster_g5k.py` script deploys a Kubernetes cluster with all the nodes. Then, using the Kubernetes deployment files in _antidotedb_yaml_g5k_ to deploy an AntidoteDB cluster.
 
 With `-k` option, this cluster are kept alive after this script is terminated so that you can login to it for testing. Remember to delete the reservation to release the resources after finishing your testing.
 
@@ -94,10 +93,10 @@ python config_antidotedb_cluster_g5k.py --system_config_file cloudal/examples/pr
 ```
 
 
-## Example 6: Deploying an AntidoteDB cluster on GKE
+## Example 6: Deploying an AntidoteDB cluster on Google Kubernetes Engine (GKE)
 In this example, after creating GKE clusters, we use Kubernetes to deploy an AntidoteDB cluster on each GKE cluster. This AntidoteDB cluster consists of 2 data centers that span in a Kubernetes cluster. We follow the instruction [here](https://github.com/AntidoteDB/AntidoteDB-documentation/blob/master/deployment/kubernetes/deployment.md) to deploy an AntidoteDB cluster by using Kubernetes.
 
-First, you still have to describe your GKE authentication information and your clusters requirements in `provisioning_config_gke.yaml` file.
+First, you still have to describe your GKE authentication information and your clusters requirements in `cloudal/examples/provisioning_config_files/provisioning_config_gke.yaml` file.
 
 Then, run the following command:
 ```

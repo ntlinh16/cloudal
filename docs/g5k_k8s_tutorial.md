@@ -77,7 +77,7 @@ In case it is not important to store your password securely for you, you can cho
 pip install keyrings.alt
 ```
 ##### 4. Set up a VPN to connect to the Grid5000 network
-If you already set up three above steps, you can access to Gri5000 nodes from your laptop via their hostname. However, when you work with Kubernetes, to deploy a resource from a deployment (yaml) file to kubernetes worker nodes, it use the IP address. Therefor, you have to configure a VPN.
+If you already set up three above steps, you can access to Gri5000 nodes from your laptop via their hostname. However, when you work with Kubernetes, to deploy a resource from a deployment (yaml) file to kubernetes worker nodes, it use the IP address. Therefore, you have to configure a VPN.
 
 Following the instruction [here](https://www.grid5000.fr/w/VPN?fbclid=IwAR1t_5TBkUhJ5LkMSO2BRkjp-CAksRfEKf4-HrBBxGkOa_yDXIRT40SWvRE) to create and download your Grid5000 VPN certificate.
 
