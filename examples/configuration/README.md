@@ -71,17 +71,28 @@ Now on your GCP, you have the number of your required nodes running the Antidote
 
 ## Example 5: Deploying an AntidoteDB cluster using Kubernetes on G5K
 
-In this example, we deploy an AntidoteDB cluster on top of a Kubernetes cluster in Grid5000 system.
+We follow the instruction [here](https://github.com/AntidoteDB/AntidoteDB-documentation/blob/master/deployment/kubernetes/deployment.md) to deploy an AntidoteDB cluster by using Kubernetes. 
+In this example, we deploy an AntidoteDB cluster on top of a Kubernetes cluster in Grid5000 system. 
 
-First, edit the provision config file in `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
+To run this example from your laptop, remember to run VPN to access the Grid5000 system as shown in the instruction at [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
 
-Then, run the following command to create a Kubernetes:
+First, you should edit the provision config file at `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements. The _clusters_ information is the AntidoteDB cluster, each data center will be deployed on a cluster you provide. For example, in this experiment, we will create an AntidoteDB cluster includes 3 data centers (_econome_ - 3 instances of antidote, _dahu_ - 1 instance of antidote, _paravance_ - 2 instances of antidote)
+
+Then, run the following command:
 ```
 cd cloudal/examples/configuration/antidote_cluster/
 python config_antidotedb_cluster_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml --antidote_yaml_dir antidotedb_yaml_g5k/ -k
 ```
+The `config_antidotedb_cluster_g5k.py` script will deploy a Kubernetes cluster will all the nodes. Then, using the Kubernetes deployment files in _antidotedb_yaml_g5k_ to deploy an AntidoteDB cluster.
 
-This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resources after finishing your testing.
+With `-k` option, this cluster are kept alive after this script is terminated so that you can login to it for testing. Remember to delete the reservation to release the resources after finishing your testing.
+
+While you are running the scrip, if there is an unexpected problem, and the Kubernetes cluster is already deployed successfully but antidoteDB cluster. You can re-run the script without making provisioning and deploying Kubernetes cluster again as follow:
+```
+cd cloudal/examples/configuration/antidote_cluster/
+python config_antidotedb_cluster_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml --antidote_yaml_dir antidotedb_yaml_g5k/ -k -j <oar_job_ids> --no-deploy-os --kube-master <kube_master_host_name>
+```
+
 
 ## Example 6: Deploying an AntidoteDB cluster on GKE
 In this example, after creating GKE clusters, we use Kubernetes to deploy an AntidoteDB cluster on each GKE cluster. This AntidoteDB cluster consists of 2 data centers that span in a Kubernetes cluster. We follow the instruction [here](https://github.com/AntidoteDB/AntidoteDB-documentation/blob/master/deployment/kubernetes/deployment.md) to deploy an AntidoteDB cluster by using Kubernetes.
