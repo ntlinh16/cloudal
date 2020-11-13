@@ -72,7 +72,7 @@ Now on your GCP, you have the number of your required nodes running the Antidote
 ## Example 5: Deploying an AntidoteDB cluster using Kubernetes on G5K
 
 We follow the instruction [here](https://github.com/AntidoteDB/AntidoteDB-documentation/blob/master/deployment/kubernetes/deployment.md) to deploy an AntidoteDB cluster by using Kubernetes. 
-In this example, we deploy an AntidoteDB cluster on top of a Kubernetes cluster in Grid5000 system. 
+In this example, we (1) provision some hosts on Grid5000 system; next (2) deploy a Kubernetes cluster on these nodes; and then (3) deploy an AntidoteDB cluster on top of the Kubernetes cluster.
 
 To run this example from your laptop, remember to run VPN to access the Grid5000 system as shown in the instruction at [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
 

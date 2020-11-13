@@ -13,7 +13,7 @@ Google supports two ways to authenticate from outside: using Service Accounts an
 
 Service Accounts are generally better suited for automated systems, cron jobs, etc. They should be used when access to the application/script is limited and needs to be able to run with limited intervention.
 
-Follow the instructions at [Createing a service account](https://cloud.google.com/docs/authentication/production#create_service_account) to create and download the private key.
+Follow the instructions at [Creating a service account](https://cloud.google.com/docs/authentication/production#create_service_account) to create and download the private key.
 
 To set up a Service Account authentication, you have to provide:
 

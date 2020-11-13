@@ -17,7 +17,7 @@ pip install kubernetes
 
 ## Setup to authenticate with GCP from your laptop
 
-Follow the instructions at [Createing a service account](https://cloud.google.com/docs/authentication/production#create_service_account) to create and download the private key.
+Follow the instructions at [Creating a service account](https://cloud.google.com/docs/authentication/production#create_service_account) to create and download the private key.
 
 To set up a Service Account authentication, you have to provide:
 

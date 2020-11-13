@@ -1,6 +1,6 @@
 # Working on Grid5000 
 
-This tutorial shows you how to set up the connnection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop, then provision machines, install applications and conduct experiments on the reserved machines.
+This tutorial shows you how to set up the connection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop, then provision machines, install applications and conduct experiments on the reserved machines.
 
 If you do not have a Grid5000 account, check out the [Grid5000:Get an account](https://www.grid5000.fr/w/Grid5000:Get_an_account)
 
@@ -54,7 +54,7 @@ These above configurations follow the instruction of:
 - [Using SSH ProxyCommand to access hosts inside Grid5000](https://www.grid5000.fr/w/SSH#Using_SSH_ProxyCommand_feature_to_ease_the_access_to_hosts_inside_Grid.275000)
 
 
-##### 3. Set up Grid5000 API authentification 
+##### 3. Set up Grid5000 API authentication 
 
 When you use cloudal for the first time with Grid5000, it asks your Grid5000 account password in your terminal:
 ```

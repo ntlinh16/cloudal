@@ -60,7 +60,7 @@ These above configurations follow the instruction of:
 - [Using SSH ProxyCommand to access hosts inside Grid5000](https://www.grid5000.fr/w/SSH#Using_SSH_ProxyCommand_feature_to_ease_the_access_to_hosts_inside_Grid.275000)
 
 
-##### 3. Set up Grid5000 API authentification 
+##### 3. Set up Grid5000 API authentication 
 
 When you use cloudal for the first time with Grid5000, it asks your Grid5000 account password in your terminal:
 ```
@@ -77,10 +77,11 @@ In case it is not important to store your password securely for you, you can cho
 pip install keyrings.alt
 ```
 ##### 4. Set up a VPN to connect to the Grid5000 network
+If you already set up three above steps, you can access to Gri5000 nodes from your laptop via their hostname. However, when you work with Kubernetes, to deploy a resource from a deployment (yaml) file to kubernetes worker nodes, it use the IP address. Therefor, you have to configure a VPN.
 
 Following the instruction [here](https://www.grid5000.fr/w/VPN?fbclid=IwAR1t_5TBkUhJ5LkMSO2BRkjp-CAksRfEKf4-HrBBxGkOa_yDXIRT40SWvRE) to create and download your Grid5000 VPN certificate.
 
-If you create a Grid5000 certificate with passphrase, and you want to run your `openvpn` as a daemon, you shoule following these steps:
+If you create a Grid5000 certificate with passphrase, and you want to run your `openvpn` as a daemon, you should following these steps:
 1. create a `auth` file with your VPN password:
 ```
 touch auth | echo "<your VPN password>" > auth
