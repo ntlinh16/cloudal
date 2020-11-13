@@ -11,11 +11,11 @@ cd cloudal/examples/provision/
 python provision_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
 ```
 
-This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS enviroments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). 
+This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). 
 
 These provisioned nodes are kept alive after this script is terminated with `-k` option. You can connect to these nodes and install or set up your applications manually or you just need to give these nodes to _cloudal_ and it will configure them as your wish (see Example 2).
 
-Remember to delete the reservation to release the resoures after finishing your testing.
+Remember to delete the reservation to release the resources after finishing your testing.
 
 ## Example 2: Creating a Kubernetes cluster on G5K
 
@@ -26,12 +26,12 @@ First, edit the provision config file in `cloudal/examples/provision/provisionin
 Then, run the following command to create a Kubernetes:
 ```
 cd cloudal/examples/provision/
-python provision_g5k_k8s.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_g5k.yaml -k
+python provision_g5k_k8s.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
 ```
 
-This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS enviroments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install and setup kubernetes on these nodes to create a Kubernetes cluster
+This `provision_g5k.py` script makes a reservation with the description in the provision config file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install and setup kubernetes on these nodes to create a Kubernetes cluster
 
-This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resoures after finishing your testing.
+This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resources after finishing your testing.
 
 
 ## Example 3: Provisioning some hosts on GCP
@@ -42,10 +42,10 @@ First, edit the parameters in the provisioning config file `provisioning_config_
 Then, run the following command to perform the provisioning process on GCP:
 ```
 cd cloudal/examples/provision/
-python provision_gcp.py --system_config_file cloudal/examples/provisionign_config_files/provisioning_config_gcp.yaml
+python provision_gcp.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_gcp.yaml
 ```
 
-The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 host on datacenter _us-central1-a_ with the type of host is _e2-standard-2_, and 2 _f1-micro_ hosts on _europe-west3-a_. These hosts are deployed with the given `cloud_provider_image`. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
+The `provision_gcp.py` script makes a reservation with the description in `provisioning_config_gcp.yaml` file : 1 host on data center _us-central1-a_ with the type of host is _e2-standard-2_, and 2 _f1-micro_ hosts on _europe-west3-a_. These hosts are deployed with the given `cloud_provider_image`. You can see all the supported images from GCP [here](https://cloud.google.com/compute/docs/images). 
 
 With GCP, all the provisioned hosts are kept alive until you deleted it, so that remember to delete your hosts to release the resources (and not losing money) after finishing your testing.
 
@@ -63,7 +63,7 @@ cd cloudal/examples/provision/
 python provision_gke.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_gke.yaml
 ```
 
-The `provision_gke.py` script checks if the required clusters existed or not. If not, it creates clusters that is described in `provisioning_config_gke.yaml` file: cluter _test-1_ with 4 nodes in data center _europe-west3-a_, and cluter _test-2_ with 3 nodes in _us-central1-a_.
+The `provision_gke.py` script checks if the required clusters existed or not. If not, it creates clusters that is described in `provisioning_config_gke.yaml` file: cluster _test-1_ with 4 nodes in data center _europe-west3-a_, and cluster _test-2_ with 3 nodes in _us-central1-a_.
 
 With GKE, all the provisioned clusters are kept alive until you deleted it, so that remember to delete your provision to release the resources (and not losing money) after finishing your testing.
 
