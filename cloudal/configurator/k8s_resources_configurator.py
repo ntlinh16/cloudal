@@ -41,11 +41,11 @@ class k8s_resources_configurator(object):
             files = list()
             for file in os.listdir(path):
                 if file.endswith('.yaml'):
-                    files.append(file)
+                    files.append(os.path.join(path, file))
         for file in files:
             logger.info('--> Deploying file %s' % file.split('/')[-1])
             try:
-                utils.create_from_yaml(k8s_client=api_client, yaml_file=os.path.join(path, file), namespace=namespace)
+                utils.create_from_yaml(k8s_client=api_client, yaml_file=file, namespace=namespace)
                 logger.debug('Deploy file %s successfully' % file)
             except FailToCreateError as e:
                 for api_exception in e.api_exceptions:
