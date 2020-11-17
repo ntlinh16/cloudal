@@ -34,7 +34,7 @@
 
 ## An experiment workflow with cloudal
 
-To set up a cloud system for running rigorous experiments, we usually follow a typical workflow that consists of three steps: (1) provisioning some hosts (physical machines or virtual machines); (2) configuring the environment (i.e., installing/deploying services or applications on hosts); (3) performing an experiment workflow. To achieve a completed setting environment, we have to overcome a huge amount of challenges and obstacles to build, deploy, and manage hosts and applications on one specific cloud system. `cloudal` helps you with these boring setting steps, therefore, you only need to focus on the experiments you are interested in.
+To set up a cloud system for running rigorous experiments, we usually follow a typical workflow that consists of three steps: (1) provisioning some hosts (physical machines or virtual machines); (2) configuring the environment (i.e., installing/deploying services or applications on hosts); (3) performing an experiment workflow. To achieve a completed setting environment, we have to overcome a massive amount of challenges and obstacles to build, deploy, and manage hosts and applications on one specific cloud system. `cloudal` helps you with these boring setting steps, therefore, you only need to focus on the experiments you are interested in.
 
 _cloudal_ is designed to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collect the results automatically on different cloud systems in a large-scale and reproducible manner. The following figure presents a general experiment flowchart on a specific cloud system when you use _cloudal_.
 
