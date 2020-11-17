@@ -1,6 +1,7 @@
 
 from execo import host
 from cloudal.utils import get_logger, execute_cmd, install_packages_on_debian
+from cloudal.configurator import docker_configurator
 
 
 logger = get_logger()
@@ -43,6 +44,9 @@ class kubernetes_configurator(object):
             ['kubelet', 'kubeadm', 'kubectl'], self.hosts)
 
     def deploy_kubernetes_cluster(self):
+        configurator = docker_configurator(self.hosts)
+        configurator.config_docker()
+
         self._install_kubeadm()
         if self.kube_master is None:
             self.kube_master = self.hosts[0]
