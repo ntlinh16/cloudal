@@ -6,7 +6,7 @@ from time import sleep
 from cloudal.utils import get_logger, execute_cmd, parse_config_file, getput_file, install_packages_on_debian
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
-from cloudal.configurator import kubernetes_configurator, docker_configurator, k8s_resources_configurator
+from cloudal.configurator import kubernetes_configurator, k8s_resources_configurator
 
 from execo_g5k import oardel
 from kubernetes import config
@@ -23,7 +23,7 @@ class elmerfs_g5k(performing_actions_g5k):
                                       default=None,
                                       type=str)
 
-    def deploy_elmerfs(self, kube_master, elmerfs_hosts):
+    def deploy_elmerfs(self, kube_master, kube_namespace, elmerfs_hosts):
         logger.info("Deploying elmerfs on hosts")
         install_packages_on_debian(['libfuse2'], elmerfs_hosts)
 
@@ -70,28 +70,30 @@ class elmerfs_g5k(performing_actions_g5k):
                && mkdir -p /tmp/dc-$(hostname)"
         execute_cmd(cmd, elmerfs_hosts)
 
-        cmd = "kubectl get services | grep antidote-exposer | awk '{print $3}'"
-        _, p = execute_cmd(cmd, kube_master)
-        antidote_ips = p.processes[0].stdout.strip().split('\r\n')
-        antidote_options = ["--antidote=%s:8087" % ip for ip in antidote_ips]
+        logger.info('Getting IP of antidoteDB services')
+        antidote_options = list()
+        configurator = k8s_resources_configurator()
+        service_list = configurator.get_k8s_resources(resource='service',
+                                                      label_selectors='app=antidote,type=exposer-service',
+                                                      kube_namespace=kube_namespace)
+        for service in service_list.items:
+            antidote_options.append("--antidote=%s:8087" % service.spec.cluster_ip)
 
         logger.info("Starting elmerfs on elmerfs hosts: %s" % elmerfs_hosts)
         cmd = "RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
             antidote_options)
         for host in elmerfs_hosts:
             execute_cmd(cmd, host, mode='start')
-            sleep(3)
+            sleep(5)
 
-    def config_antidote(self, kube_master):
-        logger.info('Deleting all k8s resource in namespace %s' % self.kube_namespace)
-        cmd = '''kubectl config set-context --current --namespace=default &&
-                kubectl delete namespaces %s &&
-                kubectl create namespace %s  &&
-                kubectl config set-context --current --namespace=%s ''' % (self.kube_namespace, self.kube_namespace, self.kube_namespace)
-        execute_cmd(cmd, kube_master)
-
+    def config_antidote(self, kube_namespace):
         logger.info('Starting deploying Antidote cluster')
         antidote_k8s_dir = self.configs['exp_env']['antidote_yaml_path']
+
+        logger.info('Deleting all k8s resource in namespace %s' % kube_namespace)
+        configurator = k8s_resources_configurator()
+        configurator.delete_namespace(kube_namespace)
+        configurator.create_namespace(kube_namespace)
 
         logger.debug('Delete old createDC, connectDCs_antidote and exposer-service files if exists')
         for filename in os.listdir(antidote_k8s_dir):
@@ -119,21 +121,20 @@ class elmerfs_g5k(performing_actions_g5k):
         logger.info("Starting AntidoteDB instances")
         logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
-        configurator.deploy_k8s_resources(files=statefulSet_files, namespace=self.kube_namespace)
+        configurator.deploy_k8s_resources(files=statefulSet_files, namespace=kube_namespace)
 
         logger.info('Waiting until all Antidote instances are up')
         configurator.wait_k8s_resources(resource='pod',
                                         label_selectors="app=antidote",
-                                        kube_master=kube_master,
-                                        kube_namespace=self.kube_namespace)
+                                        kube_namespace=kube_namespace)
 
         logger.debug('Creating createDc.yaml file for each Antidote DC')
         dcs = dict()
         for cluster in self.configs['exp_env']['antidote_clusters']:
             dcs[cluster] = list()
-        cmd = """kubectl get pods -l "app=antidote" | tail -n +2 | awk '{print $1}'"""
-        _, r = execute_cmd(cmd, kube_master)
-        antidotes_list = r.processes[0].stdout.strip().split('\r\n')
+        antidotes_list = configurator.get_k8s_resources_name(resource='pod',
+                                                             label_selectors='app=antidote',
+                                                             kube_namespace=kube_namespace)
         for antidote in antidotes_list:
             cluster = antidote.split('-')[1].strip()
             dcs[cluster].append(antidote.strip())
@@ -167,13 +168,12 @@ class elmerfs_g5k(performing_actions_g5k):
                 createdc_files.append(file_path)
 
         logger.info("Creating Antidote DCs and exposing services")
-        configurator.deploy_k8s_resources(files=createdc_files, namespace=self.kube_namespace)
+        configurator.deploy_k8s_resources(files=createdc_files, namespace=kube_namespace)
 
         logger.info('Waiting until all antidote DCs are created')
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=antidote",
-                                        kube_master=kube_master,
-                                        kube_namespace=self.kube_namespace)
+                                        kube_namespace=kube_namespace)
 
         logger.debug('Creating connectDCs_antidote.yaml to connect all Antidote DCs')
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs.yaml.template')
@@ -185,26 +185,25 @@ class elmerfs_g5k(performing_actions_g5k):
             yaml.safe_dump(doc, f)
 
         logger.info("Connecting all Antidote DCs into a cluster")
-        configurator.deploy_k8s_resources(files=[file_path], namespace=self.kube_namespace)
+        configurator.deploy_k8s_resources(files=[file_path], namespace=kube_namespace)
 
         logger.info('Waiting until connecting all Antidote DCs')
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=antidote",
-                                        kube_master=kube_master,
-                                        kube_namespace=self.kube_namespace)
+                                        kube_namespace=kube_namespace)
 
         logger.info('Finish deploying the Antidote cluster')
 
-    def _set_kube_workers_label(self, kube_master, antidote_hosts):
-        kube_workers = [host for host in antidote_hosts if host != kube_master]
+    def _set_kube_workers_label(self, kube_workers):
+        logger.info('Set labels for all kubernetes workers')
+        configurator = k8s_resources_configurator()
         for host in kube_workers:
             cluster = host.split('-')[0]
-            labels = ['cluster_g5k=%s' % cluster, 'service_g5k=antidote']
-            cmd = 'kubectl label node %s %s' % (host, " ".join(labels))
-            execute_cmd(cmd, kube_master)
+            labels = 'cluster_g5k=%s,service_g5k=antidote' % cluster
+            configurator.set_labels_node(host, labels)
 
-    def _setup_g5k_kube_volumes(self, kube_master, antidote_hosts, n_pv=3):
-        kube_workers = [host for host in antidote_hosts if host != kube_master]
+    def _setup_g5k_kube_volumes(self, kube_workers, n_pv=3):
+
         logger.info("Setting volumes on %s kubernetes workers" % len(kube_workers))
         cmd = '''umount /dev/sda5;
                  mount -t ext4 /dev/sda5 /tmp'''
@@ -227,8 +226,7 @@ class elmerfs_g5k(performing_actions_g5k):
 
         logger.info('Waiting for setting local persistance volumes')
         configurator.wait_k8s_resources(resource='pod',
-                                        label_selectors="app.kubernetes.io/instance=local-volume-provisioner",
-                                        kube_master=kube_master)
+                                        label_selectors="app.kubernetes.io/instance=local-volume-provisioner")
 
     def _get_credential(self, kube_master):
         home = os.path.expanduser('~')
@@ -240,34 +238,28 @@ class elmerfs_g5k(performing_actions_g5k):
         config.load_kube_config(config_file=kube_config_file)
         logger.info('Kubernetes config file is stored at: %s' % kube_config_file)
 
-    def config_kube(self, kube_master, antidote_hosts):
-        logger.debug("Init configurator: docker_configurator")
-        configurator = docker_configurator(self.hosts)
-        configurator.config_docker()
-
+    def config_kube(self, kube_master, antidote_hosts, kube_namespace):
         logger.debug("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(hosts=self.hosts, kube_master=kube_master)
         configurator.deploy_kubernetes_cluster()
 
-        logger.info('Create k8s namespace "%s" for this experiment' % self.kube_namespace)
-        cmd = "kubectl create namespace %s && kubectl config set-context --current --namespace=%s" % (
-            self.kube_namespace, self.kube_namespace)
-        execute_cmd(cmd, kube_master)
-
         self._get_credential(kube_master)
 
-        self._setup_g5k_kube_volumes(kube_master, antidote_hosts, n_pv=3)
+        logger.info('Create k8s namespace "%s" for this experiment' % kube_namespace)
+        configurator = k8s_resources_configurator()
+        configurator.create_namespace(kube_namespace)
 
-        logger.info('Set labels for all kubernetes workers')
-        self._set_kube_workers_label(kube_master, antidote_hosts)
+        kube_workers = [host for host in antidote_hosts if host != kube_master]
 
-        logger.info("Finish deploying the Kubernetes cluster")
+        self._setup_g5k_kube_volumes(kube_workers, n_pv=3)
 
-    def config_host(self, kube_master_site):
+        self._set_kube_workers_label(kube_workers)
 
-        self.kube_namespace = 'elmerfs-exp'
+        logger.info("Finish configuring the Kubernetes cluster")
 
+    def config_host(self, kube_master_site, kube_namespace):
         kube_master = self.args.kube_master
+
         if self.args.kube_master is None:
             antidote_hosts = list()
             for cluster in self.configs['exp_env']['antidote_clusters']:
@@ -284,24 +276,26 @@ class elmerfs_g5k(performing_actions_g5k):
                     kube_master = host
                     break
 
-            self.config_kube(kube_master, antidote_hosts)
-            self.config_antidote(kube_master)
-            self.deploy_elmerfs(kube_master, elmerfs_hosts)
+            self.config_kube(kube_master, antidote_hosts, kube_namespace)
+            self.config_antidote(kube_namespace)
+            self.deploy_elmerfs(kube_master, kube_namespace, elmerfs_hosts)
         else:
-            cmd = "kubectl get nodes --show-labels | grep antidote | awk '{print$1}'"
-            _, p = execute_cmd(cmd, kube_master)
-            antidote_hosts = p.processes[0].stdout.strip().split('\r\n')
+            logger.info('Kubernetes master: %s' % kube_master)
+            self._get_credential(kube_master)
+
+            configurator = k8s_resources_configurator()
+            antidote_hosts = configurator.get_k8s_resources_name(resource='node',
+                                                                 label_selectors='service_g5k=antidote')
             elmerfs_hosts = [host for host in self.hosts if host not in antidote_hosts]
             elmerfs_hosts.remove(kube_master)
 
-            logger.info('Kubernetes master: %s' % kube_master)
-            self._get_credential(kube_master)
-            self.config_antidote(kube_master)
+            self.config_antidote(kube_namespace)
             self.deploy_elmerfs(kube_master, elmerfs_hosts)
+        logger.info('elmerfs nodes: %s' % elmerfs_hosts)
+        logger.info('antidote nodes: % s' % antidote_hosts)
 
     def setup_env(self, kube_master_site):
         logger.info("STARTING SETTING THE EXPERIMENT ENVIRONMENT")
-        logger.info("STARTING PROVISIONING NODES")
         logger.debug("Init provisioner: g5k_provisioner")
         provisioner = g5k_provisioner(configs=self.configs,
                                       keep_alive=self.args.keep_alive,
@@ -313,11 +307,11 @@ class elmerfs_g5k(performing_actions_g5k):
 
         provisioner.provisioning()
         self.hosts = provisioner.hosts
-        logger.info("FINISH PROVISIONING NODES\n")
 
-        logger.info("STARTING CONFIGURING NODES")
-        self.config_host(kube_master_site)
-        logger.info("FINISH CONFIGURING NODES")
+        logger.info("Starting configuring nodes")
+        kube_namespace = 'elmerfs-exp'
+        self.config_host(kube_master_site, kube_namespace)
+        logger.info("Finish configuring nodes\n")
 
         logger.info("FINISH SETTING THE EXPERIMENT ENVIRONMENT\n")
 
