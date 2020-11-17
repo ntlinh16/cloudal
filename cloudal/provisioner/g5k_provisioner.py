@@ -325,3 +325,4 @@ class g5k_provisioner(cloud_provisioning):
                     self.provisioning()
                 else:
                     raise Exception('Failed to deploy all reserved nodes. Terminate the program.')
+        logger.info("Finish provisioning nodes\n")

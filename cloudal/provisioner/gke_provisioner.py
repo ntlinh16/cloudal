@@ -44,6 +44,7 @@ class gke_provisioner(cloud_provisioning):
         return clusters_ok, clusters_ko
 
     def make_reservation(self):
+        logger.info("Starting provisioning Kubernetes clusters")
         cluster_manager_client = self._get_gke_client()
         project_id = self.configs['project_id']
         list_zones = list()
@@ -53,8 +54,8 @@ class gke_provisioner(cloud_provisioning):
         logger.info("Validating Kubernetes clusters")
         clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones)
 
-        logger.info("Deploying cluster: %s" %
-                    ', '.join([cluster['cluster_name'] for cluster in self.configs['clusters']]))
+        # logger.info("Deploying cluster: %s" %
+        #             ', '.join([cluster['cluster_name'] for cluster in self.configs['clusters']]))
 
         for cluster in self.configs['clusters']:
             key = '%s:%s' % (cluster['data_center'], cluster['cluster_name'])
@@ -66,8 +67,8 @@ class gke_provisioner(cloud_provisioning):
                 logger.info('Cluster %s on data center %s already existed but not running' % (
                     cluster['cluster_name'], cluster['data_center']))
             else:
-                # logger.info("Deploying cluster %s: %s nodes on data center %s" %
-                #             (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
+                logger.info("Deploying cluster %s: %s nodes on data center %s" %
+                            (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
                 cluster_specs = Cluster(mapping={'name': cluster['cluster_name'],
                                                  'locations': [cluster['data_center']],
                                                  'initial_node_count': cluster['n_nodes']})
@@ -86,4 +87,4 @@ class gke_provisioner(cloud_provisioning):
                     i += 1
                     # nodes take a while to boot up
                     sleep(20)
-        logger.info("Finish deploying Kubernetes clusters on GKE")
+        logger.info("Finish provisioning Kubernetes clusters on GKE\n")
