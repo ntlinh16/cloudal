@@ -125,10 +125,10 @@ To working on specific cloudal systems, you need more installation. Please find 
 
 # Getting started
 
-To write your custom _performing action_ script, you could use the provided template in `cloudal/template` directory. 
+To write your custom _performing action_ script (a script to perform your experiment), you could use the provided template in `cloudal/template` directory. The detail explanation presents in [here](https://github.com/ntlinh16/cloudal/tree/master/templates)
 
 # Tutorials
-
+You can use _cloudal_ to perform a all cloudal experiment steps or only perform an simple action such as provisioning some resources on a specific cloud system or configuring some resources (i.e., provisioning some resources and then deploy services on them).
 We provide here some quick tutorials on how to perform some actions with _cloudal_.
 
 ### Provisioning
