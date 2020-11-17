@@ -70,7 +70,7 @@ class elmerfs_g5k(performing_actions_g5k):
                && mkdir -p /tmp/dc-$(hostname)"
         execute_cmd(cmd, elmerfs_hosts)
 
-        logger.info('Getting IP of antidoteDB services')
+        logger.debug('Getting IP of antidoteDB services')
         antidote_options = list()
         configurator = k8s_resources_configurator()
         service_list = configurator.get_k8s_resources(resource='service',
@@ -85,6 +85,7 @@ class elmerfs_g5k(performing_actions_g5k):
         for host in elmerfs_hosts:
             execute_cmd(cmd, host, mode='start')
             sleep(5)
+        logger.info('Finish deploying elmerfs\n)
 
     def config_antidote(self, kube_namespace):
         logger.info('Starting deploying Antidote cluster')
@@ -192,7 +193,7 @@ class elmerfs_g5k(performing_actions_g5k):
                                         label_selectors="app=antidote",
                                         kube_namespace=kube_namespace)
 
-        logger.info('Finish deploying the Antidote cluster')
+        logger.info('Finish deploying the Antidote cluster\n)
 
     def _set_kube_workers_label(self, kube_workers):
         logger.info('Set labels for all kubernetes workers')
@@ -255,7 +256,7 @@ class elmerfs_g5k(performing_actions_g5k):
 
         self._set_kube_workers_label(kube_workers)
 
-        logger.info("Finish configuring the Kubernetes cluster")
+        logger.info("Finish configuring the Kubernetes cluster\n")
 
     def config_host(self, kube_master_site, kube_namespace):
         kube_master = self.args.kube_master
@@ -291,8 +292,8 @@ class elmerfs_g5k(performing_actions_g5k):
 
             self.config_antidote(kube_namespace)
             self.deploy_elmerfs(kube_master, elmerfs_hosts)
-        logger.info('elmerfs nodes: %s' % elmerfs_hosts)
-        logger.info('antidote nodes: % s' % antidote_hosts)
+        logger.debug('elmerfs nodes: %s' % elmerfs_hosts)
+        logger.debug('antidote nodes: % s' % antidote_hosts)
 
     def setup_env(self, kube_master_site):
         logger.info("STARTING SETTING THE EXPERIMENT ENVIRONMENT")
