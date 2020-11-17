@@ -5,9 +5,8 @@ import yaml
 from cloudal.utils import get_logger, get_file, execute_cmd, parse_config_file
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
-from cloudal.configurator import kubernetes_configurator
+from cloudal.configurator import kubernetes_configurator, k8s_resources_configurator
 from cloudal.configurator import docker_configurator
-from cloudal.configurator import k8s_resources_configurator
 
 from execo_g5k import oardel
 
@@ -29,11 +28,16 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
                                       default=None,
                                       type=str)
 
-    def config_antidote(self, kube_master):
+    def config_antidote(self, kube_namespace):
         logger.info('Starting deploying Antidote cluster')
         antidote_k8s_dir = self.args.yaml_path
 
-        logger.debug('Delete old createDC, connectDCs_antidote and exposer-service files if exists')
+        logger.info('Deleting all old resources on namspace %s' % kube_namespace)
+        configurator = k8s_resources_configurator()
+        configurator.delete_namespace(namespace=kube_namespace)
+        configurator.create_namespace(namespace=kube_namespace)
+
+        logger.debug('Delete old deployment files if exists')
         for filename in os.listdir(antidote_k8s_dir):
             if filename.startswith('createDC_') or filename.startswith('statefulSet_') or filename.startswith('exposer-service_') or filename.startswith('connectDCs_antidote'):
                 if '.template' not in filename:
@@ -60,22 +64,21 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
         logger.info("Starting AntidoteDB instances")
         logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
-        configurator.deploy_k8s_resources(files=deploy_files, namespace=self.kube_namespace)
+        configurator.deploy_k8s_resources(files=deploy_files, namespace=kube_namespace)
 
         logger.info('Waiting until all Antidote instances are up')
         configurator.wait_k8s_resources(resource='pod',
-                                        label_selectors="app=antidote",
-                                        kube_master=kube_master,
-                                        kube_namespace=self.kube_namespace)
+                                        label_selectors='app=antidote',
+                                        kube_namespace=kube_namespace)
 
         logger.debug('Creating createDc.yaml file for each Antidote DC')
         dcs = dict()
         for cluster in self.configs['clusters']:
             dcs[cluster['cluster']] = list()
-        cmd = """kubectl get pods -l "app=antidote" | tail -n +2 | awk '{print $1}'"""
-        _, r = execute_cmd(cmd, kube_master)
-        antidotes_list = r.processes[0].stdout.strip().split('\r\n')
-        for antidote in antidotes_list:
+        antidote_list = configurator.get_k8s_resources_name(resource='pod',
+                                                            label_selectors='app=antidote',
+                                                            kube_namespace=kube_namespace)
+        for antidote in antidote_list:
             cluster = antidote.split('-')[1].strip()
             dcs[cluster].append(antidote.strip())
 
@@ -108,13 +111,12 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
                 createdc_files.append(file_path)
 
         logger.info("Creating Antidote DCs and exposing services")
-        configurator.deploy_k8s_resources(files=createdc_files, namespace=self.kube_namespace)
+        configurator.deploy_k8s_resources(files=createdc_files, namespace=kube_namespace)
 
         logger.info('Waiting until all antidote DCs are created')
         configurator.wait_k8s_resources(resource='job',
-                                        label_selectors="app=antidote",
-                                        kube_master=kube_master,
-                                        kube_namespace=self.kube_namespace)
+                                        label_selectors='app=antidote',
+                                        kube_namespace=kube_namespace)
 
         logger.debug('Creating connectDCs_antidote.yaml to connect all Antidote DCs')
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs.yaml.template')
@@ -126,22 +128,21 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
             yaml.safe_dump(doc, f)
 
         logger.info("Connecting all Antidote DCs into a cluster")
-        configurator.deploy_k8s_resources(files=[file_path], namespace=self.kube_namespace)
+        configurator.deploy_k8s_resources(files=[file_path], namespace=kube_namespace)
 
         logger.info('Waiting until connecting all Antidote DCs')
         configurator.wait_k8s_resources(resource='job',
-                                        label_selectors="app=antidote",
-                                        kube_master=kube_master,
-                                        kube_namespace=self.kube_namespace)
+                                        label_selectors='app=antidote',
+                                        kube_namespace=kube_namespace)
 
         logger.info('Finish deploying an Antidote cluster')
 
-    def _set_kube_workers_label(self, kube_master, kube_workers):
+    def _set_kube_workers_label(self, kube_workers):
+        configurator = k8s_resources_configurator()
         for host in kube_workers:
             cluster = host.split('-')[0]
-            labels = ['cluster_g5k=%s' % cluster, 'service_g5k=antidote']
-            cmd = 'kubectl label node %s %s' % (host, " ".join(labels))
-            execute_cmd(cmd, kube_master)
+            labels = 'cluster_g5k=%s,service_g5k=antidote' % cluster
+            configurator.set_labels_node(nodename=host, labels=labels)
 
     def _get_credential(self, kube_master):
         home = os.path.expanduser('~')
@@ -149,12 +150,11 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
 
         if not os.path.exists(kube_dir):
             os.mkdir(kube_dir)
-        get_file(host=kube_master, remote_file_paths=[
-                 '~/.kube/config'], local_dir=kube_dir)
+        get_file(host=kube_master, remote_file_paths=['~/.kube/config'], local_dir=kube_dir)
         config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
         logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
-    def _setup_g5k_kube_volumes(self, kube_master, kube_workers):
+    def _setup_g5k_kube_volumes(self, kube_workers):
         logger.info("Setting volumes on %s kubernetes workers" %
                     len(kube_workers))
         N_PV = 3
@@ -178,43 +178,38 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
 
         logger.info('Waiting for setting local persistance volumes')
         configurator.wait_k8s_resources(resource='pod',
-                                        label_selectors="app.kubernetes.io/instance=local-volume-provisioner",
-                                        kube_master=kube_master)
+                                        label_selectors="app.kubernetes.io/instance=local-volume-provisioner")
 
-    def config_kube(self):
-        logger.info("sTARTING deploying Kubernetes cluster")
-        logger.info("Init configurator: docker_configurator")
-        configurator = docker_configurator(self.hosts)
-        configurator.config_docker()
+    def config_kube(self, kube_namespace):
+        logger.info("Starting deploying Kubernetes cluster")
 
         logger.info("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(hosts=self.hosts)
         kube_master, kube_workers = configurator.deploy_kubernetes_cluster()
 
-        logger.info('Create Kubernetes namespace "%s" for this experiment' % self.kube_namespace)
-        cmd = "kubectl create namespace %s && kubectl config set-context --current --namespace=%s" % (
-            self.kube_namespace, self.kube_namespace)
-        execute_cmd(cmd, kube_master)
-
         self._get_credential(kube_master=kube_master)
 
-        self._setup_g5k_kube_volumes(kube_master, kube_workers)
+        logger.info('Create Kubernetes namespace "%s" for this experiment' % kube_namespace)
+        configurator = k8s_resources_configurator()
+        configurator.create_namespace(namespace=kube_namespace)
+
+        self._setup_g5k_kube_volumes(kube_workers)
 
         logger.info('Set labels for all kubernetes workers')
-        self._set_kube_workers_label(kube_master, kube_workers)
+        self._set_kube_workers_label(kube_workers)
 
         logger.info("Finish deploying the Kubernetes cluster")
         return kube_master
 
     def config_host(self):
-        self.kube_namespace = "antidote"
+        kube_namespace = "antidote"
         kube_master = self.args.kube_master
         if self.args.kube_master is None:
-            kube_master = self.config_kube()
+            kube_master = self.config_kube(kube_namespace)
         else:
             logger.info('Kubernetes master: %s' % kube_master)
             self._get_credential(kube_master)
-        self.config_antidote(kube_master)
+        self.config_antidote(kube_namespace)
 
     def run(self):
         logger.info("STARTING PROVISIONING NODES")
