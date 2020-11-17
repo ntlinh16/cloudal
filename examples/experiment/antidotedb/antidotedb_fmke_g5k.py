@@ -175,21 +175,22 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                                         kube_namespace=kube_namespace)
         logger.info('Finish deploying FMKe benchmark')
 
-    def config_fmke_pop(self, kube_master, kube_namespace):
+    def config_fmke_pop(self, kube_namespace):
         logger.info('---------------------------')
         logger.info('4. Starting populating data')
         fmke_k8s_dir = self.configs['exp_env']['fmke_yaml_path']
 
         logger.debug('Modify the populate_data template file')
         configurator = k8s_resources_configurator()
-        fmke_list = configurator.get_k8s_resources(resource='job',
+        fmke_list = configurator.get_k8s_resources(resource='pod',
                                                    label_selectors='app=fmke',
                                                    kube_namespace=kube_namespace)
+        logger.info('fmke_list: %s' % len(fmke_list.items))
         fmke_IPs = list()
         for cluster in self.configs['exp_env']['clusters']:
             for fmke in fmke_list.items:
                 if cluster in fmke.metadata.name:
-                    fmke_IPs.append(fmke.status.pod_ip)
+                    fmke_IPs.append('fmke@%s' % fmke.status.pod_ip)
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml.template')) as f:
             doc = yaml.safe_load(f)
         doc['metadata']['name'] = 'populate-data-without-prescriptions'
@@ -354,7 +355,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             self.clean_k8s_resources(kube_namespace)
             self.config_antidote(kube_namespace)
             self.config_fmke(kube_master, kube_namespace)
-            self.config_fmke_pop(kube_master, kube_namespace)
+            self.config_fmke_pop(kube_namespace)
             self.perform_combination(kube_namespace, comb['concurrent_clients'])
             self.save_results(comb)
             comb_ok = True
