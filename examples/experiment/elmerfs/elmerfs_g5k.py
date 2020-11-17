@@ -24,7 +24,7 @@ class elmerfs_g5k(performing_actions_g5k):
                                       type=str)
 
     def deploy_elmerfs(self, kube_master, kube_namespace, elmerfs_hosts):
-        logger.info("Deploying elmerfs on hosts")
+        logger.info("Starting deploying elmerfs on hosts")
         install_packages_on_debian(['libfuse2'], elmerfs_hosts)
 
         elmerfs_file_path = self.configs['exp_env']['elmerfs_file_path']
@@ -85,7 +85,7 @@ class elmerfs_g5k(performing_actions_g5k):
         for host in elmerfs_hosts:
             execute_cmd(cmd, host, mode='start')
             sleep(5)
-        logger.info('Finish deploying elmerfs\n)
+        logger.info('Finish deploying elmerfs\n')
 
     def config_antidote(self, kube_namespace):
         logger.info('Starting deploying Antidote cluster')
@@ -193,7 +193,7 @@ class elmerfs_g5k(performing_actions_g5k):
                                         label_selectors="app=antidote",
                                         kube_namespace=kube_namespace)
 
-        logger.info('Finish deploying the Antidote cluster\n)
+        logger.info('Finish deploying the Antidote cluster\n')
 
     def _set_kube_workers_label(self, kube_workers):
         logger.info('Set labels for all kubernetes workers')
@@ -353,7 +353,6 @@ class elmerfs_g5k(performing_actions_g5k):
             self.configs['exp_env']['n_elmerfs_per_site'])
         )
 
-        logger.info('Setting the environment')
         self.setup_env(kube_master_site)
 
 
