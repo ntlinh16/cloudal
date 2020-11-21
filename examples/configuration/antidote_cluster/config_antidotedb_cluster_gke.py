@@ -140,6 +140,7 @@ class config_antidotedb_cluster_gke(performing_actions):
         return kube_config
 
     def config_host(self, kube_namespace):
+        logger.info("Starting configuring an AntidoteDB cluster")
         antidote_services_ips = list()
         for cluster in self.clusters:
             kube_config = self._get_credential(cluster)
@@ -157,6 +158,7 @@ class config_antidotedb_cluster_gke(performing_actions):
 
         logger.info("Starting connecting all AntidoteDB DCs")
         self.connect_antidote_DCs(antidote_services_ips, kube_config, kube_namespace)
+        logger.info("Finish configuring an AntidoteDB cluster\n")
 
     def run(self):
         logger.debug("Init provisioner: gke_provisioner")
