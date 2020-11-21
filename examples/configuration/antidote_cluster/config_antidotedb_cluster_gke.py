@@ -5,7 +5,7 @@ import base64
 from tempfile import NamedTemporaryFile
 from time import sleep
 
-from cloudal.utils import get_logger, execute_cmd
+from cloudal.utils import get_logger
 from cloudal.action import performing_actions
 from cloudal.provisioner import gke_provisioner
 from cloudal.configurator import k8s_resources_configurator
@@ -28,10 +28,10 @@ class config_antidotedb_cluster_gke(performing_actions):
                                       required=True,
                                       type=str)
 
-    def config_antidote(self, kube_config, cluster, kube_namespace, antidote_masters):
+    def config_antidote(self, kube_config, cluster, kube_namespace):
         logger.info('Starting deploying Antidote cluster')
 
-        logger.info('Deleting old resources on namspace %s' % kube_namespace)
+        logger.info('Deleting old resources on namspace "%s"' % kube_namespace)
         logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
         configurator.delete_namespace(namespace=kube_namespace, kube_config=kube_config)
@@ -51,7 +51,8 @@ class config_antidotedb_cluster_gke(performing_actions):
         logger.debug('Modify the statefulSet file')
         with open(os.path.join(antidote_k8s_dir, 'statefulSet.yaml.template')) as f:
             doc = yaml.safe_load(f)
-        doc['spec']['replicas'] = cluster.initial_node_count
+
+        doc['spec']['replicas'] = cluster.current_node_count
         doc['metadata']['name'] = 'antidote-%s' % cluster.name
         with open(os.path.join(antidote_k8s_dir, 'statefulSet_%s.yaml' % cluster.name), 'w') as f:
             yaml.safe_dump(doc, f)
@@ -70,7 +71,6 @@ class config_antidotedb_cluster_gke(performing_actions):
                                                             label_selectors='app=antidote',
                                                             kube_namespace=kube_namespace)
         deploy_files = list()
-        antidote_masters.append('%s.antidote:8087' % antidote_pods[0])
         file_path = os.path.join(antidote_k8s_dir, 'createDC.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
@@ -92,15 +92,35 @@ class config_antidotedb_cluster_gke(performing_actions):
             yaml.safe_dump(doc, f)
         deploy_files.append(file_path)
 
-        logger.info("Starting creating AntidoteDB DCs and exposing service")
+        logger.info("Starting connecting all Antidote instances and exposing service")
         configurator.deploy_k8s_resources(kube_config=kube_config, files=deploy_files, namespace=kube_namespace)
-        logger.info('Waiting to create Antidote Dc')
+        logger.info('Waiting to create Antidote DC')
         configurator.wait_k8s_resources(resource='pod',
                                         label_selectors='app=antidote',
                                         kube_config=kube_config,
                                         kube_namespace=kube_namespace)
-        logger.info("Finish configuring AntidoteDB cluster \n")
-        return antidote_masters
+        logger.info("Finish configuring an AntidoteDB DC on %s\n" % cluster.name)
+
+    def connect_antidote_DCs(self, antidote_services_ips, kube_config, kube_namespace):
+        antidote_k8s_dir = self.args.yaml_path
+        logger.debug('Creating connectDCs_antidote.yaml to connect all Antidote DCs')
+        file_path = os.path.join(antidote_k8s_dir, 'connectDCs.yaml.template')
+        with open(file_path) as f:
+            doc = yaml.safe_load(f)
+        doc['spec']['template']['spec']['containers'][0]['args'] = ['--connectDcs'] + antidote_services_ips
+        file_path = os.path.join(antidote_k8s_dir, 'connectDCs_antidote.yaml')
+        with open(file_path, 'w') as f:
+            yaml.safe_dump(doc, f)
+
+        logger.info("Connecting all Antidote DCs into a cluster")
+        configurator = k8s_resources_configurator()
+        configurator.deploy_k8s_resources(kube_config=kube_config, files=[file_path], namespace=kube_namespace)
+
+        logger.info('Waiting until connecting all Antidote DCs')
+        configurator.wait_k8s_resources(resource='job',
+                                        label_selectors='app=antidote',
+                                        kube_config=kube_config,
+                                        kube_namespace=kube_namespace)
 
     def _get_credential(self, cluster):
         logger.info('Getting credential for cluster %s' % cluster.name)
@@ -120,15 +140,23 @@ class config_antidotedb_cluster_gke(performing_actions):
         return kube_config
 
     def config_host(self, kube_namespace):
-        antidote_masters = list()
+        antidote_services_ips = list()
         for cluster in self.clusters:
             kube_config = self._get_credential(cluster)
 
-            logger.info('Creating a namespace to deploy antidote')
+            logger.info('Creating namespace "%s" to deploy Antidote DC' % kube_namespace)
             configurator = k8s_resources_configurator()
             configurator.create_namespace(namespace=kube_namespace, kube_config=kube_config)
 
-            antidote_masters = self.config_antidote(kube_config, cluster, kube_namespace, antidote_masters)
+            self.config_antidote(kube_config, cluster, kube_namespace)
+
+            service_name = 'antidote-exposer-%s' % cluster.name
+            antidote_services_ips.append('%s:8087' % configurator.get_k8s_endpoint_ip(service_name,
+                                                                                      kube_config,
+                                                                                      kube_namespace))
+
+        logger.info("Starting connecting all AntidoteDB DCs")
+        self.connect_antidote_DCs(antidote_services_ips, kube_config, kube_namespace)
 
     def run(self):
         logger.debug("Init provisioner: gke_provisioner")
