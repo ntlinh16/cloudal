@@ -69,9 +69,12 @@ class gke_provisioner(cloud_provisioning):
             else:
                 logger.info("Deploying cluster %s: %s nodes on data center %s" %
                             (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
-                cluster_specs = Cluster(mapping={'name': cluster['cluster_name'],
-                                                 'locations': [cluster['data_center']],
-                                                 'initial_node_count': cluster['n_nodes']})
+                cluster_specs = Cluster(mapping={
+                    'name': cluster['cluster_name'],
+                    'locations': [cluster['data_center']],
+                    'initial_node_count': cluster['n_nodes'],
+                    'ip_allocation_policy': {'use_ip_aliases': True}
+                })
                 cluster_manager_client.create_cluster(cluster=cluster_specs,
                                                       parent='projects/%s/locations/%s' % (project_id, cluster['data_center']))
 
