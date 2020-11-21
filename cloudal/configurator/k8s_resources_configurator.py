@@ -207,6 +207,38 @@ class k8s_resources_configurator(object):
                                            kube_namespace=kube_namespace)
         return [r.metadata.name for r in resources.items]
 
+    def get_k8s_endpoint_ip(self, service_name, kube_config=None, kube_namespace='default'):
+        '''Get the endpoint ip of a k8s service
+
+        Parameters
+        ----------
+        service_name: string
+            the name of the service
+
+        kube_config: kubernetes.client.configuration.Configuration
+            the configuration to the kubernetes cluster
+
+        kube_namespace: string
+            the k8s namespace to perform the wait of k8s resources operation on,
+            the default namespace is 'default'
+
+        Returns
+        -------
+        string
+            the ip of a k8s endpoint
+        '''
+        if kube_config:
+            api_client = ApiClient(kube_config)
+        else:
+            api_client = ApiClient()
+
+        v1 = client.CoreV1Api(api_client)
+        endpoints = v1.read_namespaced_endpoints(name=service_name, namespace=kube_namespace)
+        if endpoints and endpoints.subsets:
+            if endpoints.subsets[0].addresses:
+                return endpoints.subsets[0].addresses[0].ip
+        return None
+
     def create_namespace(self, namespace=None, kube_config=None):
         """Create a namespace in a k8s cluster
 
