@@ -7,7 +7,7 @@
 
 
 # the duration to keep the reserved nodes running
-walltime: 6:00:00
+walltime: 2:00:00
 
 # the time when you want the nodes to be started.
 # the date format is "YYYY-MM-DD HH:MM:SS"
@@ -52,24 +52,25 @@ parameters:
 #############################################
 exp_env:
     # the path to the results directory
-    results_dir: cloudal/examples/experiment/elmerfs/results
+    results_dir: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs/results
     # the path to the kubernetes yaml files to deploy antidote cluster 
-    antidote_yaml_path: cloudal/examples/experiment/elmerfs/antidotedb_yaml
+    antidote_yaml_path: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs/antidotedb_yaml
     # the path to the elmerfs binary file on your local machine
     # if you do not have the elmerfs binary file, do not worry, 
     # let the elmerfs_file_path empty and it will be built from the repository.
-    elmerfs_file_path:
+    elmerfs_file_path: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs/elmerfs
+
 
     # the site that kube master node will be deployed in (used for deploying antidote cluster).
     # if it is null, then the k8s master node will be deployed on the first site you specify in the file clusters below
     kube_master_site: dahu
 
     # the sites that all the data centers will be deployed.
-    antidote_clusters: [dahu, uvb]
+    antidote_clusters: [econome, dahu]
     n_antidotedb_per_dc: 2
 
     # the sites that elmerfs will be deployed.
-    elmerfs_site: [uvb]
+    elmerfs_site: [econome]
     # the number of hosts on each site
     n_elmerfs_per_site: 2
 

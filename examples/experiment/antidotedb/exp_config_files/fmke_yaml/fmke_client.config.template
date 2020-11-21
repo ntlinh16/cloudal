@@ -2,7 +2,7 @@
 {mode, max}.
 
 %% test duration
-{duration, 30}.
+{duration, 3}.
 
 % Run 16 concurrent clients
 {concurrent, 16}.
