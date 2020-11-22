@@ -13,16 +13,13 @@ class provision_gke(performing_actions):
         super(provision_gke, self).__init__()
 
     def provisioning(self):
-        logger.info("Init provisioner: gke_provisioner")
-        self.provisioner = gke_provisioner(config_file_path=self.args.config_file_path)
-        logger.info("Making reservation")
-        self.provisioner.make_reservation()
+        logger.debug("Init provisioner: gke_provisioner")
+        provisioner = gke_provisioner(config_file_path=self.args.config_file_path)
+        provisioner.make_reservation()
         self.clusters = self.provisioner.clusters
 
     def run(self):
-        logger.info("STARTING CREATING KUBERNETES CLUSTERS")
         self.provisioning()
-        logger.info("FINISH CREATING KUBERNETES CLUSTERS")
 
 
 if __name__ == "__main__":

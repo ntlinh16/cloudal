@@ -12,17 +12,13 @@ class provision_gcp(performing_actions):
         super(provision_gcp, self).__init__()
 
     def provisioning(self):
-        logger.info("Init provisioner: gcp_provisioner")
-        self.provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
-        logger.info("Making reservation")
-        self.provisioner.make_reservation()
-        logger.info("Getting resources")
-        self.provisioner.get_resources()
+        logger.debug("Init provisioner: gcp_provisioner")
+        provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
+        provisioner.make_reservation()
+        provisioner.get_resources()
 
     def run(self):
-        logger.info("STARTING PROVISIONING HOSTS")
         self.provisioning()
-        logger.info("FINISH PROVISIONING HOSTS")
 
 
 if __name__ == "__main__":

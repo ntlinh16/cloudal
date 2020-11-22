@@ -13,23 +13,12 @@ class config_antidotedb_env_gcp(performing_actions):
     def __init__(self):
         super(config_antidotedb_env_gcp, self).__init__()
 
-    def provisioning(self):
-        logger.info("Init provisioner: gcp_provisioner")
-        provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
-        logger.info("Making reservation")
-        provisioner.make_reservation()
-        logger.info("Getting resources of nodes:")
-        provisioner.get_resources()
-        self.hosts = provisioner.hosts
-
     def config_host(self):
-        # Install & config Docker
-        logger.info("Init configurator: docker_configurator")
+        logger.info("Starting configure AntidoteDB on nodes")
+        logger.debug("Init configurator: docker_configurator")
         configurator = docker_configurator(self.hosts)
         configurator.config_docker()
 
-        # Install antidoteDB
-        logger.info("Starting configure AntidoteDB on nodes")
         logger.info("Pull AntidoteDB docker image")
         cmd = 'docker pull antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
@@ -37,15 +26,18 @@ class config_antidotedb_env_gcp(performing_actions):
         logger.info("Run AntidoteDB container")
         cmd = 'docker run -d --name antidote -p "8087:8087" antidotedb/antidote'
         self.error_hosts = execute_cmd(cmd, self.hosts)
+        logger.info("Finish configuring AntidoteDB on all hosts")
+
+    def provisioning(self):
+        logger.debug("Init provisioner: gcp_provisioner")
+        provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
+        provisioner.make_reservation()
+        provisioner.get_resources()
+        self.hosts = provisioner.hosts
 
     def run(self):
-        logger.info("Starting provision nodes")
         self.provisioning()
-        logger.info("Provisioning nodes: DONE")
-
-        logger.info("Starting configure AntidoteDB on nodes")
         self.config_host()
-        logger.info("Configuring AntidoteDB on nodes: DONE")
 
 
 if __name__ == "__main__":

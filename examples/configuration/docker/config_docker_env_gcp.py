@@ -13,29 +13,21 @@ class config_docker_env_gcp(performing_actions):
     def __init__(self):
         super(config_docker_env_gcp, self).__init__()
 
-    def provisioning(self):
-        logger.info("Init provisioner: gcp_provisioner")
-        provisioner = gcp_provisioner(
-            config_file_path=self.args.config_file_path)
-        logger.info("Making reservation")
-        provisioner.make_reservation()
-        logger.info("Getting resources specs")
-        provisioner.get_resources()
-        self.hosts = provisioner.hosts
-
     def config_host(self):
-        logger.info("Init configurator")
+        logger.debug("Init configurator")
         configurator = docker_configurator(self.hosts)
         configurator.config_docker()
 
-    def run(self):
-        logger.info("Starting provision nodes")
-        self.provisioning()
-        logger.info("Provisioning nodes: DONE")
+    def provisioning(self):
+        logger.debug("Init provisioner: gcp_provisioner")
+        provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
+        provisioner.make_reservation()
+        provisioner.get_resources()
+        self.hosts = provisioner.hosts
 
-        logger.info("Starting configure Docker on nodes")
+    def run(self):
+        self.provisioning()
         self.config_host()
-        logger.info("Configuring Docker on nodes: DONE")
 
 
 if __name__ == "__main__":
