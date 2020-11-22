@@ -17,12 +17,14 @@ custom_image: null
 # it will be the above value of cloud_provider_image and instance_type and the same for all clusters.
 
 clusters:
-    - cluster: us-central1-a
+    - node_name: node-us
+      zone: us-central1-a
       n_nodes: 1
       instance_type: e2-standard-2
       image: null
 
-    - cluster: europe-west3-a
+    - node_name: node-eu
+      zone: europe-west3-a
       n_nodes: 2
       instance_type: f1-micro
       image: null

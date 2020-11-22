@@ -5,10 +5,10 @@ project_id: <your_project_id>
 # the info of each kubernetes cluster that you want to create or use to deploy your applications
 clusters:
     - cluster_name: test-1
-      data_center: europe-west3-a
+      zone: europe-west3-a
       n_nodes: 4
 
     - cluster_name: test-2
-      data_center: us-central1-a
+      zone: us-central1-a
       n_nodes: 3
 
