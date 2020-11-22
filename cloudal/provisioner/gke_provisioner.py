@@ -13,10 +13,16 @@ logger = get_logger()
 class gke_provisioner(cloud_provisioning):
     def __init__(self, **kwargs):
         self.config_file_path = kwargs.get('config_file_path')
+        self.configs = kwargs.get('configs')
         self.clusters = list()
 
-        super(gke_provisioner, self).__init__(
-            config_file_path=self.config_file_path)
+        if self.configs and isinstance(self.configs, dict):
+            logger.debug("Use configs instead of config file")
+        elif self.config_file_path is None:
+            logger.error("Please provide at least a provisioning config file or a custom configs.")
+            exit()
+        else:
+            super(gke_provisioner, self).__init__(config_file_path=self.config_file_path)
 
     def _get_gke_client(self):
         service_account_credentials_json_file_path = os.path.expanduser(
@@ -31,8 +37,7 @@ class gke_provisioner(cloud_provisioning):
 
         cluster_manager_client = self._get_gke_client()
         for zone in list_zones:
-            list_clusters = cluster_manager_client.list_clusters(
-                project_id=project_id, zone=zone)
+            list_clusters = cluster_manager_client.list_clusters(project_id=project_id, zone=zone)
 
             for cluster in list_clusters.clusters:
                 key = '%s:%s' % (zone, cluster.name)
@@ -49,40 +54,37 @@ class gke_provisioner(cloud_provisioning):
         project_id = self.configs['project_id']
         list_zones = list()
         for cluster in self.configs['clusters']:
-            list_zones.append(cluster['data_center'])
+            list_zones.append(cluster['zone'])
 
-        logger.info("Validating Kubernetes clusters")
+        logger.info("Checking the Kubernetes clusters exist or not")
         clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones)
 
-        # logger.info("Deploying cluster: %s" %
-        #             ', '.join([cluster['cluster_name'] for cluster in self.configs['clusters']]))
-
         for cluster in self.configs['clusters']:
-            key = '%s:%s' % (cluster['data_center'], cluster['cluster_name'])
+            key = '%s:%s' % (cluster['zone'], cluster['cluster_name'])
             if key in clusters_ok:
-                logger.info('Cluster %s on data center %s already existed and is running' % (
-                    cluster['cluster_name'], cluster['data_center']))
+                logger.info('Cluster %s in zone %s already existed and is running' %
+                            (cluster['cluster_name'], cluster['zone']))
                 self.clusters.append(clusters_ok[key])
             elif key in clusters_ko:
-                logger.info('Cluster %s on data center %s already existed but not running' % (
-                    cluster['cluster_name'], cluster['data_center']))
+                logger.info('Cluster %s in zone %s already existed but not running' %
+                            (cluster['cluster_name'], cluster['zone']))
             else:
-                logger.info("Deploying cluster %s: %s nodes on data center %s" %
-                            (cluster['cluster_name'], cluster['n_nodes'], cluster['data_center']))
+                logger.info("Deploying cluster %s with %s nodes in zone %s" %
+                            (cluster['cluster_name'], cluster['n_nodes'], cluster['zone']))
                 cluster_specs = Cluster(mapping={
                     'name': cluster['cluster_name'],
-                    'locations': [cluster['data_center']],
+                    'locations': [cluster['zone']],
                     'initial_node_count': cluster['n_nodes'],
                     'ip_allocation_policy': {'use_ip_aliases': True}
                 })
                 cluster_manager_client.create_cluster(cluster=cluster_specs,
-                                                      parent='projects/%s/locations/%s' % (project_id, cluster['data_center']))
+                                                      parent='projects/%s/locations/%s' % (project_id, cluster['zone']))
 
                 sleep(40 * cluster['n_nodes'])
                 i = 0
                 while i < 10:
                     c = cluster_manager_client.get_cluster(project_id=project_id,
-                                                           zone=cluster['data_center'],
+                                                           zone=cluster['zone'],
                                                            cluster_id=cluster['cluster_name'])
                     if c.status == 2:
                         self.clusters.append(c)
