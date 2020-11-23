@@ -28,12 +28,22 @@ Then, run the following command:
 cd cloudal/examples/provision/
 python provision_g5k_k8s.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
 ```
-s
+
 The `provision_g5k.py` script makes a reservation with the clusters described in _provisioning_config_g5k.yaml_ file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install kubelet, kubeadm, kubectl and then perform some setups on these nodes to create a Kubernetes cluster.
 
 This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resources after finishing your testing.
+## Example 3: Provisioning Docker Swarm clusters on Grid5000 (G5K)
 
-## Example 3: Provisioning some hosts on Google Cloud Platform (GCP)
+You cannot provision a Kubernetes cluster directly from Grid5000. In this example, we help you do that. We first provision some nodes on Grid5000 system and then create a Docker Swarm cluster from these nodes.
+
+First, you should edit the provisioning config file at `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
+
+Then, run the following command:
+```
+cd cloudal/examples/provision/
+python provision_docker_swarm_g5k.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
+```
+## Example 4: Provisioning some hosts on Google Cloud Platform (GCP)
 In this example, we provision some hosts on GCP.
 
 First, edit the parameters in the provisioning config file `provisioning_config_gcp.yaml` with your authentication information and your infrastructure requirements.
@@ -51,7 +61,7 @@ With GCP, all the provisioned hosts are kept alive until you deleted it, so that
 If you do not have a free trial account (with $300 credit), you can always create hosts with `f1-micro` type and it is free, check out the information in [Always Free usage limits](https://cloud.google.com/free/docs/gcp-free-tier#always-free-usage-limits)
 
 
-## Example 4: Provisioning Kubernetes clusters on Google Cloud Engine (GKE)
+## Example 5: Provisioning Kubernetes clusters on Google Cloud Engine (GKE)
 In this example, we create some Kubernetes clusters on Google Cloud by using GKE.
 
 First, edit the parameters in the provisioning config file `provisioning_config_gke.yaml` with your authentication information and your infrastructure requirements.
