@@ -68,35 +68,11 @@ def parse_config_file(config_file_path):
                 return content
 
 
-def install_packages_on_debian(packages, hosts):
-    '''Install a list of given packages
-
-    Parameters
-    ----------
-    packages: list of string
-        the list of package names to be installed
-
-    hosts: list of string
-        the list of hostnames
-
-    '''
-    logger.info("Installing packages: %s" % ', '.join(packages))
-    cmd = (
-        "export DEBIAN_FRONTEND=noninteractive; "
-        "apt-get update && apt-get "
-        "install --yes --allow-change-held-packages --no-install-recommends %s"
-    ) % ' '.join(packages)
-    try:
-        execute_cmd(cmd, hosts)
-    except Exception as e:
-        logger.error("---> Bug [%s] with command: %s" % (e, cmd), exc_info=True)
-
-
 executor_singleton = list()
 
 
 def get_remote_executor(remote_tool=SSH, fileput_tool=SCP, fileget_tool=SCP):
-    '''Instanciate remote process execution and file copies tool
+    '''Instantiate remote process execution and file copies tool
 
     Parameters
     ----------
@@ -159,10 +135,26 @@ def custom_retry_return(state):
     retry=tenacity.retry_if_exception_type(ExecuteCommandException)
 )
 def execute_cmd(cmd, hosts, mode='run', batch_size=5, is_continue=False):
-    """
-    2 modes:
+    """ Performing a command on remote hosts
+    Parameters
+    ----------
+    cmd: str
+        command to perform on remote hosts
+
+    hosts: list of str
+        list of host names or IPs 
+
+    mode: str
         run: start a process and wait until it ends
         start: start a process
+
+    batch_size: int
+        chunk the hosts to smaller batches with batch size
+
+    is_continue: bool
+
+    Returns
+    -------
     """
     if hosts is None:
         raise Exception("Hosts cannot be None")
@@ -182,7 +174,7 @@ def execute_cmd(cmd, hosts, mode='run', batch_size=5, is_continue=False):
         for process in chunk.processes:
             if process.error_reason == 'taktuk connection failed':
                 host_errors.append(process.host)
-            if 'ssh_exchange_identification' in process.stderr or process.ok == False:
+            if ('ssh_exchange_identification' in process.stderr or (process.ok == False and process.stdout.strip())):
                 logger.info('---> Retrying: %s\n' % cmd)
                 raise ExecuteCommandException(message=process.stderr.strip(), is_continue=is_continue)
             # config host -> check for alive hosts at the end of the configuration
