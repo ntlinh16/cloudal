@@ -1,5 +1,4 @@
-from .k8s_resources_configurator import k8s_resources_configurator
+from .packages_configurator import packages_configurator
 from .docker_configurator import docker_configurator
 from .kubernetes_configurator import kubernetes_configurator
-from .vm_debian10_configuring import vm_debian_configurator
-from .packages_configurator import packages_configurator
+from .k8s_resources_configurator import k8s_resources_configurator

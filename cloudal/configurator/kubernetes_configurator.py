@@ -1,5 +1,3 @@
-
-from execo import host
 from cloudal.utils import get_logger, execute_cmd
 from cloudal.configurator import docker_configurator, packages_configurator
 

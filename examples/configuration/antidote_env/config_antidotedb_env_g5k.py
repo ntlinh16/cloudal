@@ -16,23 +16,24 @@ class config_antidotedb_env_g5k(performing_actions_g5k):
     def __init__(self):
         super(config_antidotedb_env_g5k, self).__init__()
 
-    def config_host(self):
+    def config_host(self, hosts):
+        logger.info("Starting configure AntidoteDB on nodes")
         # Install & config Docker
         logger.info("Init configurator: docker_configurator")
-        configurator = docker_configurator(self.hosts)
+        configurator = docker_configurator(hosts)
         configurator.config_docker()
 
         # Install antidoteDB
         logger.info("Starting configure AntidoteDB")
         logger.info("Pull AntidoteDB docker image")
         cmd = 'docker pull antidotedb/antidote'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
+        execute_cmd(cmd, hosts)
 
         logger.info("Run AntidoteDB container")
         cmd = 'docker run -d --name antidote -p "8087:8087" antidotedb/antidote'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
+        execute_cmd(cmd, hosts)
 
-        logger.info("Configuring AntidoteDB on hosts: DONE")
+        logger.info("Finish configuring AntidoteDB on all hosts")
 
     def run(self):
         logger.info("Starting provision nodes")
@@ -45,12 +46,9 @@ class config_antidotedb_env_g5k(performing_actions_g5k):
                                       is_reservation=self.args.is_reservation,
                                       job_name="cloudal")
         provisioner.provisioning()
-        self.hosts = provisioner.hosts
-        logger.info("Provisioning nodes: DONE")
+        hosts = provisioner.hosts
 
-        logger.info("Starting configure AntidoteDB on nodes")
-        self.config_host()
-        logger.info("Configuring AntidoteDB on nodes: DONE")
+        self.config_host(hosts)
 
 
 if __name__ == "__main__":

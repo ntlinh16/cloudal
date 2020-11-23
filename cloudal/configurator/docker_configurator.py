@@ -1,7 +1,6 @@
 from cloudal.utils import get_logger, execute_cmd
 from cloudal.configurator import packages_configurator
 
-
 logger = get_logger()
 
 

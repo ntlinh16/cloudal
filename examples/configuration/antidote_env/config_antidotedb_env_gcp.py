@@ -13,19 +13,19 @@ class config_antidotedb_env_gcp(performing_actions):
     def __init__(self):
         super(config_antidotedb_env_gcp, self).__init__()
 
-    def config_host(self):
+    def config_host(self, hosts):
         logger.info("Starting configure AntidoteDB on nodes")
         logger.debug("Init configurator: docker_configurator")
-        configurator = docker_configurator(self.hosts)
+        configurator = docker_configurator(hosts)
         configurator.config_docker()
 
         logger.info("Pull AntidoteDB docker image")
         cmd = 'docker pull antidotedb/antidote'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
+        execute_cmd(cmd, hosts)
 
         logger.info("Run AntidoteDB container")
         cmd = 'docker run -d --name antidote -p "8087:8087" antidotedb/antidote'
-        self.error_hosts = execute_cmd(cmd, self.hosts)
+        execute_cmd(cmd, hosts)
         logger.info("Finish configuring AntidoteDB on all hosts")
 
     def provisioning(self):
@@ -33,11 +33,12 @@ class config_antidotedb_env_gcp(performing_actions):
         provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
         provisioner.make_reservation()
         provisioner.get_resources()
-        self.hosts = provisioner.hosts
+        hosts_ips = provisioner.hosts
+        return hosts_ips
 
     def run(self):
-        self.provisioning()
-        self.config_host()
+        hosts_ips = self.provisioning()
+        self.config_host(hosts_ips)
 
 
 if __name__ == "__main__":
