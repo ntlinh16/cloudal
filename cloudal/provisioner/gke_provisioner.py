@@ -66,7 +66,7 @@ class gke_provisioner(cloud_provisioning):
                             (cluster['cluster_name'], cluster['zone']))
                 self.clusters.append(clusters_ok[key])
             elif key in clusters_ko:
-                logger.info('Cluster %s in zone %s already existed but not running' %
+                logger.info('Cluster "%s" in zone %s already existed but not running' %
                             (cluster['cluster_name'], cluster['zone']))
             else:
                 logger.info('Deploying K8s cluster "%s" with %s nodes in zone %s' %
