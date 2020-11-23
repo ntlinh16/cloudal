@@ -36,7 +36,9 @@
 
 To set up a cloud system for running rigorous experiments, we usually follow a typical workflow that consists of three steps: (1) provisioning some hosts (physical machines or virtual machines); (2) configuring the environment (i.e., installing/deploying services or applications on hosts); (3) performing an experiment workflow. To achieve a completed setting environment, we have to overcome a massive amount of challenges and obstacles to build, deploy, and manage hosts and applications on one specific cloud system. `cloudal` helps you with these boring setting steps, therefore, you only need to focus on the experiments you are interested in.
 
-_cloudal_ is designed to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collect the results automatically on different cloud systems in a large-scale and reproducible manner. The following figure presents a general experiment flowchart on a specific cloud system when you use _cloudal_.
+_cloudal_ is designed to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collect the results automatically on different cloud systems in a large-scale and reproducible manner. However, you can use _cloudal_ to perform all cloudal experiment steps or only perform a simple action such as provisioning some resources on a specific cloud system or configuring some resources (i.e., provisioning some resources and then deploy applications/services on them).
+
+The following figure presents a general experiment flowchart on a specific cloud system when you use _cloudal_.
 
 <p align="center">
     <br>
@@ -61,12 +63,12 @@ If all combinations are performed, the experiment is done. While we are performi
 <p>
 
 The design of _cloudal_ is a _Performing Actions_ class that inherits the `execo_engine`. 
-We use `execo` as an experiment toolkit which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
+I use `execo` as an experiment toolkit which offers a Python API for asynchronous control of local or remote, standalone or parallel, unix processes. It is especially well suited for quick and easy scripting workflows of parallel/distributed operations on local or remote hosts: automate a scientific workflow, conduct computer science experiments, perform automated tests, etc.
 
 _cloudal_ provides 3 main modules to helps user perform their actions (i.e., provisioning, configuring or experimenting action) easily and quickly"
 
-- __provisioner__: Each provisioner is an instance of the `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, we use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
-- __configurator__: this module contains many ready-to-use configurators that we already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
+- __provisioner__: Each provisioner is an instance of the `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, I use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
+- __configurator__: this module contains many ready-to-use configurators that I already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
 - __experimenter__: this module contains some ready-to-use experimenter that used to manage the experiments, meaning that creating and controlling the combinations queue and handling the results.
 
 By using the 3 provided modules as lego blocks, users can assemble them to write a `Performing Actions` script to describe sequential steps to perform their specific experimental scenarios. And they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts for manually testing, or perform experiments automatically which require the whole workflow).
@@ -127,11 +129,11 @@ To working on specific cloudal systems, you need more installation. Please find 
 
 # Getting started
 
-To write your custom _performing action_ script (a script to perform your experiment), you could use the provided template in `cloudal/template` directory. The detail explanation presents in [here](https://github.com/ntlinh16/cloudal/tree/master/templates)
+To write your own _performing action_ script (a script to perform your custom action such as provisioning, configuring or experimenting), you could use the provided template in `cloudal/template` directory. The detail explanation presents in [here](https://github.com/ntlinh16/cloudal/tree/master/templates)
 
 # Tutorials
-You can use _cloudal_ to perform a all cloudal experiment steps or only perform an simple action such as provisioning some resources on a specific cloud system or configuring some resources (i.e., provisioning some resources and then deploy services on them).
-We provide here some quick tutorials on how to perform some actions with _cloudal_.
+
+I provide here some quick tutorials on how to perform some actions with _cloudal_.
 
 ### Provisioning
 - [Provisioning on G5K: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-1-provisioning-some-hosts-on-g5k)
