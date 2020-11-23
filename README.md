@@ -143,7 +143,7 @@ I provide here some quick tutorials on how to perform some actions with _cloudal
 - [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-5-provisioning-kubernetes-clusters-on-google-cloud-engine-gke)
 
 ### Configuring
-- [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-g5k)
+- [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-grid5000-g5k)
 - [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-3-configuring-antidotedb-on-running-hosts-on-g5k)
 - [Deploying an AntidoteDB cluster using Kubernetes](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-5-deploying-an-antidotedb-cluster-using-kubernetes-on-g5k)
 
