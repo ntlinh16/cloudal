@@ -1,4 +1,3 @@
-import os
 import traceback
 
 from execo_g5k.oar import oardel
@@ -6,12 +5,11 @@ from execo_engine import slugify
 
 from cloudal.utils import (ExecuteCommandException,
                            get_logger,
-                           install_packages_on_debian,
                            execute_cmd,
                            parse_config_file)
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
-from cloudal.configurator import docker_configurator
+from cloudal.configurator import docker_configurator, packages_configurator
 from cloudal.experimenter import create_combs_queue, is_job_alive, get_results
 
 
@@ -62,11 +60,11 @@ class performing_action_template(performing_actions_g5k):
     def setup_env(self):
         """Setting the experiment environment base on the user's requirements
 
-        This funtion normally contains two steps:
+        This function normally contains two steps:
             1. Provisioning hosts on G5k if needed
                (if you provided the OAR_JOB_ID of the already reserved hosts,
                the provisioner will not make a reservation again)
-            2. Configuring all your necessary pakages/services on those hosts.
+            2. Configuring all your necessary packages/services on those hosts.
         """
         provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
                                       keep_alive=self.args.keep_alive,
@@ -84,7 +82,8 @@ class performing_action_template(performing_actions_g5k):
         ##################################################
 
         # For example: install some dependencies
-        install_packages_on_debian(['sysstat', 'htop'], self.hosts)
+        configurator = packages_configurator()
+        configurator.install_packages(['sysstat', 'htop'], self.hosts)
 
         # or perform some commands on all of hosts
         logger.info("Downloading cloudal")
@@ -109,7 +108,7 @@ class performing_action_template(performing_actions_g5k):
         logger.info('Running the experiment workflow')
         while len(sweeper.get_remaining()) > 0:
             if oar_job_ids is None:
-                logger.info('Setting the experiment enviroment')
+                logger.info('Setting the experiment environment')
                 oar_job_ids = self.setup_env()
 
             comb = sweeper.get_next()
