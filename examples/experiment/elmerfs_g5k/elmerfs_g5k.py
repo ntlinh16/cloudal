@@ -3,7 +3,7 @@ import traceback
 
 from time import sleep
 
-from cloudal.utils import get_logger, execute_cmd, parse_config_file, getput_file, install_packages_on_debian
+from cloudal.utils import get_logger, execute_cmd, parse_config_file, getput_file
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
 from cloudal.configurator import kubernetes_configurator, k8s_resources_configurator, packages_configurator
@@ -25,7 +25,7 @@ class elmerfs_g5k(performing_actions_g5k):
 
     def deploy_elmerfs(self, kube_master, kube_namespace, elmerfs_hosts):
         logger.info("Starting deploying elmerfs on hosts")
-        # install_packages_on_debian(['libfuse2'], elmerfs_hosts)
+
         configurator = packages_configurator()
         configurator.install_packages(['libfuse2'], elmerfs_hosts)
 
@@ -304,16 +304,13 @@ class elmerfs_g5k(performing_actions_g5k):
             elmerfs_hosts = [host for host in self.hosts if host not in antidote_hosts]
             elmerfs_hosts.remove(kube_master)
 
-            kube_workers = [host for host in antidote_hosts if host != kube_master]
-            self._set_kube_workers_label(kube_workers)
-
-        self.config_antidote(kube_namespace)
-        self.deploy_elmerfs(kube_master, elmerfs_hosts)
+            self.config_antidote(kube_namespace)
+            self.deploy_elmerfs(kube_master, kube_namespace, elmerfs_hosts)
         logger.debug('elmerfs nodes: %s' % elmerfs_hosts)
         logger.debug('antidote nodes: % s' % antidote_hosts)
 
     def setup_env(self, kube_master_site):
-        logger.info("STARTING SETTING THE EXPERIMENT ENVIRONMENT")
+        logger.info("Starting configuring the experiment environment")
         logger.debug("Init provisioner: g5k_provisioner")
         provisioner = g5k_provisioner(configs=self.configs,
                                       keep_alive=self.args.keep_alive,
@@ -331,7 +328,7 @@ class elmerfs_g5k(performing_actions_g5k):
         self.config_host(kube_master_site, kube_namespace)
         logger.info("Finish configuring nodes\n")
 
-        logger.info("FINISH SETTING THE EXPERIMENT ENVIRONMENT\n")
+        logger.info("Finish configuring the experiment environment\n")
 
     def create_configs(self):
         logger.debug('Get the k8s master node')
