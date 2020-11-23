@@ -6,7 +6,7 @@ from time import sleep
 from cloudal.utils import get_logger, execute_cmd, parse_config_file, getput_file, install_packages_on_debian
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
-from cloudal.configurator import kubernetes_configurator, k8s_resources_configurator
+from cloudal.configurator import kubernetes_configurator, k8s_resources_configurator, packages_configurator
 
 from execo_g5k import oardel
 from kubernetes import config
@@ -25,9 +25,20 @@ class elmerfs_g5k(performing_actions_g5k):
 
     def deploy_elmerfs(self, kube_master, kube_namespace, elmerfs_hosts):
         logger.info("Starting deploying elmerfs on hosts")
-        install_packages_on_debian(['libfuse2'], elmerfs_hosts)
+        # install_packages_on_debian(['libfuse2'], elmerfs_hosts)
+        configurator = packages_configurator()
+        configurator.install_packages(['libfuse2'], elmerfs_hosts)
 
         elmerfs_file_path = self.configs['exp_env']['elmerfs_file_path']
+
+        logger.info('Killing elmerfs process if it is running')
+        for host in elmerfs_hosts:
+            cmd = "ps aux | grep elmerfs | awk '{print$2}'"
+            _, r = execute_cmd(cmd, host)
+            pids = r.processes[0].stdout.strip().split('\r\n')
+            if len(pids) >= 3:
+                cmd = "kill %s && umount /tmp/dc-$(hostname)" % pids[0]
+                execute_cmd(cmd, host)
 
         if elmerfs_file_path is None:
             logger.debug("Building elmerfs project on kube_master node and then downloading to local machine")
@@ -76,8 +87,8 @@ class elmerfs_g5k(performing_actions_g5k):
         service_list = configurator.get_k8s_resources(resource='service',
                                                       label_selectors='app=antidote,type=exposer-service',
                                                       kube_namespace=kube_namespace)
-        for service in service_list.items:
-            antidote_options.append("--antidote=%s:8087" % service.spec.cluster_ip)
+
+        antidote_options = ["--antidote=%s:8087" % service.spec.cluster_ip for service in service_list.items]
 
         logger.info("Starting elmerfs on elmerfs hosts: %s" % elmerfs_hosts)
         cmd = "RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
@@ -240,6 +251,7 @@ class elmerfs_g5k(performing_actions_g5k):
         logger.info('Kubernetes config file is stored at: %s' % kube_config_file)
 
     def config_kube(self, kube_master, antidote_hosts, kube_namespace):
+        logger.info('Starting configuring a Kubernetes cluster')
         logger.debug("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(hosts=self.hosts, kube_master=kube_master)
         configurator.deploy_kubernetes_cluster()
@@ -247,6 +259,7 @@ class elmerfs_g5k(performing_actions_g5k):
         self._get_credential(kube_master)
 
         logger.info('Create k8s namespace "%s" for this experiment' % kube_namespace)
+        logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
         configurator.create_namespace(kube_namespace)
 
@@ -287,11 +300,15 @@ class elmerfs_g5k(performing_actions_g5k):
             configurator = k8s_resources_configurator()
             antidote_hosts = configurator.get_k8s_resources_name(resource='node',
                                                                  label_selectors='service_g5k=antidote')
+
             elmerfs_hosts = [host for host in self.hosts if host not in antidote_hosts]
             elmerfs_hosts.remove(kube_master)
 
-            self.config_antidote(kube_namespace)
-            self.deploy_elmerfs(kube_master, elmerfs_hosts)
+            kube_workers = [host for host in antidote_hosts if host != kube_master]
+            self._set_kube_workers_label(kube_workers)
+
+        self.config_antidote(kube_namespace)
+        self.deploy_elmerfs(kube_master, elmerfs_hosts)
         logger.debug('elmerfs nodes: %s' % elmerfs_hosts)
         logger.debug('antidote nodes: % s' % antidote_hosts)
 
