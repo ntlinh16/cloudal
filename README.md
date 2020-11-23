@@ -138,9 +138,9 @@ I provide here some quick tutorials on how to perform some actions with _cloudal
 ### Provisioning
 - [Provisioning on G5K: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-1-provisioning-some-hosts-on-grid5000-g5k)
 - [Provisioning on G5K: creating a Kubernetes cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-2-provisioning-a-kubernetes-cluster-on-grid5000-g5k)
-- [Provisioning on G5K: creating a Docker Swarm cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-3-provisioning-a-docker-swarm-cluster-on-grid5000-g5k)
+- [Provisioning on G5K: creating a Docker Swarm cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-3-provisioning-docker-swarm-clusters-on-grid5000-g5k)
 - [Provisioning on GCP: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-4-provisioning-some-hosts-on-google-cloud-platform-gcp)
-- [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-5-provisioning-kubernetes-clusters-on-google-kubernetes-engine-gke)
+- [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-5-provisioning-kubernetes-clusters-on-google-cloud-engine-gke)
 
 ### Configuring
 - [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-g5k)
