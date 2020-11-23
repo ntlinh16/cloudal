@@ -14,6 +14,7 @@ class gcp_provisioner(cloud_provisioning):
         self.config_file_path = kwargs.get('config_file_path')
         self.configs = kwargs.get('configs')
         self.nodes = list()
+        self.hosts = list()
 
         if self.configs and isinstance(self.configs, dict):
             logger.debug("Use configs instead of config file")
@@ -46,7 +47,7 @@ class gcp_provisioner(cloud_provisioning):
         for zone in list_zones:
             nodes = driver.list_nodes(ex_zone=zone)
             for node in nodes:
-                existed_nodes[zone][node.name] = node.state
+                existed_nodes[zone][node.name] = node
         return existed_nodes
 
     def make_reservation(self):
@@ -64,8 +65,7 @@ class gcp_provisioner(cloud_provisioning):
         if self.configs['instance_type'] is not None:
             instance_type = [s for s in sizes if s.name == self.configs['instance_type']][0]
 
-        PUBLIC_SSH_KEY_PATH = os.path.expanduser(
-            self.configs['public_ssh_key_path'])
+        PUBLIC_SSH_KEY_PATH = os.path.expanduser(self.configs['public_ssh_key_path'])
 
         with open(PUBLIC_SSH_KEY_PATH, 'r') as fp:
             PUBLIC_SSH_KEY_CONTENT = fp.read().strip()
@@ -91,7 +91,8 @@ class gcp_provisioner(cloud_provisioning):
             for index in range(n_nodes):
                 node_name = '%s-%s' % (cluster['node_name'], index)
                 if node_name in existed_nodes[zone]:
-                    if existed_nodes[zone][node_name] == 'running':
+                    self.nodes.append(existed_nodes[zone][node_name])
+                    if existed_nodes[zone][node_name].state == 'running':
                         logger.info('%s on zone %s already existed and is running' % (node_name, zone))
                         continue
                     else:
@@ -122,9 +123,9 @@ class gcp_provisioner(cloud_provisioning):
     def get_resources(self):
         """Retriving the public IPs of the list of provisioned hosts
         """
-        self.hosts = list()
-        logger.info("Retriving the public IPs of nodes")
+        logger.info("Retriving the public IPs of all nodes on GCP")
         for node in self.nodes:
             if len(node.public_ips) > 0:
                 self.hosts.append(node.public_ips[0])
-        logger.info(self.hosts)
+        logger.info("Finish retriving the public IPs\n")
+        return self.hosts
