@@ -108,7 +108,7 @@ class gcp_provisioner(cloud_provisioning):
                 else:
                     current_instance_type = instance_type
 
-                logger.info('Deploying %s with %s type, using %s' %
+                logger.info('Deploying %s with %s instance type, using %s image' %
                             (node_name, current_instance_type, current_image.name))
 
                 node = driver.create_node(name=node_name,
