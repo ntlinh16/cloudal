@@ -1,4 +1,5 @@
-from cloudal.utils import get_logger, execute_cmd, install_packages_on_debian
+from cloudal.utils import get_logger, execute_cmd
+from cloudal.configurator import packages_configurator
 
 
 logger = get_logger()
@@ -18,7 +19,8 @@ class docker_configurator(object):
             a list of hosts
         """
         logger.info('Starting installing Docker on %s hosts' % len(self.hosts))
-        install_packages_on_debian(['wget'], self.hosts)
+        configurator = packages_configurator()
+        configurator.install_packages(['wget'], self.hosts)
         logger.info('Downloading the official get_docker script')
         cmd = 'wget https://get.docker.com -O get-docker.sh'
         self.error_hosts = execute_cmd(cmd, self.hosts)

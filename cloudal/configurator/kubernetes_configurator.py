@@ -1,7 +1,7 @@
 
 from execo import host
-from cloudal.utils import get_logger, execute_cmd, install_packages_on_debian
-from cloudal.configurator import docker_configurator
+from cloudal.utils import get_logger, execute_cmd
+from cloudal.configurator import docker_configurator, packages_configurator
 
 
 logger = get_logger()
@@ -31,7 +31,8 @@ class kubernetes_configurator(object):
         execute_cmd(cmd, self.hosts)
 
         logger.debug('Installing kubeadm kubelet kubectl')
-        install_packages_on_debian(['apt-transport-https', 'curl'], self.hosts)
+        configurator = packages_configurator()
+        configurator.install_packages(['apt-transport-https', 'curl'], self.hosts)
 
         cmd = 'curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -'
         execute_cmd(cmd, self.hosts)
@@ -40,8 +41,7 @@ class kubernetes_configurator(object):
                 deb https://apt.kubernetes.io/ kubernetes-xenial main'''
         execute_cmd(cmd, self.hosts)
 
-        install_packages_on_debian(
-            ['kubelet', 'kubeadm', 'kubectl'], self.hosts)
+        configurator.install_packages(['kubelet', 'kubeadm', 'kubectl'], self.hosts)
 
     def deploy_kubernetes_cluster(self):
         configurator = docker_configurator(self.hosts)
