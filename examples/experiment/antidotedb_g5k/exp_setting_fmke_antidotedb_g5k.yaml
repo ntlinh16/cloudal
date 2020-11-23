@@ -7,7 +7,7 @@
 
 
 # the duration to keep the reserved nodes running
-walltime: 9:00:00
+walltime: 3:00:00
 
 # the time when you want the nodes to be started.
 # the date format is "YYYY-MM-DD HH:MM:SS"
@@ -50,10 +50,10 @@ parameters:
 #############################################
 exp_env:
     # the path to th results directory
-    results_dir: cloudal/examples/experiment/antidotedb/result
+    results_dir: cloudal/examples/experiment/antidotedb_g5k/result
     # the path to the kubernetes yaml files to deploy antidote cluster and FMKe benchmark
-    antidote_yaml_path: cloudal/examples/experiment/antidotedb/config_files/antidotedb_yaml
-    fmke_yaml_path: cloudal/examples/experiment/antidotedb/config_files/fmke_yaml
+    antidote_yaml_path: cloudal/examples/experiment/antidotedb_g5k/config_files/antidotedb_yaml
+    fmke_yaml_path: cloudal/examples/experiment/antidotedb_g5k/config_files/fmke_yaml
 
     # the site that kube master node will be deployed in.
     # if it is null, then the k8s master node will be deployed on the first site you specify in the file clusters below
@@ -61,7 +61,7 @@ exp_env:
 
     # the sites that all the data centers will be deployed.
     # each site has one data center
-    clusters: [dahu]
+    clusters: [dahu, uvb]
 
     # each data center consists of 3 types of node.
     # you should specify the number of each type of node per data center:
