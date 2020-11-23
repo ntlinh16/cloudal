@@ -17,6 +17,12 @@ class provision_gcp(performing_actions):
         provisioner.make_reservation()
         provisioner.get_resources()
 
+        nodes = provisioner.nodes
+        hosts = dict()
+        for node in nodes:
+            hosts[node.name] = node.public_ips[0]
+        logger.info('List of hosts: %s' % hosts)
+
     def run(self):
         self.provisioning()
 
