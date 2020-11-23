@@ -5,10 +5,10 @@ import base64
 from tempfile import NamedTemporaryFile
 from time import sleep
 
-from cloudal.utils import get_logger, execute_cmd, install_packages_on_debian, getput_file, parse_config_file
+from cloudal.utils import get_logger, execute_cmd, getput_file, parse_config_file
 from cloudal.action import performing_actions
 from cloudal.provisioner import gke_provisioner, gcp_provisioner
-from cloudal.configurator import k8s_resources_configurator, docker_configurator
+from cloudal.configurator import k8s_resources_configurator, docker_configurator, packages_configurator
 
 from kubernetes import client
 
@@ -30,7 +30,8 @@ class elmerfs_gke(performing_actions):
 
     def config_elmerfs(self, hosts_gcp, antidote_services_ips, configs_gcp):
         logger.info("Starting deploying elmerfs on hosts")
-        install_packages_on_debian(['libfuse2'], hosts_gcp)
+        configurator = packages_configurator()
+        configurator.install_packages(['libfuse2'], hosts_gcp)
 
         elmerfs_file_path = configs_gcp['exp_env']['elmerfs_file_path']
 
@@ -45,7 +46,9 @@ class elmerfs_gke(performing_actions):
 
         if elmerfs_file_path is None:
             logger.debug("Building elmerfs project on kube_master node and then downloading to local machine")
-            install_packages_on_debian(['git'], hosts_gcp[0])
+
+            configurator.install_packages(['libfuse2'], hosts_gcp[0])
+
             configurator = docker_configurator(hosts=[hosts_gcp[0]])
             configurator.config_docker()
 
