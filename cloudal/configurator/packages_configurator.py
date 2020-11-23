@@ -18,7 +18,7 @@ class packages_configurator(object):
             the list of hostnames
 
         '''
-        logger.debug("Installing packages: %s on %s hosts" % (', '.join(packages)), len(hosts))
+        logger.debug("Installing packages: %s on %s hosts" % (', '.join(packages), len(hosts)))
         cmd = (
             "export DEBIAN_FRONTEND=noninteractive; "
             "apt-get update && apt-get "
@@ -71,7 +71,6 @@ class packages_configurator(object):
             os_name = r.processes[0].stdout.strip().lower()
             list_os_hosts[os_name] = list_os_hosts.get(os_name, list()) + [host]
 
-        logger.info('list_os_hosts: %s' % list_os_hosts)
         logger.info("Installing packages: %s" % ', '.join(packages))
         for os_name, list_hosts in list_os_hosts.items():
             if os_name in ['debian', 'ubuntu']:
