@@ -69,7 +69,7 @@ class gke_provisioner(cloud_provisioning):
                 logger.info('Cluster %s in zone %s already existed but not running' %
                             (cluster['cluster_name'], cluster['zone']))
             else:
-                logger.info("Deploying cluster %s with %s nodes in zone %s" %
+                logger.info('Deploying K8s cluster "%s" with %s nodes in zone %s' %
                             (cluster['cluster_name'], cluster['n_nodes'], cluster['zone']))
                 cluster_specs = Cluster(mapping={
                     'name': cluster['cluster_name'],
