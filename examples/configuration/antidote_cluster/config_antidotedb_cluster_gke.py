@@ -156,7 +156,7 @@ class config_antidotedb_cluster_gke(performing_actions):
                                                                                       kube_config,
                                                                                       kube_namespace))
 
-        logger.info("Starting connecting all AntidoteDB DCs")
+        logger.info("Starting connecting all AntidoteDB DCs to create a cluster")
         self.connect_antidote_DCs(antidote_services_ips, kube_config, kube_namespace)
         logger.info("Finish configuring an AntidoteDB cluster\n")
 
