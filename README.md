@@ -147,3 +147,4 @@ We provide here some quick tutorials on how to perform some actions with _clouda
 ### Experimenting
 - [Running FMKe benchmark on AntidoteDB cluster using Kubernetes on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb)
 - [Running elmerfs with an AntidoteDB backend on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs)
+- [Running elmerfs with an AntidoteDB backend on Google Cloud (using both GCP and GKE)](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs_gke)
