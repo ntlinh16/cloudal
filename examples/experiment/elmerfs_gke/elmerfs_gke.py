@@ -94,7 +94,7 @@ class elmerfs_gke(performing_actions):
         logger.debug('Creating antidote options for elmerfs command')
         antidote_options = ["--antidote=%s" % ip for ip in antidote_services_ips]
 
-        logger.info("Starting elmerfs on elmerfs hosts: %s" % hosts_gcp)
+        logger.info("Starting elmerfs on hosts: %s" % hosts_gcp)
         cmd = "RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
             antidote_options)
         for host in hosts_gcp:
