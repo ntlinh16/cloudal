@@ -1,5 +1,6 @@
-from cloudal.utils import get_logger, execute_cmd
+from time import sleep
 
+from cloudal.utils import get_logger, execute_cmd
 
 logger = get_logger()
 
@@ -19,11 +20,10 @@ class packages_configurator(object):
 
         '''
         logger.debug("Installing packages: %s on %s hosts" % (', '.join(packages), len(hosts)))
-        cmd = (
-            "export DEBIAN_FRONTEND=noninteractive; "
-            "apt-get update && apt-get "
-            "install --yes --allow-change-held-packages --no-install-recommends %s"
-        ) % ' '.join(packages)
+        cmd = ("export DEBIAN_FRONTEND=noninteractive; "
+               "apt-get update && apt-get "
+               "install --yes --allow-change-held-packages --no-install-recommends %s"
+               ) % ' '.join(packages)
         try:
             execute_cmd(cmd, hosts)
         except Exception as e:
@@ -42,11 +42,9 @@ class packages_configurator(object):
 
         '''
         logger.debug("Installing packages: %s on %s hosts" % (', '.join(packages)), len(hosts))
-        cmd = (
-            "export DEBIAN_FRONTEND=noninteractive; "
-            "yum update && apt-get "
-            "install --yes --allow-change-held-packages --no-install-recommends %s"
-        ) % ' '.join(packages)
+        cmd = ("yum update && yum "
+               "install --yes --allow-change-held-packages --no-install-recommends %s"
+               ) % ' '.join(packages)
         try:
             execute_cmd(cmd, hosts)
         except Exception as e:
@@ -65,10 +63,16 @@ class packages_configurator(object):
 
         '''
         list_os_hosts = dict()
+        MAX_RETRIES = 10
         for host in hosts:
-            cmd = "uname -a | awk '{print$6}'"
-            _, r = execute_cmd(cmd, host)
-            os_name = r.processes[0].stdout.strip().lower()
+            for attempt in range(MAX_RETRIES):
+                cmd = "uname -a | awk '{print$6}'"
+                _, r = execute_cmd(cmd, host)
+                os_name = r.processes[0].stdout.strip().lower()
+                if os_name:
+                    break
+                logger.info('---> Retrying: "%s" on host %s ' % (cmd, host))
+                sleep(10)
             list_os_hosts[os_name] = list_os_hosts.get(os_name, list()) + [host]
 
         logger.info("Installing packages: %s" % ', '.join(packages))
