@@ -46,7 +46,7 @@ def define_parameters(parameters):
     Parameters
     ----------
     parameters: dict
-        a dictionary contains the parameters space defined by user which is paresed from the config file
+        a dictionary contains the parameters space defined by user which is parsed from the config file
         key: str, the name of the experiment parameter
         value: list, str, int
 
@@ -143,7 +143,7 @@ def create_combination_dir(comb, result_dir):
     Parameters
     ----------
     comb: dict
-        a dictionay that contains the set of parameters for a specific run
+        a dictionary that contains the set of parameters for a specific run
         key: str, the name of the experiment parameter
         value: object, the value of the experiment parameter in this combination
 
@@ -177,7 +177,7 @@ def get_results(comb, hosts, remote_result_files, local_result_dir):
     Parameters
     ----------
     comb: dict
-        a dictionay that contains the set of parameters for a specific run
+        a dictionary that contains the set of parameters for a specific run
         key: str, the name of the experiment parameter
         value: object, the value of the experiment parameter in this combination
 
@@ -204,7 +204,7 @@ def is_job_alive(oar_job_ids):
     Parameters
     ----------
     oar_job_ids: dict
-        a dictionay that contains the reserved information 
+        a dictionary that contains the reserved information 
         key: str, the name of the site on Grid5000 system
         value: int, the number of the reservation on that site
 
