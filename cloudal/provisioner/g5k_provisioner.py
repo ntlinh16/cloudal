@@ -142,7 +142,12 @@ class g5k_provisioner(cloud_provisioning):
             logger.info(message)
             return
 
-        message = 'You are requesting %s nodes for %s:' % (sum(self.clusters.values()), self.configs['walltime'])
+        if self.configs['walltime'] <= 99*3600+99*60+99:
+            walltime = time.strftime('%H:%M:%S', time.gmtime(self.configs['walltime']))
+        else:
+            walltime = '%s seconds' % self.configs['walltime']
+        message = 'You are requesting %s nodes for %s:' % (sum(self.clusters.values()), walltime)
+
         for cluster, n_nodes in self.clusters.items():
             message += "\n%s: %s nodes" % (cluster, n_nodes)
         logger.info(message)

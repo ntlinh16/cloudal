@@ -31,11 +31,10 @@ class gke_provisioner(cloud_provisioning):
             service_account_credentials_json_file_path)
         return cluster_manager_client
 
-    def _get_existed_clusters(self, project_id, list_zones):
+    def _get_existed_clusters(self, project_id, list_zones, cluster_manager_client):
         clusters_ok = dict()
         clusters_ko = dict()
 
-        cluster_manager_client = self._get_gke_client()
         for zone in list_zones:
             list_clusters = cluster_manager_client.list_clusters(project_id=project_id, zone=zone)
 
@@ -57,7 +56,7 @@ class gke_provisioner(cloud_provisioning):
             list_zones.append(cluster['zone'])
 
         logger.info("Checking the Kubernetes clusters exist or not")
-        clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones)
+        clusters_ok, clusters_ko = self._get_existed_clusters(project_id, list_zones, cluster_manager_client)
 
         for cluster in self.configs['clusters']:
             key = '%s:%s' % (cluster['zone'], cluster['cluster_name'])
