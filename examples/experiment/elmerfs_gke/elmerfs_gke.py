@@ -249,14 +249,13 @@ class elmerfs_gke(performing_actions):
         logger.info('Starting provisioning K8s clusters on GKE to deploy an antidoteDB cluster')
         logger.debug("Init provisioner: gke_provisioner")
         provisioner = gke_provisioner(configs=configs_gke)
-        provisioner.make_reservation()
+        provisioner.provisioning()
         clusters_gke = provisioner.clusters
 
         logger.info('Starting provisioning nodes on GCP to deploy elmerfs nodes')
         logger.debug("Init provisioner: gke_provisioner")
         provisioner = gcp_provisioner(configs=configs_gcp)
-        provisioner.make_reservation()
-        provisioner.get_resources()
+        provisioner.provisioning()
         hosts_gcp = provisioner.hosts
 
         kube_namespace = 'antidote'
