@@ -28,20 +28,22 @@ class provision_g5k_k8s(performing_actions_g5k):
         config.load_kube_config(config_file=os.path.join(kube_dir, 'config'))
         logger.info('Kubernetes config file is stored at: %s' % kube_dir)
 
-    def config_host(self):
+    def config_host(self, hosts):
+        logger.info("Starting configuring Kubernetes cluster")
         logger.info("Init configurator: docker_configurator")
-        configurator = docker_configurator(self.hosts)
+        configurator = docker_configurator(hosts)
         configurator.config_docker()
 
         logger.info("Init configurator: kubernetes_configurator")
-        configurator = kubernetes_configurator(self.hosts)
-        kube_master = configurator.deploy_kubernetes_cluster()
-        logger.info('Kubernetes master: %s' % kube_master)
+        configurator = kubernetes_configurator(hosts)
+        kube_master, kube_workers = configurator.deploy_kubernetes_cluster()
+        logger.info('Kubernetes workers: %s' % kube_workers)
 
         self._get_credential(kube_master=kube_master)
 
+        logger.info("Finish configuring Kubernetes cluster")
+
     def run(self):
-        logger.info("STARTING PROVISIONING NODES")
         logger.info("Init provisioner: g5k_provisioner")
         provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
                                       keep_alive=self.args.keep_alive,
@@ -51,12 +53,9 @@ class provision_g5k_k8s(performing_actions_g5k):
                                       is_reservation=self.args.is_reservation,
                                       job_name="cloudal")
         provisioner.provisioning()
-        self.hosts = provisioner.hosts
-        logger.info("FINISH PROVISIONING NODES")
+        hosts = provisioner.hosts
 
-        logger.info("STARTING DEPLOY KUBERNETES CLUSTERS")
-        self.config_host()
-        logger.info("FINISH DEPLOY KUBERNETES CLUSTERS")
+        self.config_host(hosts)
 
 
 if __name__ == "__main__":

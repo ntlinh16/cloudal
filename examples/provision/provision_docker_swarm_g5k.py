@@ -14,7 +14,7 @@ class provision_docker_swarm_g5k(performing_actions_g5k):
         super(provision_docker_swarm_g5k, self).__init__()
 
     def run(self):
-
+        # make reservation from requested nodes in config file
         logger.info("Init provisioner: g5k_provisioner")
         provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
                                       keep_alive=self.args.keep_alive,
@@ -26,9 +26,11 @@ class provision_docker_swarm_g5k(performing_actions_g5k):
         provisioner.provisioning()
         hosts = provisioner.hosts
 
+        # deploy docker swarm on all reserved hosts
         logger.info("Init configurator: docker_swarm_configurator")
         configurator = docker_swarm_configurator(hosts)
-        configurator.deploy_docker_swarm_cluster()
+        ds_manager, ds_workers = configurator.deploy_docker_swarm_cluster()
+        logger.info('Docker Swarm workers: %s' % ds_workers)
 
 
 if __name__ == "__main__":

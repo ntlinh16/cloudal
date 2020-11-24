@@ -15,7 +15,7 @@ class provision_gke(performing_actions):
     def provisioning(self):
         logger.debug("Init provisioner: gke_provisioner")
         provisioner = gke_provisioner(config_file_path=self.args.config_file_path)
-        provisioner.make_reservation()
+        provisioner.provisioning()
         clusters = provisioner.clusters
 
         clusters_name = list()

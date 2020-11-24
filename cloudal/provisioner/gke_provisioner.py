@@ -48,7 +48,7 @@ class gke_provisioner(cloud_provisioning):
 
         return clusters_ok, clusters_ko
 
-    def make_reservation(self):
+    def provisioning(self):
         logger.info("Starting provisioning Kubernetes clusters")
         cluster_manager_client = self._get_gke_client()
         project_id = self.configs['project_id']

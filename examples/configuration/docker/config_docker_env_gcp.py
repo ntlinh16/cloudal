@@ -21,8 +21,7 @@ class config_docker_env_gcp(performing_actions):
     def provisioning(self):
         logger.debug("Init provisioner: gcp_provisioner")
         provisioner = gcp_provisioner(config_file_path=self.args.config_file_path)
-        provisioner.make_reservation()
-        provisioner.get_resources()
+        provisioner.provisioning()
         self.hosts = provisioner.hosts
 
     def run(self):

@@ -163,7 +163,7 @@ class config_antidotedb_cluster_gke(performing_actions):
     def run(self):
         logger.debug("Init provisioner: gke_provisioner")
         provisioner = gke_provisioner(config_file_path=self.args.config_file_path)
-        provisioner.make_reservation()
+        provisioner.provisioning()
         self.clusters = provisioner.clusters
         self.configs = provisioner.configs
 

@@ -13,7 +13,6 @@ class provision_g5k(performing_actions_g5k):
         super(provision_g5k, self).__init__()
 
     def run(self):
-        logger.info("STARTING PROVISIONING NODES")
         logger.info("Init provisioner: g5k_provisioner")
         provisioner = g5k_provisioner(config_file_path=self.args.config_file_path,
                                       keep_alive=self.args.keep_alive,
@@ -23,7 +22,9 @@ class provision_g5k(performing_actions_g5k):
                                       is_reservation=self.args.is_reservation,
                                       job_name="cloudal")
         provisioner.provisioning()
-        logger.info("FINISH PROVISIONING NODES")
+
+        hosts = provisioner.hosts
+        logger.info('List of hosts: %s' % hosts)
 
 
 if __name__ == "__main__":
