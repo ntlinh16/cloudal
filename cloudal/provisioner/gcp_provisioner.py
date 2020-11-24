@@ -1,3 +1,4 @@
+from logging import info
 import os
 
 from libcloud.compute.types import Provider
@@ -49,6 +50,19 @@ class gcp_provisioner(cloud_provisioning):
             for node in nodes:
                 existed_nodes[zone][node.name] = node
         return existed_nodes
+
+    def _wait_hosts_up(self, driver):
+        logger.info('Waiting for all hosts are up')
+        nodes_up = list()
+        r = driver.wait_until_running(self.nodes)
+        for each in r:
+            nodes_up.append(each[0])
+        if len(nodes_up) == len(self.nodes):
+            logger.info('All reserved hosts are up')
+            self.nodes = nodes_up
+        else:
+            hosts_ko = [node.name for node in self.nodes if node not in nodes_up]
+            logger.info('The following hosts are not up: %s' % hosts_ko)
 
     def make_reservation(self):
         driver = self._get_gce_driver()
@@ -120,6 +134,8 @@ class gcp_provisioner(cloud_provisioning):
                 index += 1
         logger.info("Finish provisioning nodes on GCP\n")
 
+        return driver
+
     def get_resources(self):
         """Retriving the public IPs of the list of provisioned hosts
         """
@@ -128,4 +144,8 @@ class gcp_provisioner(cloud_provisioning):
             if len(node.public_ips) > 0:
                 self.hosts.append(node.public_ips[0])
         logger.info("Finish retriving the public IPs\n")
-        return self.hosts
+
+    def provisioning(self):
+        driver = self.make_reservation()
+        self._wait_hosts_up(driver)
+        self.get_resources()
