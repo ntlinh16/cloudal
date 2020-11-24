@@ -36,7 +36,7 @@
 
 To set up a cloud system for running rigorous experiments, we usually follow a typical workflow that consists of three steps: (1) provisioning some hosts (physical machines or virtual machines); (2) configuring the environment (i.e., installing/deploying services or applications on hosts); (3) performing an experiment workflow. To achieve a completed setting environment, we have to overcome a massive amount of challenges and obstacles to build, deploy, and manage hosts and applications on one specific cloud system. `cloudal` helps you with these boring setting steps, therefore, you only need to focus on the experiments you are interested in.
 
-_cloudal_ is designed to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collect the results automatically on different cloud systems in a large-scale and reproducible manner. However, you can use _cloudal_ to perform all cloudal experiment steps or only perform a simple action such as provisioning some resources on a specific cloud system or configuring some resources (i.e., provisioning some resources and then deploy applications/services on them).
+_cloudal_ is designed to perform a [full factorial experiment](https://en.wikipedia.org/wiki/Factorial_experiment) workflow and collect the results automatically on different cloud systems in a large-scale and reproducible manner. You can use _cloudal_ to perform all cloudal experiment steps or only perform a simple action such as provisioning some resources on a specific cloud system or configuring some resources (i.e., provisioning some resources and then deploy applications/services on them).
 
 The following figure presents a general experiment flowchart on a specific cloud system when you use _cloudal_.
 
@@ -138,9 +138,10 @@ I provide here some quick tutorials on how to perform some actions with _cloudal
 ### Provisioning
 - [Provisioning on G5K: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-1-provisioning-some-hosts-on-grid5000-g5k)
 - [Provisioning on G5K: creating a Kubernetes cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-2-provisioning-a-kubernetes-cluster-on-grid5000-g5k)
-- [Provisioning on G5K: creating a Docker Swarm cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-3-provisioning-docker-swarm-clusters-on-grid5000-g5k)
+- [Provisioning on G5K: creating a Docker Swarm cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-3-provisioning-docker-swarm-cluster-on-grid5000-g5k)
 - [Provisioning on GCP: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-4-provisioning-some-hosts-on-google-cloud-platform-gcp)
-- [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-5-provisioning-kubernetes-clusters-on-google-cloud-engine-gke)
+- [Provisioning on GCP: creating a Docker Swarm cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-5-provisioning-docker-swarm-cluster-on-google-cloud-platform-gcp)
+- [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-6-provisioning-kubernetes-clusters-on-google-cloud-engine-gke)
 
 ### Configuring
 - [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-grid5000-g5k)
