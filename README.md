@@ -68,10 +68,10 @@ I use `execo` as an experiment toolkit which offers a Python API for asynchronou
 _cloudal_ provides 3 main modules to helps user perform their actions (i.e., provisioning, configuring or experimenting action) easily and quickly"
 
 - __provisioner__: Each provisioner is an instance of the `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, I use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
-- __configurator__: this module contains many ready-to-use configurators that I already implemented to set up the environment for a specific application (e.g, Docker, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
+- __configurator__: this module contains many ready-to-use configurators that I already implemented to set up the environment for a specific application (e.g, Docker, Docker Swarm, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
 - __experimenter__: this module contains some ready-to-use experimenter that used to manage the experiments, meaning that creating and controlling the combinations queue and handling the results.
 
-By using the 3 provided modules as lego blocks, users can assemble them to write a `Performing Actions` script to describe sequential steps to perform their specific experimental scenarios. And they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts for manually testing, or perform experiments automatically which require the whole workflow).
+By using the 3 provided modules as lego blocks, users can assemble them to write a `Performing Actions` script which describes steps to perform their specific experimental scenarios. And they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts for manually testing, or perform an experiment automatically which requires the whole workflow).
 
 # Installation
 This repo uses Python 2.7+ due to `execo`.
@@ -99,7 +99,7 @@ export PYTHONPATH=$PYTHONPATH:/path/to/your/cloudal
 ```
 You can add the above line to your `.bashrc` to have the env variable set on new shell session.
 
-5. Set up the SSH configuration for execo:
+5. Set up the SSH configuration for `execo`:
 
 If you want to specify the SSH key to use with cloudal, you have to modify the execo configuration file. 
 
@@ -133,7 +133,7 @@ To write your own _performing action_ script (a script to perform your custom ac
 
 # Tutorials
 
-I provide here some quick tutorials on how to perform some actions with _cloudal_.
+I provide here some quick tutorials on how to perform an action with _cloudal_.
 
 ### Provisioning
 - [Provisioning on G5K: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-1-provisioning-some-hosts-on-grid5000-g5k)

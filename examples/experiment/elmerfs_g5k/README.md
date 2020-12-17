@@ -40,7 +40,7 @@ Then, run the following command:
 
 ```
 cd cloudal/examples/experiment/elmerfs/
-python elmerfs_g5k.py --system_config_file exp_setting_elmerfs.yaml -k
+python elmerfs_g5k.py --system_config_file exp_setting_elmerfs_g5k.yaml -k
 ```
 
 ### 3. Re-run the experiment
@@ -56,5 +56,5 @@ python elmerfs_g5k.py --system_config_file exp_setting_elmerfs.yaml -k
 
 ```
 cd cloudal/examples/experiment/elmerfs/
-python elmerfs_g5k.py --system_config_file exp_setting_elmerfs.yaml -k -j <site1:oar_job_id1,site2:oar_job_id2,...> --no-deploy-os --kube-master <the host name of the kubernetes master>
+python elmerfs_g5k.py --system_config_file exp_setting_elmerfs_g5k.yaml -k -j <site1:oar_job_id1,site2:oar_job_id2,...> --no-deploy-os --kube-master <the host name of the kubernetes master>
 ```

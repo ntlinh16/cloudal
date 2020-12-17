@@ -27,9 +27,10 @@ class elmerfs_g5k(performing_actions_g5k):
         logger.info("Starting deploying elmerfs on hosts")
 
         configurator = packages_configurator()
-        configurator.install_packages(['libfuse2'], elmerfs_hosts)
+        configurator.install_packages(['libfuse2', 'wget', 'jq'], elmerfs_hosts)
 
-        elmerfs_file_path = self.configs['exp_env']['elmerfs_file_path']
+        elmerfs_repo = self.configs['exp_env']['elmerfs_repo']
+        elmerfs_version = self.configs['exp_env']['elmerfs_version']
 
         logger.info('Killing elmerfs process if it is running')
         for host in elmerfs_hosts:
@@ -40,60 +41,72 @@ class elmerfs_g5k(performing_actions_g5k):
                 cmd = "kill %s && umount /tmp/dc-$(hostname)" % pids[0]
                 execute_cmd(cmd, host)
 
-        if elmerfs_file_path is None:
-            logger.debug("Building elmerfs project on kube_master node and then downloading to local machine")
+        if elmerfs_repo is None:
+            elmerfs_repo = 'https://github.com/scality/elmerfs'
+        if elmerfs_version is None:
+            elmerfs_version = 'latest'
 
-            logger.info("Downloading elmerfs project")
-            cmd = " rm -rf /tmp/elmerfs_repo \
-                    && git clone https://github.com/scality/elmerfs.git /tmp/elmerfs_repo \
-                    && cd /tmp/elmerfs_repo \
-                    && git submodule update --init --recursive"
-            execute_cmd(cmd, kube_master)
+        logger.info("Downloading elmerfs project")
+        cmd = '''curl \
+                -H "Accept: application/vnd.github.v3+json" \
+                https://api.github.com/repos/scality/elmerfs/releases/%s | jq ".tag_name" \
+                | xargs -I tag_name git clone https://github.com/scality/elmerfs.git --branch tag_name --single-branch /tmp/elmerfs_repo ''' % elmerfs_version
+        execute_cmd(cmd, kube_master)
 
-            cmd = '''cat <<EOF | sudo tee /tmp/elmerfs_repo/Dockerfile
-            FROM rust:1.47
-            RUN mkdir  /elmerfs
-            WORKDIR /elmerfs
-            COPY . .
-            RUN apt-get update \
-                && apt-get -y install libfuse-dev
-            RUN cargo build --release
-            CMD ["/bin/bash"]
-            '''
-            execute_cmd(cmd, kube_master)
+        cmd = " cd /tmp/elmerfs_repo \
+                && git submodule update --init --recursive"
+        execute_cmd(cmd, kube_master)
 
-            logger.info("Building elmerfs")
-            cmd = " cd /tmp/elmerfs_repo/ \
-                    && docker build -t elmerfs ."
-            execute_cmd(cmd, kube_master)
+        cmd = '''cat <<EOF | sudo tee /tmp/elmerfs_repo/Dockerfile
+        FROM rust:1.47
+        RUN mkdir  /elmerfs
+        WORKDIR /elmerfs
+        COPY . .
+        RUN apt-get update \
+            && apt-get -y install libfuse-dev
+        RUN cargo build --release
+        CMD ["/bin/bash"]
+        '''
+        execute_cmd(cmd, kube_master)
 
-            cmd = "docker run --name elmerfs elmerfs \
-                    && docker cp -L elmerfs:/elmerfs/target/release/main /tmp/elmerfs \
-                    && docker rm elmerfs"
-            execute_cmd(cmd, kube_master)
+        logger.info("Building elmerfs")
+        cmd = " cd /tmp/elmerfs_repo/ \
+                && docker build -t elmerfs ."
+        execute_cmd(cmd, kube_master)
 
-            getput_file(hosts=[kube_master], file_paths=['/tmp/elmerfs'], dest_location='/tmp', action='get')
-            elmerfs_file_path = '/tmp/elmerfs'
+        cmd = "docker run --name elmerfs elmerfs \
+                && docker cp -L elmerfs:/elmerfs/target/release/main /tmp/elmerfs \
+                && docker rm elmerfs"
+        execute_cmd(cmd, kube_master)
 
-        logger.info("Uploading elmerfs binary file from local to elmerfs hosts")
+        getput_file(hosts=[kube_master], file_paths=['/tmp/elmerfs'], dest_location='/tmp', action='get')
+        elmerfs_file_path = '/tmp/elmerfs'
+
+        logger.info("Uploading elmerfs binary file from local to %s elmerfs hosts" % len(elmerfs_hosts))
         getput_file(hosts=elmerfs_hosts, file_paths=[elmerfs_file_path], dest_location='/tmp', action='put')
         cmd = "chmod +x /tmp/elmerfs \
                && mkdir -p /tmp/dc-$(hostname)"
         execute_cmd(cmd, elmerfs_hosts)
 
-        logger.debug('Getting IP of antidoteDB services')
-        antidote_options = list()
+        logger.debug('Getting IP of antidoteDB on nodes')
+        antidote_ips = dict()
         configurator = k8s_resources_configurator()
-        service_list = configurator.get_k8s_resources(resource='service',
-                                                      label_selectors='app=antidote,type=exposer-service',
-                                                      kube_namespace=kube_namespace)
-
-        antidote_options = ["--antidote=%s:8087" % service.spec.cluster_ip for service in service_list.items]
-
-        logger.info("Starting elmerfs on elmerfs hosts: %s" % elmerfs_hosts)
-        cmd = "RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
-            antidote_options)
+        pod_list = configurator.get_k8s_resources(resource='pod',
+                                                  label_selectors='app=antidote',
+                                                  kube_namespace=kube_namespace)
+        for pod in pod_list.items:
+            node = pod.spec.node_name
+            if node not in antidote_ips:
+                antidote_ips[node] = list()
+            antidote_ips[node].append(pod.status.pod_ip)
+        logger.info("antidote_ips: %s" % antidote_ips)
         for host in elmerfs_hosts:
+            antidote_options = ["--antidote=%s:8087" % ip for ip in antidote_ips[host]]
+
+            logger.info("Starting elmerfs on elmerfs hosts: %s" % host)
+            cmd = "/tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
+                antidote_options)
+            logger.debug("Starting elmerfs on  %s with cmd: %s" % (host, cmd))
             execute_cmd(cmd, host, mode='start')
             sleep(5)
         logger.info('Finish deploying elmerfs\n')
@@ -283,12 +296,13 @@ class elmerfs_g5k(performing_actions_g5k):
                 else:
                     antidote_hosts += [host
                                        for host in self.hosts if host.startswith(cluster)][0:self.configs['exp_env']['n_antidotedb_per_dc']]
-            elmerfs_hosts = [host for host in self.hosts if host not in antidote_hosts]
 
             for host in antidote_hosts:
                 if host.startswith(kube_master_site):
                     kube_master = host
                     break
+            elmerfs_hosts = antidote_hosts
+            elmerfs_hosts.remove(kube_master)
 
             self.config_kube(kube_master, antidote_hosts, kube_namespace)
             self.config_antidote(kube_namespace)
@@ -301,8 +315,7 @@ class elmerfs_g5k(performing_actions_g5k):
             antidote_hosts = configurator.get_k8s_resources_name(resource='node',
                                                                  label_selectors='service_g5k=antidote')
 
-            elmerfs_hosts = [host for host in self.hosts if host not in antidote_hosts]
-            elmerfs_hosts.remove(kube_master)
+            elmerfs_hosts = antidote_hosts
 
             self.config_antidote(kube_namespace)
             self.deploy_elmerfs(kube_master, kube_namespace, elmerfs_hosts)
@@ -344,9 +357,6 @@ class elmerfs_g5k(performing_actions_g5k):
             else:
                 clusters[cluster] = clusters.get(cluster, 0) + self.configs['exp_env']['n_antidotedb_per_dc']
 
-        for cluster in self.configs['exp_env']['elmerfs_site']:
-            clusters[cluster] = clusters.get(cluster, 0) + self.configs['exp_env']['n_elmerfs_per_site']
-
         self.configs['clusters'] = [{'cluster': cluster, 'n_nodes': n_nodes} for cluster, n_nodes in clusters.items()]
 
         return kube_master_site
@@ -358,13 +368,9 @@ class elmerfs_g5k(performing_actions_g5k):
 
         logger.info('''Your topology:
                         Antidote DCs: %s
-                        n_antidotedb_per_DC: %s
-                        elmerfs sites: %s
-                        n_elmerfs_per_site: %s ''' % (
+                        n_antidotedb_per_DC: %s ''' % (
             len(self.configs['exp_env']['antidote_clusters']),
-            self.configs['exp_env']['n_antidotedb_per_dc'],
-            len(self.configs['exp_env']['elmerfs_site']),
-            self.configs['exp_env']['n_elmerfs_per_site'])
+            self.configs['exp_env']['n_antidotedb_per_dc'])
         )
 
         self.setup_env(kube_master_site)
