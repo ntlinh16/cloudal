@@ -31,6 +31,10 @@ class elmerfs_g5k(performing_actions_g5k):
 
         elmerfs_repo = self.configs['exp_env']['elmerfs_repo']
         elmerfs_version = self.configs['exp_env']['elmerfs_version']
+        if elmerfs_repo is None:
+            elmerfs_repo = 'https://github.com/scality/elmerfs'
+        if elmerfs_version is None:
+            elmerfs_version = 'latest'
 
         logger.info('Killing elmerfs process if it is running')
         for host in elmerfs_hosts:
@@ -41,20 +45,15 @@ class elmerfs_g5k(performing_actions_g5k):
                 cmd = "kill %s && umount /tmp/dc-$(hostname)" % pids[0]
                 execute_cmd(cmd, host)
 
-        if elmerfs_repo is None:
-            elmerfs_repo = 'https://github.com/scality/elmerfs'
-        if elmerfs_version is None:
-            elmerfs_version = 'latest'
-
-        logger.info("Downloading elmerfs project")
+        logger.info("Downloading elmerfs project from the repo")
         cmd = '''curl \
                 -H "Accept: application/vnd.github.v3+json" \
                 https://api.github.com/repos/scality/elmerfs/releases/%s | jq ".tag_name" \
                 | xargs -I tag_name git clone https://github.com/scality/elmerfs.git --branch tag_name --single-branch /tmp/elmerfs_repo ''' % elmerfs_version
         execute_cmd(cmd, kube_master)
 
-        cmd = " cd /tmp/elmerfs_repo \
-                && git submodule update --init --recursive"
+        cmd = "cd /tmp/elmerfs_repo \
+               && git submodule update --init --recursive"
         execute_cmd(cmd, kube_master)
 
         cmd = '''cat <<EOF | sudo tee /tmp/elmerfs_repo/Dockerfile
@@ -88,7 +87,7 @@ class elmerfs_g5k(performing_actions_g5k):
                && mkdir -p /tmp/dc-$(hostname)"
         execute_cmd(cmd, elmerfs_hosts)
 
-        logger.debug('Getting IP of antidoteDB on nodes')
+        logger.debug('Getting IP of antidoteDB instances on nodes')
         antidote_ips = dict()
         configurator = k8s_resources_configurator()
         pod_list = configurator.get_k8s_resources(resource='pod',
@@ -99,14 +98,13 @@ class elmerfs_g5k(performing_actions_g5k):
             if node not in antidote_ips:
                 antidote_ips[node] = list()
             antidote_ips[node].append(pod.status.pod_ip)
-        logger.info("antidote_ips: %s" % antidote_ips)
+
         for host in elmerfs_hosts:
             antidote_options = ["--antidote=%s:8087" % ip for ip in antidote_ips[host]]
 
             logger.info("Starting elmerfs on elmerfs hosts: %s" % host)
             cmd = "/tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
                 antidote_options)
-            logger.debug("Starting elmerfs on  %s with cmd: %s" % (host, cmd))
             execute_cmd(cmd, host, mode='start')
             sleep(5)
         logger.info('Finish deploying elmerfs\n')
