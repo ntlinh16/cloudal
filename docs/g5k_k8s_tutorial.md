@@ -35,7 +35,7 @@ Host *.g5k
 import re
   
 default_connection_params = {
-    'user': '<username_to_connect_to_node_inside_g5k>',
+    'user': '<username_to_connect_to_node_inside_g5k>', # usually `root`
     'keyfile': '<your_private_ssh_key_path>',
     'host_rewrite_func': lambda host: re.sub("\.grid5000\.fr$", ".g5k", host),
     'taktuk_gateway': 'g5k'
