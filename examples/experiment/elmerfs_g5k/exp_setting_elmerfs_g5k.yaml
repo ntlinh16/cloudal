@@ -7,7 +7,7 @@
 
 
 # the duration to keep the reserved nodes running
-walltime: 7:00:00
+walltime: 3:00:00
 
 # the time when you want the nodes to be started.
 # the date format is "YYYY-MM-DD HH:MM:SS"
@@ -52,9 +52,9 @@ parameters:
 #############################################
 exp_env:
     # the path to the results directory
-    results_dir: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs_g5k/results
+    results_dir: cloudal/examples/experiment/elmerfs_g5k/results
     # the path to the kubernetes yaml files to deploy antidote cluster 
-    antidote_yaml_path: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs_g5k/antidotedb_yaml
+    antidote_yaml_path: cloudal/examples/experiment/elmerfs_g5k/antidotedb_yaml
     # the url to elmerfs repository. the default value is https://github.com/scality/elmerfs
     elmerfs_repo: https://github.com/scality/elmerfs
     # the version of the elmerfs release. the value default is 'latest'
