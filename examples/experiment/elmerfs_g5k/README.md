@@ -4,7 +4,7 @@ This experiment performs some tests (which not designed yet) of [elmerfs](https:
 
 ## Introduction
 
-The steps of this experiment follows the general flowchart of cloudal [here](https://github.com/ntlinh16/cloudal#an-experiment-workflow-with-cloudal).
+The steps of this experiment follows the general experiment flowchart of cloudal [here](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md#an-experiment-workflow-with-cloudal).
 
 The `create_combs_queue()` function is not called because the parameters are not designed yet.
 
@@ -34,7 +34,7 @@ You need to clarify all these information in `exp_setting_elmerfs.yaml` file
 This experiment needs to deploy an AntidoteDB cluster, and I am using Kubernetes deployment files to deploy them. I already provided the template files which work well for this experiment in folder [antidotedb_yaml](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs/antidotedb_yaml). If you do not require special configurations for AntidoteDB, you do not have to modify these files.
 
 ### 2. Run the experiment
-If you are running this experiment on your local machine, first, remember to run the VPN to connect to Grid5000 system from outside (see instruction [here](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)).
+If you are running this experiment on your local machine, first, remember to run the VPN to connect to Grid5000 system from outside (see instruction [here](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md)).
 
 Then, run the following command:
 

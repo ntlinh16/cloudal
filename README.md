@@ -22,7 +22,7 @@
 
 It is a module that helps to design and perform experiments on different cloud systems. 
 
-You can use `cloudal` to provision your infrastructure on a specific cloud system by simply describing your requirements in a yaml file. Other than that, by calling our ready-to-use modules you can easily install and configure some software or services on all hosts.
+You can use `cloudal` to provision your infrastructure on a specific cloud system by simply describing your requirements in a yaml file. Other than that, by calling our ready-to-use modules you can easily install and configure some software or services on provisioned hosts.
 
 Read the [doc](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md) for more technical detail.
 
@@ -40,7 +40,7 @@ Read the [doc](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_de
 `cloudal` should be painless to work with. Just pick the appropriate module with the right arguments and move along 😉
 
 ```python
-from cloudal.provisioner import g5k_provisioner
+from cloudal.provisioner import g5k_provisioner 
 from cloudal.configurator import docker_configurator, packages_configurator
 
 
@@ -108,10 +108,10 @@ default_connection_params = {
 Execo reads `~/.execo.conf.py` file to set up the connection. If this file is not exist, execo uses the default values that you can find more detail [here](http://execo.gforge.inria.fr/doc/latest-stable/execo.html#configuration)
 
 To working on specific cloudal systems, you need more installation. Please find the detail instruction in the following links:
-- [Working on Grid5000 (G5K)](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_tutorial.md)
-- [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
-- [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_tutorial.md)
-- [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_tutorial.md)
+- [Working on Grid5000 (G5K)](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_setting.md)
+- [Working with Kubernetes on G5K](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md)
+- [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_setting.md)
+- [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_setting.md)
 
 # Tutorials
 

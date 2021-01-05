@@ -3,11 +3,11 @@ import traceback
 from execo_g5k.oar import oardel
 from execo_engine import slugify
 
+from cloudal.action import performing_actions_g5k
 from cloudal.utils import (ExecuteCommandException,
                            get_logger,
                            execute_cmd,
                            parse_config_file)
-from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
 from cloudal.configurator import docker_configurator, packages_configurator
 from cloudal.experimenter import create_combs_queue, is_job_alive, get_results

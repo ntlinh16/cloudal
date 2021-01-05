@@ -73,7 +73,7 @@ Now on your GCP, you have the number of your required nodes running the Antidote
 We follow the instruction [here](https://github.com/AntidoteDB/AntidoteDB-documentation/blob/master/deployment/kubernetes/deployment.md) to deploy an AntidoteDB cluster by using Kubernetes. 
 In this example, we (1) provision some hosts on Grid5000 system; next (2) deploy a Kubernetes cluster on these nodes; and then (3) deploy an AntidoteDB cluster on top of the Kubernetes cluster.
 
-To run this example from your laptop, remember to run VPN to access the Grid5000 system as shown in the instruction at [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_tutorial.md)
+To run this example from your laptop, remember to run VPN to access the Grid5000 system as shown in the instruction at [Working with Kubernetes on Grid5000](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md)
 
 First, you should edit the provision config file at `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements. The _clusters_ information is the AntidoteDB cluster, each data center will be deployed on a cluster you provide. For example, in this experiment, we will create an AntidoteDB cluster includes 3 data centers (_econome_ - 3 instances of antidote, _dahu_ - 1 instance of antidote, _paravance_ - 2 instances of antidote)
 
