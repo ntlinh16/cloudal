@@ -20,7 +20,7 @@ The `run_exp_workflow()` function takes a combination from the queue as the inpu
 
 If all combinations are performed, the experiment is done. While we are performing experiments, if the reserved nodes are dead (due to end of reservation time or unexpected problems), _cloudal_ will execute `setup_env()` to prepare the infrastructure again.
 
-# Architecture
+# cloudal architecture
 
 <p align="center">
     <br>
