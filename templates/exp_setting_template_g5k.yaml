@@ -26,7 +26,7 @@ clusters:
   - cluster: econome
     n_nodes: 2
   - cluster: paravance
-    n_nodes: 0
+    n_nodes: 1
 
 
 #################################

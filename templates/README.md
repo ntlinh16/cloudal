@@ -1,16 +1,20 @@
+In this example, we perform a simple experiment which follows a full experiment workflow on a cloud infrastructure (as illustrated in [An experiment workflow with cloudal](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md#an-experiment-workflow-with-cloudal)).
+
+This experiment is performed on Grid5000. First, we set up an experiment environment by provisioning and configuring steps: we provision 3 nodes on cluster `econome`, 1 node on cluster `paravance` in 2 hours, all nodes are install with _debian 10_; after all nodes are up, we install and deploy on all hosts the following software and services: sysstat, htop, Docker container, and download _cloudal_ from the github repository. Then, we perform a simple experiment workflow: write a message into a file on each nodes and then download that file to local result directory.
+
 # Prepare the system config file
-To perform the Grid5000 template, first, you need to describe all your requirements in the `exp_setting_template_g5k.yaml` file. To perform a full experiment workflow (as illustrated in [An experiment workflow with cloudal](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md#an-experiment-workflow-with-cloudal)). The system config file provides the following information:
+You can describe all your requirements for an experiment in the `exp_setting_template_g5k.yaml` file. This system config file provides the following information:
 
 * _Infrastructures_: includes the number of clusters, name and the number of nodes for each cluster you want to provision on Grid5k system; which OS you want to deploy on these reserved nodes; when and how long you want to provision nodes; etc.
 
 * _Experiment Parameters_: is a list of experiment parameters that represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect.
 
-* _Experiment Environment Settings_: the settings related to this experiment, like the path to experiment configuration files; etc.
+* _Experiment Environment Settings_: the settings related to this experiment, like the path to experiment result files; etc.
 
 # Script your experiment
 
 ## The bare bones 
-Let say we want to write a script to perform an experiment on Grid5000 with cloudal, we should begin as follow:
+Let say we want to write a script to perform an experiment on Grid5000 with _cloudal_, we should begin as follow:
 
 ```python
 import traceback
@@ -132,3 +136,14 @@ Afterwards, we iterate with this `sweeper` until there is no combination left (b
 ```
 
 A `comb` instance contains one combination of parameters and we can retrieve each parameter to be used in this experiment scenario. We can save result of each run into files on the remote host and we can download the result to our local directory with `get_results()`. If this combination runs successfully, we mark it with `sweeper.done(comb)`, otherwise, we mark it as `sweeper.cancel(comb)` so that it can be sent back to the queue and rerun in the future. 
+
+# Run the experiment
+
+We assume that you already followed the setting steps in [Installation](https://github.com/ntlinh16/cloudal#installation) to set up all necessary for running _cloudal_ on G5K.
+
+You only need to run the command:
+
+```
+python performing_exp_template_g5k.py --system_config_file exp_setting_template_g5k.yaml -k
+```
+

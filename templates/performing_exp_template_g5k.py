@@ -85,14 +85,14 @@ class performing_action_template(performing_actions_g5k):
         configurator = packages_configurator()
         configurator.install_packages(['sysstat', 'htop'], self.hosts)
 
+        # or call the provided configurator (by cloudal) to deploy some well-known services
+        configurator = docker_configurator(self.hosts)
+        configurator.config_docker()
+
         # or perform some commands on all of hosts
         logger.info("Downloading cloudal")
         cmd = "cd /tmp/ && git clone https://github.com/ntlinh16/cloudal.git"
         execute_cmd(cmd, self.hosts)
-
-        # or call the provided configurator (by cloudal) to deploy some well-known services
-        configurator = docker_configurator(self.hosts)
-        configurator.config_docker()
 
         return oar_job_ids
 
