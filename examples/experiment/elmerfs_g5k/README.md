@@ -4,11 +4,11 @@ This experiment performs some tests (which not designed yet) of [elmerfs](https:
 
 ## Introduction
 
-The steps of this experiment follows the general experiment flowchart of cloudal [here](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md#an-experiment-workflow-with-cloudal).
+The steps of this experiment follow [the general experiment flowchart of cloudal](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md#an-experiment-workflow-with-cloudal).
 
 The `create_combs_queue()` function is not called because the parameters are not designed yet.
 
-The `setup_env()` function (1) makes a reservation for the required infrastructure; and then (2) configuring these hosts by: deploys a Kubernetes cluster to manage a AntidoteDB cluster and installs elmerfs is deploy on hosts which connect to AntidoteDB cluster.
+The `setup_env()` function (1) makes a reservation for the required infrastructure; and then (2) configuring these hosts by: deploys a Kubernetes cluster to manage a AntidoteDB cluster; elmerfs is deploy on hosts which run AntidoteDB instances.
 
 The `run_workflow()` is not designed yet.
 
@@ -23,18 +23,18 @@ The system config file provides three following information:
 
 * Infrastructure requirements: includes the number of clusters, name of cluster and the number of nodes for each cluster you want to provision on Grid5k system; which OS you want to deploy on reserved nodes; when and how long you want to provision nodes; etc.
 
-* Experiment environment information: the topology of an AntidoteDB cluster; the path to experiment configuration files; etc.
+* Parameters: is a list of experiment parameters that represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect. For example, I want to achieve a statistically significant results so that each experiment will be repeated 5 times  with parameter `iteration: [1..5]`.
 
-* Parameters: is a list of experiment parameters that represent different aspects of the system that you want to examine. Each parameter contains a list of possible values of that aspect. For example, I want to examine the effect of the number of concurrent clients that connect to an AntidoteDB database, so I define a parameter such as `concurrent_clients: [16, 32]`
+* Experiment environment settings: the path to Kubernetes deployment files for Antidote; the elmerfs version information that you want to deploy; the topology of an AntidoteDB cluster; etc.
 
 You need to clarify all these information in `exp_setting_elmerfs.yaml` file
 
 #### Experiment config files 
 
-This experiment needs to deploy an AntidoteDB cluster, and I am using Kubernetes deployment files to deploy them. I already provided the template files which work well for this experiment in folder [antidotedb_yaml](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs/antidotedb_yaml). If you do not require special configurations for AntidoteDB, you do not have to modify these files.
+I use Kubernetes deployment files to deploy an AntidoteDB cluster for this experiment. These files are provided in folder [antidotedb_yaml](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs/antidotedb_yaml) and they work well for this experiment. Check and modify these template files if you need any special configurations for AntidoteDB.
 
 ### 2. Run the experiment
-If you are running this experiment on your local machine, first, remember to run the VPN to connect to Grid5000 system from outside (see instruction [here](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md)).
+If you are running this experiment on your local machine, remember to run the VPN to [connect to Grid5000 system from outside](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md).
 
 Then, run the following command:
 

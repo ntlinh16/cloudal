@@ -52,9 +52,9 @@ parameters:
 #############################################
 exp_env:
     # the path to the results directory
-    results_dir: cloudal/examples/experiment/elmerfs_g5k/results
+    results_dir: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs_g5k/results
     # the path to the kubernetes yaml files to deploy antidote cluster 
-    antidote_yaml_path: cloudal/examples/experiment/elmerfs_g5k/antidotedb_yaml
+    antidote_yaml_path: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs_g5k/antidotedb_yaml
     # the url to elmerfs repository. the default value is https://github.com/scality/elmerfs
     elmerfs_repo: https://github.com/scality/elmerfs
     # the version of the elmerfs release. the value default is 'latest'
@@ -63,7 +63,6 @@ exp_env:
     # the site that kube master node will be deployed in (used for deploying antidote cluster).
     # if it is null, then the k8s master node will be deployed on the first site you specify in the file clusters below
     kube_master_site: dahu
-
     # the sites that all the AntidotedDB data centers will be deployed.
     antidote_clusters: [dahu, econome]
     n_antidotedb_per_dc: 3
