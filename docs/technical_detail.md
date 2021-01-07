@@ -33,8 +33,8 @@ I use `execo` as an experiment toolkit which offers a Python API for asynchronou
 
 _cloudal_ provides 3 main modules to helps user perform their actions (i.e., provisioning, configuring or experimenting action) easily and quickly"
 
-- __provisioner__: Each provisioner is an instance of the `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, I use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
+- __provisioner__: each provisioner is an instance of the `Cloud Provisioning` module, and implements steps to perform the provisioning process by calling the respective API of that cloud. For Grid5000, I use `execo-g5k` library while we utilize `libcloud` to interact with various public cloud systems. By leveraging _libcloud_, we do not have to work with each separated SDK cloud system and also provide the extensibility to other cloud providers.
 - __configurator__: this module contains many ready-to-use configurators that I already implemented to set up the environment for a specific application (e.g, Docker, Docker Swarm, Kubernetes, QEMU-KVM, etc.) on the provisioned nodes.
-- __experimenter__: this module contains some ready-to-use experimenter that used to manage the experiments, meaning that creating and controlling the combinations queue and handling the results.
+- __experimenter__: this module contains some ready-to-use experimenters that used to manage the experiments, meaning that creating and controlling the combinations queue and handling the results.
 
 By using the 3 provided modules as lego blocks, users can assemble them to write a `Performing Actions` script which describes steps to perform their specific experimental scenarios. And they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts for manually testing, or perform an experiment automatically which requires the whole workflow).

@@ -53,17 +53,10 @@ elmerfs_clusters:
 parameters:
     # describer here the list of different aspects that you want to examine in your experiment
     # each aspect has a list of possible values to try,
-    
-    # cloudal support the following ways to describe this list
 
-    # a single scalar of number or string
-    parameter_1: 5
-    parameter_2: small
-    # a range of consecutive numbers, format: [<start_number>..<end_number>]
-    parameter_3: [1..5]
-    # a list of numbers or strings (or mixed)   
-    parameter_4: [ssd, hdd]
-    parameter_5: [16, 32, 64]
+    # the number of repetitions for each experiment
+    iteration: [1..5]
+
 
 
 #############################################

@@ -22,7 +22,7 @@
 
 It is a module that helps to design and perform experiments on different cloud systems. 
 
-You can use `cloudal` to provision your infrastructure on a specific cloud system by simply describing your requirements in a yaml file. Other than that, by calling our ready-to-use modules you can easily install and configure some software or services on provisioned hosts.
+You can use `cloudal` to provision your infrastructure on a specific cloud system by simply describing your requirements in a yaml file. Other than that, by calling our ready-to-use modules you can easily install and configure some software or services on provisioned hosts. After setting the environment, you can use experimenter module to perform a full workflow of experiment automatically from creating and controlling each run to handling the results.
 
 Read the [doc](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md) for more technical detail.
 

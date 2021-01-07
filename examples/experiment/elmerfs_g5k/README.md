@@ -27,7 +27,7 @@ The system config file provides three following information:
 
 * Experiment environment settings: the path to Kubernetes deployment files for Antidote; the elmerfs version information that you want to deploy; the topology of an AntidoteDB cluster; etc.
 
-You need to clarify all these information in `exp_setting_elmerfs.yaml` file
+You need to clarify all these information in `exp_setting_elmerfs_g5k.yaml` file
 
 #### Experiment config files 
 

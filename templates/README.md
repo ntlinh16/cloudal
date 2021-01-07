@@ -139,7 +139,7 @@ A `comb` instance contains one combination of parameters and we can retrieve eac
 
 # Run the experiment
 
-We assume that you already followed the setting steps in [Installation](https://github.com/ntlinh16/cloudal#installation) to set up all necessary for running _cloudal_ on G5K.
+We assume that you already followed the setting steps in [Installation](https://github.com/ntlinh16/cloudal#installation) to set up all necessary for running _cloudal_.
 
 You only need to run the command:
 
