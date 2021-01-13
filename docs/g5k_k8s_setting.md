@@ -1,6 +1,6 @@
 # Working with Kubernetes on Grid5000
 
-This tutorial helps you to setup the authentication to connect to Grid5000 to deploy Kubernetes and then shows some examples to create Kubernetes clusters and then perform some actions on these clusters.
+This tutorial helps you to setup the authentication to connect to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) to deploy Kubernetes clusters.
 
 ## Installation
 

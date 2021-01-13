@@ -87,6 +87,20 @@ The `provision_gke.py` script checks if the required clusters existed or not. If
 
 With GKE, all the provisioned clusters are kept alive until you deleted it, so that remember to delete your provision to release the resources (and not losing money) after finishing your testing.
 
+## Example 7: Provisioning some hosts on Microsoft Azure
+In this example, we provision some hosts on Azure.
+
+First, edit the parameters in the provisioning config file `provisioning_config_azure.yaml` with your authentication information and your infrastructure requirements.
+
+Then, run the following command to perform the provisioning process on Azure:
+```
+cd cloudal/examples/provision/
+python provision_azure.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_azure.yaml
+```
+
+The `provision_azure.py` script makes a reservation with the description in `provisioning_config_azure.yaml` file : 1 host on region _eastus_ with the type of host is Standard_A4_v2;1 Standard_F2s_v2 host and 1 Standard_A4_v2 hosts on _westeurope_.
+
+With azure, all the provisioned hosts are kept alive until you deleted it, so that remember to delete your hosts to release the resources (and not losing money) after finishing your testing.
 
 ## Options
 You might want to use `--help` to see more supported options:

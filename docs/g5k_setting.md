@@ -1,13 +1,13 @@
 # Working on Grid5000 
 
-This tutorial shows you how to set up the connection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop, then provision machines, install applications and conduct experiments on the reserved machines.
+This tutorial shows you how to set up the connection to [Grid5000](https://www.grid5000.fr/w/Grid5000:Home) system from your laptop.
 
 If you do not have a Grid5000 account, check out the [Grid5000:Get an account](https://www.grid5000.fr/w/Grid5000:Get_an_account)
 
 ## Set up to access nodes from outside Grid5000
 To interact with Grid5000 system from your laptop (not from a Grid5000 frontend node), you have to perform the following steps:
 
-##### 1. Set up an alias for the access to any hosts inside Grid5000. 
+#### 1. Set up an alias for the access to any hosts inside Grid5000. 
 
 In `~/.ssh/config`, put these lines:
 ```
@@ -23,7 +23,7 @@ Host *.g5k
 ```
 
 
-##### 2. Set up `~/.execo.conf.py` configuration file 
+#### 2. Set up `~/.execo.conf.py` configuration file 
 
 ```
 import re
@@ -54,7 +54,7 @@ These above configurations follow the instruction of:
 - [Using SSH ProxyCommand to access hosts inside Grid5000](https://www.grid5000.fr/w/SSH#Using_SSH_ProxyCommand_feature_to_ease_the_access_to_hosts_inside_Grid.275000)
 
 
-##### 3. Set up Grid5000 API authentication 
+#### 3. Set up Grid5000 API authentication 
 
 When you use cloudal for the first time with Grid5000, it asks your Grid5000 account password in your terminal:
 ```

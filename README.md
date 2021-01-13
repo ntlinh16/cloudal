@@ -22,7 +22,7 @@
 
 It is a module that helps to design and perform experiments on different cloud systems. 
 
-You can use `cloudal` to provision your infrastructure on a specific cloud system by simply describing your requirements in a yaml file. Other than that, by calling our ready-to-use modules you can easily install and configure some software or services on provisioned hosts. After setting the environment, you can use experimenter module to perform a full workflow of experiment automatically from creating and controlling each run to handling the results.
+You can use `cloudal` to provision your infrastructure on a specific cloud system by simply describing your requirements in a yaml file. Other than that, by calling our ready-to-use configurators you can easily install and configure some software or services on provisioned hosts. After setting the environment, you can use experimenter module to perform a full workflow of experiment automatically from creating and controlling each run to handling the results.
 
 Read the [doc](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md) for more technical detail.
 
@@ -112,6 +112,7 @@ To working on specific cloudal systems, you need more installation. Please find 
 - [Working with Kubernetes on G5K](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md)
 - [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_setting.md)
 - [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_setting.md)
+- [Working on Azure](https://github.com/ntlinh16/cloudal/blob/master/docs/azure_setting.md)
 
 # Tutorials
 
@@ -123,6 +124,7 @@ I provide here some quick tutorials on how to perform an action with _cloudal_.
 - [Provisioning on GCP: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-4-provisioning-some-hosts-on-google-cloud-platform-gcp)
 - [Provisioning on GCP: creating a Docker Swarm cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-5-provisioning-docker-swarm-cluster-on-google-cloud-platform-gcp)
 - [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-6-provisioning-kubernetes-clusters-on-google-cloud-engine-gke)
+- [Provisioning on Azure: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-7-provisioning-some-hosts-on-microsoft-azure)
 
 ### Configuring
 - [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-grid5000-g5k)
