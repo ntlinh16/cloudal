@@ -8,22 +8,17 @@ class cloud_provisioning(object):
     def __init__(self, config_file_path):
         self.configs = parse_config_file(config_file_path)
 
-    def _get_nodes(self, starttime, endtime):
-        """return the nearest slot (startdate) that has enough available nodes
-        to perform the client's actions"""
-        pass
-
     def make_reservation(self):
-        """Performing a reservation of the required number of nodes.
+        """Performing a reservation of the required infrastructure.
         """
         pass
 
     def get_resources(self):
-        """Retriving the needed information of  the list of reserved hosts
+        """Retriving the needed information of the list of provisioned resources
         """
         pass
 
-    def setup_hosts(self):
-        """Installing OS and performing initial configuration on the host
+    def provisioning(self):
+        """Performing reservation and retrieving the provisioned resources
         """
         pass

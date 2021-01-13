@@ -1,4 +1,5 @@
 from .g5k_provisioner import g5k_provisioner
+from .azure_provisioner import azure_provisioner
 from cloudal.utils import get_logger
 
 logger = get_logger()

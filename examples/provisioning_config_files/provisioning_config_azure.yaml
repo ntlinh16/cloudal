@@ -1,0 +1,44 @@
+---
+public_ssh_key_path:  <path_to_your_public_ssh_key_file>
+subscription_ID: <your_subscription_ID>
+tenant_ID: <your_tenant_ID>
+application_ID: <your_application_ID>
+client_secret_key: <your_client_secret_key>
+
+# the OS image name (or environment name) that used to deploy OS on the reserved nodes on Azure.
+cloud_provider_image: debian:debian-10:10:0.20201214.484
+# https://docs.microsoft.com/en-us/azure/virtual-machines/sizes
+instance_type: Standard_F2s_v2
+
+# you have to create and provide the following resources info for each region/location you want to provision VMs
+region_resources:
+    - location: westeurope
+      resource_group: cloudal-rg-eu
+      network: cloudal-VirtualNetwork-eu
+      storage_account: cloudalstorageaccounteu
+
+    - location: eastus
+      resource_group: cloudal-rg-us
+      network: cloudal-VirtualNetwork-us
+      storage_account: cloudalstorageaccountus
+
+# the detailed information for each region/location that you want to make a reservation
+clusters:
+    - location: eastus
+      instance_type: Standard_A4_v2
+      image: debian:debian-10:10:0.20201214.484
+      node_name: us
+      n_nodes: 1
+
+    - location: westeurope
+      instance_type: Standard_F2s_v2
+      image: debian:debian-10:10:0.20201214.484
+      node_name: eu
+      n_nodes: 1
+
+    - location: westeurope
+      instance_type: Standard_A4_v2
+      image: Canonical:UbuntuServer:16.04-LTS:latest  
+      node_name: eu2
+      n_nodes: 1
+
