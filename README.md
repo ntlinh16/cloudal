@@ -16,6 +16,9 @@
     <a target="_blank" href="https://cloud.google.com">
         <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/google_logo.png" width="140"/>
     </a>
+        <a target="_blank" href="https://azure.microsoft.com">
+        <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/azure_logo.png" width="140"/>
+    </a>
 </p>
 
 `cloudal` is one of the contributions of the [RainbowFS](https://rainbowfs.lip6.fr/) project. 
