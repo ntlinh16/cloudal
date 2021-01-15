@@ -2,7 +2,7 @@ from logging import info
 import os
 
 from libcloud.compute.types import Provider
-from libcloud.compute.providers import DRIVERS, get_driver
+from libcloud.compute.providers import get_driver
 
 from cloudal.provisioner.provisioning import cloud_provisioning
 from cloudal.utils import get_logger
@@ -101,7 +101,19 @@ class gcp_provisioner(cloud_provisioning):
             n_nodes = cluster['n_nodes']
             instance_type = cluster['instance_type']
             zone = cluster['zone']
+
+            if cluster['image'] is not None:
+                current_image = cluster['image']
+            else:
+                current_image = image
+
+            if cluster['instance_type'] is not None:
+                current_instance_type = cluster['instance_type']
+            else:
+                current_instance_type = instance_type
+
             logger.info("Deploying on %s" % zone)
+
             for index in range(n_nodes):
                 node_name = '%s-%s' % (cluster['node_name'], index)
                 if node_name in existed_nodes[zone]:
@@ -112,15 +124,6 @@ class gcp_provisioner(cloud_provisioning):
                     else:
                         logger.info('%s on zone %s already existed and is not running' % (node_name, zone))
                         continue
-                if cluster['image'] is not None:
-                    current_image = cluster['image']
-                else:
-                    current_image = image
-
-                if cluster['instance_type'] is not None:
-                    current_instance_type = cluster['instance_type']
-                else:
-                    current_instance_type = instance_type
 
                 logger.info('Deploying %s with %s instance type, using %s image' %
                             (node_name, current_instance_type, current_image.name))
