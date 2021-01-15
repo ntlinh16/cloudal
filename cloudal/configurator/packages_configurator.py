@@ -102,6 +102,21 @@ class packages_configurator(object):
             logger.error("---> Bug [%s] with command: %s" % (e, cmd), exc_info=True)
 
     def _get_os_name(self, host):
+        '''Get the OS name of a host
+
+        Parameters
+        ----------
+        host: str
+            the host name or IP address of a host
+
+        Returns
+        -------
+        os_name: str
+            code name of an OS
+        os_full_name: str
+            full name of an OS
+
+        '''
         os_name = None
         for attempt in range(MAX_RETRIES):
             cmd = 'hostnamectl | grep "Operating System"'
