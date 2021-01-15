@@ -18,9 +18,9 @@ class config_docker_env_g5k(performing_actions_g5k):
     def __init__(self):
         super(config_docker_env_g5k, self).__init__()
 
-    def config_host(self):
+    def config_host(self, hosts):
         logger.info("Init configurator: docker_configurator")
-        configurator = docker_configurator(self.hosts)
+        configurator = docker_configurator(hosts)
         configurator.config_docker()
 
     def run(self):
@@ -34,11 +34,12 @@ class config_docker_env_g5k(performing_actions_g5k):
                                       is_reservation=self.args.is_reservation,
                                       job_name="cloudal_docker")
         provisioner.provisioning()
-        self.hosts = provisioner.hosts
+        hosts = provisioner.hosts
+        self.oar_result = provisioner.oar_result
         logger.info("Provisioning nodes: DONE")
 
         logger.info("Starting configure Docker on nodes")
-        self.config_host()
+        self.config_host(hosts)
         logger.info("Configuring Docker on nodes: DONE")
 
 
@@ -57,7 +58,7 @@ if __name__ == "__main__":
 
     if not engine.args.keep_alive:
         logger.info('Deleting reservation')
-        oardel(engine.provisioner.oar_result)
+        oardel(engine.oar_result)
         logger.info('Reservation deleted')
     else:
         logger.info('Reserved nodes are kept alive for inspection purpose.')

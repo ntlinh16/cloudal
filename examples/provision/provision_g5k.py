@@ -24,6 +24,7 @@ class provision_g5k(performing_actions_g5k):
         provisioner.provisioning()
 
         hosts = provisioner.hosts
+        self.oar_result = provisioner.oar_result
         logger.info('List of hosts: %s' % hosts)
 
 
@@ -43,7 +44,7 @@ if __name__ == "__main__":
 
     if not engine.args.keep_alive:
         logger.info('Deleting reservation')
-        oardel(engine.provisioner.oar_result)
+        oardel(engine.oar_result)
         logger.info('Reservation deleted')
     else:
         logger.info('Reserved nodes are kept alive for inspection purpose.')

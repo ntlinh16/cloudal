@@ -25,6 +25,7 @@ class provision_docker_swarm_g5k(performing_actions_g5k):
                                       job_name="cloudal")
         provisioner.provisioning()
         hosts = provisioner.hosts
+        self.oar_result = provisioner.oar_result
 
         # deploy docker swarm on all reserved hosts
         logger.info("Init configurator: docker_swarm_configurator")
@@ -49,7 +50,7 @@ if __name__ == "__main__":
 
     if not engine.args.keep_alive:
         logger.info('Deleting reservation')
-        oardel(engine.provisioner.oar_result)
+        oardel(engine.oar_result)
         logger.info('Reservation deleted')
     else:
         logger.info('Reserved nodes are kept alive for inspection purpose.')

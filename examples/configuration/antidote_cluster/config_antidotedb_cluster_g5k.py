@@ -122,7 +122,8 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
-        doc['spec']['template']['spec']['containers'][0]['args'] = ['--connectDcs'] + antidote_masters
+        doc['spec']['template']['spec']['containers'][0]['args'] = [
+            '--connectDcs'] + antidote_masters
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs_antidote.yaml')
         with open(file_path, 'w') as f:
             yaml.safe_dump(doc, f)
@@ -223,6 +224,7 @@ class config_antidotedb_cluster_g5k(performing_actions_g5k):
                                       job_name="cloudal_k8s")
         provisioner.provisioning()
         self.hosts = provisioner.hosts
+        self.oar_result = provisioner.oar_result
         self.configs = provisioner.configs
         logger.info("FINISH PROVISIONING NODES")
 
@@ -247,7 +249,7 @@ if __name__ == "__main__":
 
     if not engine.args.keep_alive:
         logger.info('Deleting reservation')
-        oardel(engine.provisioner.oar_result)
+        oardel(engine.oar_result)
         logger.info('Reservation deleted')
     else:
         logger.info('Reserved nodes are kept alive for inspection purpose.')

@@ -49,14 +49,6 @@ if __name__ == "__main__":
         traceback.print_exc()
     except KeyboardInterrupt:
         logger.info('Program is terminated by keyboard interrupt.')
-
-    if not engine.args.keep_alive:
-        logger.info('Deleting reservation')
-        oardel(engine.provisioner.oar_result)
-        logger.info('Reservation deleted')
-    else:
-        logger.info('Reserved nodes are kept alive for inspection purpose.')
-
 ```
 
 The `performing_action_template` class is the subclass of the execo Engine that has supports for initializing and preparing an experiment, including: automatic experiment directory creation, support for continuing a previously stopped experiment, and other facilities (read [here](http://execo.gforge.inria.fr/doc/latest-stable/execo_engine.html#execo_engine.engine.Engine) for more detail). When running the engine by calling `engine.start()`, the engine parses all command line arguments, perform some initializations, calls all `init()` of all subclasses, and then performs the experiment workflow in the `run()` function.

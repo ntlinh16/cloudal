@@ -76,6 +76,7 @@ class performing_action_template(performing_actions_g5k):
         provisioner.provisioning()
         self.hosts = provisioner.hosts
         oar_job_ids = provisioner.oar_result
+        self.oar_result = provisioner.oar_result
 
         ##################################################
         #  Configuring hosts with your applications here #
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
     if not engine.args.keep_alive:
         logger.info('Deleting reservation')
-        oardel(engine.provisioner.oar_result)
+        oardel(engine.oar_result)
         logger.info('Reservation deleted')
     else:
         logger.info('Reserved nodes are kept alive for inspection purpose.')
