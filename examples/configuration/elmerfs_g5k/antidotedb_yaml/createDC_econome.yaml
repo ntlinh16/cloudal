@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: antidote
+    type: antidote-util-tmp
+  name: createdc-econome
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+      - args:
+        - --createDc
+        - antidote-econome-0.antidote:8087
+        - antidote@antidote-econome-0.antidote
+        - antidote@antidote-econome-1.antidote
+        - antidote@antidote-econome-2.antidote
+        image: peterzel/antidote-connect
+        imagePullPolicy: Always
+        name: antidote-connect
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 5

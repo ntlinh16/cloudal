@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: antidote
+    type: antidote-util-tmp
+  name: connector-for-antidote-clusters
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+      - args:
+        - --connectDcs
+        - antidote-econome-0.antidote:8087
+        - antidote-dahu-0.antidote:8087
+        image: peterzel/antidote-connect
+        imagePullPolicy: Always
+        name: antidote-connect
+      restartPolicy: Never
+  ttlSecondsAfterFinished: 5

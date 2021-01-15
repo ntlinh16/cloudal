@@ -1,0 +1,74 @@
+---
+#########################
+#                       #
+#     Infrastructures   #
+#                       #
+#########################
+
+public_ssh_key_path: <path_to_your_public_ssh_key_file>
+service_account_username: <your_service_account_email>
+service_account_credentials_json_file_path: <path_to_your_json_file>
+project_id: <your_project_id>
+
+# the OS image name (or environment name) that used to deploy OS on the reserved nodes on GCP.
+# the list of possible OS images can be found at https://cloud.google.com/compute/docs/images#os-compute-support
+cloud_provider_image: debian-10-buster-v20201112
+instance_type: f1-micro
+
+custom_image: null
+
+
+# the name of the cluster and the number of nodes on each cluster that you want to make a reservation
+antidote_clusters:
+    - cluster_name: antidotedc-us
+      zone: us-central1-a
+      n_nodes: 2
+      n_antidote_per_cluster: 3
+
+    - cluster_name: antidotedc-eu
+      zone: europe-west3-b
+      n_nodes: 2
+      n_antidote_per_cluster: 3
+
+
+elmerfs_clusters:
+    - node_name: elmerfs-us
+      zone: us-central1-a
+      n_nodes: 2
+      instance_type: e2-standard-2
+      image: null
+
+    - node_name: elmerfs-eu
+      zone: europe-west3-b
+      n_nodes: 2
+      instance_type: e2-standard-2
+      image: null
+
+#################################
+#                               #
+#     Experiment Parameters     #
+#                               #
+#################################
+parameters:
+    # describer here the list of different aspects that you want to examine in your experiment
+    # each aspect has a list of possible values to try,
+
+    # the number of repetitions for each experiment
+    iteration: [1..5]
+
+
+
+#############################################
+#                                           #
+#     Experiment Environment Settings       #
+#                                           #
+#############################################
+exp_env:
+    # the path to the results directory
+    results_dir: cloudal/examples/experiment/elmerfs/results
+    # the path to the kubernetes yaml files to deploy antidote cluster 
+    antidote_yaml_path: cloudal/examples/experiment/elmerfs/antidotedb_yaml
+    # the path to the elmerfs binary file on your local machine
+    # if you do not have the elmerfs binary file, do not worry, 
+    # let the elmerfs_file_path empty and it will be built from the repository.
+    elmerfs_file_path: cloudal/examples/experiment/elmerfs_gke/elmerfs

@@ -133,8 +133,10 @@ I provide here some quick tutorials on how to perform an action with _cloudal_.
 - [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-grid5000-g5k)
 - [Configuring AntidoteDB on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-3-configuring-antidotedb-on-running-hosts-on-g5k)
 - [Deploying an AntidoteDB cluster using Kubernetes](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-5-deploying-an-antidotedb-cluster-using-kubernetes-on-g5k)
+- [Deploying an elmerfs with an AntidoteDB backend on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration/elmerfs_g5k)
+- [Deploying elmerfs with an AntidoteDB backend on Google Cloud (using both GCP and GKE)](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration/elmerfs_gke)
 
 ### Experimenting
 - [Running FMKe benchmark on AntidoteDB cluster using Kubernetes on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb_g5k)
-- [Running elmerfs with an AntidoteDB backend on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs_g5k)
-- [Running elmerfs with an AntidoteDB backend on Google Cloud (using both GCP and GKE)](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs_gke)
+- [Benchmarking the elmerfs](https://github.com/ntlinh16/elmerfs-eval)
+

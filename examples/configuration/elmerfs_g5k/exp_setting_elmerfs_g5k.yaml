@@ -1,0 +1,71 @@
+---
+#########################
+#                       #
+#     Infrastructures   #
+#                       #
+#########################
+
+
+# the duration to keep the reserved nodes running
+walltime: 5:00:00
+
+# the time when you want the nodes to be started.
+# the date format is "YYYY-MM-DD HH:MM:SS"
+starttime: null
+
+# the OS image name (or environment name) that used to deploy OS on the reserved nodes on G5k system.
+# the list of possible OS images can be found at /https://www.grid5000.fr/w/Advanced_Kadeploy#Search_and_deploy_an_existing_environment
+cloud_provider_image: debian10-x64-big
+
+# the path to your custom image that used to deploy OS on the reserved nodes on G5k system.
+# follow this link to make your custom image: https://www.grid5000.fr/w/Advanced_Kadeploy#How_can_I_make_my_own_environment.3F
+custom_image: null
+
+# the name of the cluster and the number of nodes on each cluster that you want to make a reservation
+# you need to specify this section. 
+# If you declare your clusters information in the section: Experiment Environment Settings (see below),
+# you can ignore this section
+clusters:
+  - cluster: econome
+    n_nodes: 1
+  - cluster: paravance
+    n_nodes: 2
+
+
+#################################
+#                               #
+#     Experiment Parameters     #
+#                               #
+#################################
+parameters:
+    # describer here the list of different aspects that you want to examine in your experiment
+    # each aspect has a list of possible values to try,
+
+    # the number of repetitions for each experiment
+    iteration: [1..5]
+    latency: [20, 1000]
+    latency_interval: logarithmic scale
+    benchmarks: [convergence, performances, Contentions]
+
+
+#############################################
+#                                           #
+#     Experiment Environment Settings       #
+#                                           #
+#############################################
+exp_env:
+    # the path to the results directory
+    results_dir: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs_g5k/results
+    # the path to the kubernetes yaml files to deploy antidote cluster 
+    antidote_yaml_path: /home/linhnguyen/lig/projects/cloudal/examples/experiment/elmerfs_g5k/antidotedb_yaml
+    # the url to elmerfs repository. the default value is https://github.com/scality/elmerfs
+    elmerfs_repo: https://github.com/scality/elmerfs
+    # the version of the elmerfs release. the value default is 'latest'
+    elmerfs_version: latest
+
+    # the site that kube master node will be deployed in (used for deploying antidote cluster).
+    # if it is null, then the k8s master node will be deployed on the first site you specify in the file clusters below
+    kube_master_site: dahu
+    # the sites that all the AntidotedDB data centers will be deployed.
+    antidote_clusters: [dahu, econome]
+    n_antidotedb_per_dc: 3
