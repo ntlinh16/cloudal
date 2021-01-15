@@ -11,7 +11,7 @@ instance_type: f1-micro
 
 custom_image: null
 
-# the name of the datacenter, the number of nodes, the instance type and the image 
+# the name of the node and zone, the number of nodes, the instance type and the image 
 # to deploy on each cluster that you want to make a reservation.
 # If you do not specify the instance_type and the image for each cluster, 
 # it will be the above value of cloud_provider_image and instance_type and the same for all clusters.
