@@ -117,7 +117,8 @@ class k8s_resources_configurator(object):
 
                 for condition in r.status.conditions:
                     if condition.status == 'True' and condition.type.lower() == wait_condition:
-                        logger.debug('Status of %s %s: %s' % (resource, r.metadata.name, condition.type))
+                        logger.debug('Status of %s %s: %s' %
+                                     (resource, r.metadata.name, condition.type))
                         count -= 1
             if count == 0:
                 logger.debug('All %s are up' % resource)
@@ -298,7 +299,7 @@ class k8s_resources_configurator(object):
             if ns.metadata.name == namespace:
                 v1.delete_namespace(name=namespace)
                 logger.debug('Waiting for namespace %s to be deleted' % namespace)
-                for i in range(10):
+                for i in range(100):
                     for ns in v1.list_namespace().items:
                         if ns.metadata.name == namespace:
                             sleep(5)
