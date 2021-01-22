@@ -1,17 +1,14 @@
 import os
 import traceback
-import math
 
 from time import sleep
 
-from cloudal.utils import get_logger, execute_cmd, parse_config_file, getput_file, ExecuteCommandException
+from cloudal.utils import get_logger, execute_cmd, parse_config_file, getput_file
 from cloudal.action import performing_actions_g5k
 from cloudal.provisioner import g5k_provisioner
 from cloudal.configurator import kubernetes_configurator, k8s_resources_configurator, packages_configurator
-from cloudal.experimenter import create_combs_queue, is_job_alive
 
 from execo_g5k import oardel
-from execo_engine import slugify
 from kubernetes import config
 import yaml
 
@@ -26,55 +23,11 @@ class elmerfs_g5k(performing_actions_g5k):
                                       default=None,
                                       type=str)
 
-    def clean_exp_env(self):
-        logger.info("--Cleaning experiment environment")
-
-    def set_latency(self, latency, hosts):
-        logger.info("--Setting latency = %s" % latency)
-        cmd = "tc qdisc add dev flannel.1 root netem delay %sms" % latency
-        # execute_cmd(cmd, hosts)
-
-    def reset_latency(self, host):
-        """Limit the network in host"""
-        logger.info('Remove network latency on hosts: %s' % host)
-        cmd = "tc qdisc del dev flannel.1 root netem"
-        # execute_cmd(cmd, self.hosts)
-
-    def run_benchmark(self, benchmarks):
-        logger.info("--Running benchmark %s" % benchmarks)
-
-    def save_results(self, comb):
-        logger.info("--Saving results")
-
-    def run_workflow(self, kube_namespace, kube_master, comb, sweeper):
-        comb_ok = False
-        try:
-            logger.info('=======================================')
-            logger.info('Performing combination: ' + slugify(comb))
-
-            self.clean_exp_env()
-            self.set_latency(comb['latency'], self.hosts)
-            self.run_benchmark(comb['benchmarks'])
-            self.reset_latency(self.hosts)
-            self.save_results(comb)
-            comb_ok = True
-        except ExecuteCommandException as e:
-            comb_ok = False
-        finally:
-            if comb_ok:
-                sweeper.done(comb)
-                logger.info('Finish combination: %s' % slugify(comb))
-            else:
-                sweeper.cancel(comb)
-                logger.warning(slugify(comb) + ' is canceled')
-            logger.info('%s combinations remaining\n' % len(sweeper.get_remaining()))
-        return sweeper
-
     def deploy_elmerfs(self, kube_master, kube_namespace, elmerfs_hosts):
         logger.info("Starting deploying elmerfs on hosts")
 
         configurator = packages_configurator()
-        # configurator.install_packages(['libfuse2', 'wget', 'jq'], elmerfs_hosts)
+        configurator.install_packages(['libfuse2', 'wget', 'jq'], elmerfs_hosts)
 
         elmerfs_repo = self.configs['exp_env']['elmerfs_repo']
         elmerfs_version = self.configs['exp_env']['elmerfs_version']
@@ -97,11 +50,11 @@ class elmerfs_g5k(performing_actions_g5k):
                 -H "Accept: application/vnd.github.v3+json" \
                 https://api.github.com/repos/scality/elmerfs/releases/%s | jq ".tag_name" \
                 | xargs -I tag_name git clone https://github.com/scality/elmerfs.git --branch tag_name --single-branch /tmp/elmerfs_repo ''' % elmerfs_version
-        # execute_cmd(cmd, kube_master)
+        execute_cmd(cmd, kube_master)
 
         cmd = "cd /tmp/elmerfs_repo \
                && git submodule update --init --recursive"
-        # execute_cmd(cmd, kube_master)
+        execute_cmd(cmd, kube_master)
 
         cmd = '''cat <<EOF | sudo tee /tmp/elmerfs_repo/Dockerfile
         FROM rust:1.47
@@ -113,26 +66,29 @@ class elmerfs_g5k(performing_actions_g5k):
         RUN cargo build --release
         CMD ["/bin/bash"]
         '''
-        # execute_cmd(cmd, kube_master)
+        execute_cmd(cmd, kube_master)
 
         logger.info("Building elmerfs")
         cmd = " cd /tmp/elmerfs_repo/ \
                 && docker build -t elmerfs ."
-        # execute_cmd(cmd, kube_master)
+        execute_cmd(cmd, kube_master)
 
         cmd = "docker run --name elmerfs elmerfs \
                 && docker cp -L elmerfs:/elmerfs/target/release/main /tmp/elmerfs \
                 && docker rm elmerfs"
-        # execute_cmd(cmd, kube_master)
+        execute_cmd(cmd, kube_master)
 
-        # getput_file(hosts=[kube_master], file_paths=['/tmp/elmerfs'], dest_location='/tmp', action='get')
+        getput_file(hosts=[kube_master], file_paths=['/tmp/elmerfs'],
+                    dest_location='/tmp', action='get')
         elmerfs_file_path = '/tmp/elmerfs'
 
-        logger.info("Uploading elmerfs binary file from local to %s elmerfs hosts" % len(elmerfs_hosts))
-        # getput_file(hosts=elmerfs_hosts, file_paths=[elmerfs_file_path], dest_location='/tmp', action='put')
+        logger.info("Uploading elmerfs binary file from local to %s elmerfs hosts" %
+                    len(elmerfs_hosts))
+        getput_file(hosts=elmerfs_hosts, file_paths=[
+                    elmerfs_file_path], dest_location='/tmp', action='put')
         cmd = "chmod +x /tmp/elmerfs \
                && mkdir -p /tmp/dc-$(hostname)"
-        # execute_cmd(cmd, elmerfs_hosts)
+        execute_cmd(cmd, elmerfs_hosts)
 
         logger.debug('Getting IP of antidoteDB instances on nodes')
         antidote_ips = dict()
@@ -149,9 +105,9 @@ class elmerfs_g5k(performing_actions_g5k):
         for host in elmerfs_hosts:
             antidote_options = ["--antidote=%s:8087" % ip for ip in antidote_ips[host]]
 
-            cmd = "RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log" % " ".join(
+            cmd = "RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs %s --mount=/tmp/dc-$(hostname) --no-locks > /tmp/elmer.log 2>&1" % " ".join(
                 antidote_options)
-            logger.info("Starting elmerfs on elmerfs %s with cmd: %s" % (host, cmd))
+            logger.info("Starting elmerfs on %s with cmd: %s" % (host, cmd))
             execute_cmd(cmd, host, mode='start')
             sleep(5)
         logger.info('Finish deploying elmerfs\n')
@@ -182,7 +138,8 @@ class elmerfs_g5k(performing_actions_g5k):
         for cluster in self.configs['exp_env']['antidote_clusters']:
             doc['spec']['replicas'] = self.configs['exp_env']['n_antidotedb_per_dc']
             doc['metadata']['name'] = 'antidote-%s' % cluster
-            doc['spec']['template']['spec']['nodeSelector'] = {'service_g5k': 'antidote', 'cluster_g5k': '%s' % cluster}
+            doc['spec']['template']['spec']['nodeSelector'] = {
+                'service_g5k': 'antidote', 'cluster_g5k': '%s' % cluster}
             file_path = os.path.join(antidote_k8s_dir, 'statefulSet_%s.yaml' % cluster)
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
@@ -249,7 +206,8 @@ class elmerfs_g5k(performing_actions_g5k):
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
-        doc['spec']['template']['spec']['containers'][0]['args'] = ['--connectDcs'] + antidote_masters
+        doc['spec']['template']['spec']['containers'][0]['args'] = [
+            '--connectDcs'] + antidote_masters
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs_antidote.yaml')
         with open(file_path, 'w') as f:
             yaml.safe_dump(doc, f)
@@ -303,7 +261,8 @@ class elmerfs_g5k(performing_actions_g5k):
         kube_dir = os.path.join(home, '.kube')
         if not os.path.exists(kube_dir):
             os.mkdir(kube_dir)
-        getput_file(hosts=[kube_master], file_paths=['~/.kube/config'], dest_location=kube_dir, action='get')
+        getput_file(hosts=[kube_master], file_paths=['~/.kube/config'],
+                    dest_location=kube_dir, action='get')
         kube_config_file = os.path.join(kube_dir, 'config')
         config.load_kube_config(config_file=kube_config_file)
         logger.info('Kubernetes config file is stored at: %s' % kube_config_file)
@@ -380,7 +339,6 @@ class elmerfs_g5k(performing_actions_g5k):
 
         provisioner.provisioning()
         self.hosts = provisioner.hosts
-        oar_job_ids = provisioner.oar_result
         self.oar_result = provisioner.oar_result
 
         logger.info("Starting configuring nodes")
@@ -399,10 +357,6 @@ class elmerfs_g5k(performing_actions_g5k):
 
         logger.info("Finish configuring nodes\n")
 
-        self.args.oar_job_ids = None
-        logger.info("Finish configuring the experiment environment\n")
-        return kube_master, oar_job_ids
-
     def create_configs(self):
         logger.debug('Get the k8s master node')
         kube_master_site = self.configs['exp_env']['kube_master_site']
@@ -413,11 +367,14 @@ class elmerfs_g5k(performing_actions_g5k):
         clusters = dict()
         for cluster in self.configs['exp_env']['antidote_clusters']:
             if cluster == kube_master_site:
-                clusters[cluster] = clusters.get(cluster, 0) + self.configs['exp_env']['n_antidotedb_per_dc'] + 1
+                clusters[cluster] = clusters.get(
+                    cluster, 0) + self.configs['exp_env']['n_antidotedb_per_dc'] + 1
             else:
-                clusters[cluster] = clusters.get(cluster, 0) + self.configs['exp_env']['n_antidotedb_per_dc']
+                clusters[cluster] = clusters.get(
+                    cluster, 0) + self.configs['exp_env']['n_antidotedb_per_dc']
 
-        self.configs['clusters'] = [{'cluster': cluster, 'n_nodes': n_nodes} for cluster, n_nodes in clusters.items()]
+        self.configs['clusters'] = [{'cluster': cluster, 'n_nodes': n_nodes}
+                                    for cluster, n_nodes in clusters.items()]
 
         return kube_master_site
 
@@ -433,37 +390,8 @@ class elmerfs_g5k(performing_actions_g5k):
             self.configs['exp_env']['n_antidotedb_per_dc'])
         )
 
-        # Logarithmic scale interval of latency
-        if self.configs['parameters']['latency_interval'] == "logarithmic scale":
-            start, end = self.configs['parameters']['latency']
-            latency = [start, end]
-            log_start = int(math.ceil(math.log(start)))
-            log_end = int(math.ceil(math.log(end)))
-            for i in range(log_start, log_end):
-                latency.append(int(math.exp(i)))
-                latency.append(int(math.exp(i+0.5)))
-            del self.configs['parameters']['latency_interval']
-            self.configs['parameters']['latency'] = list(set(latency))
-
-        sweeper = create_combs_queue(result_dir=self.configs['exp_env']['results_dir'],
-                                     parameters=self.configs['parameters'])
-
         kube_namespace = 'elmerfs-exp'
-        oar_job_ids = None
-        while len(sweeper.get_remaining()) > 0:
-            if oar_job_ids is None:
-                kube_master, oar_job_ids = self.setup_env(kube_master_site, kube_namespace)
-
-            comb = sweeper.get_next()
-            sweeper = self.run_workflow(kube_namespace=kube_namespace,
-                                        kube_master=kube_master,
-                                        comb=comb,
-                                        sweeper=sweeper)
-
-            if not is_job_alive(oar_job_ids):
-                oardel(oar_job_ids)
-                oar_job_ids = None
-        logger.info('Finish the experiment!!!')
+        self.setup_env(kube_master_site, kube_namespace)
 
 
 if __name__ == "__main__":
