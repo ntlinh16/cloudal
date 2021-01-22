@@ -5,8 +5,8 @@
     <br>
 <p>
 
-<h4 align="center"> Design and perform experiments on different cloud systems 🤗
-</h4>
+<!-- <h4 align="center"> Design and perform experiments on different cloud systems 🤗
+</h4> -->
 
 <p align="center">
 <b><i>Currently support:</i></b>
@@ -21,9 +21,7 @@
     </a>
 </p>
 
-`cloudal` is one of the contributions of the [RainbowFS](https://rainbowfs.lip6.fr/) project. 
-
-It is a module that helps to design and perform full factorial experiments automatically on different cloud systems in a large-scale and reproducible manner. 
+`cloudal` is one of the contributions of the [RainbowFS](https://rainbowfs.lip6.fr/) project. It is a module that helps to design and perform full factorial experiments automatically on different cloud systems in a large-scale and reproducible manner. 
 
 You can use `cloudal` to provision your infrastructure on a specific cloud system by simply describing your requirements in a yaml file. Other than that, by calling our ready-to-use configurators you can easily install and configure software or services on these provisioned hosts. After setting the environment, you can use experimenter module to perform a full workflow of experiment automatically from creating and controlling each run to collecting the results.
 
