@@ -32,22 +32,6 @@ clusters:
     n_nodes: 2
 
 
-#################################
-#                               #
-#     Experiment Parameters     #
-#                               #
-#################################
-parameters:
-    # describer here the list of different aspects that you want to examine in your experiment
-    # each aspect has a list of possible values to try,
-
-    # the number of repetitions for each experiment
-    iteration: [1..5]
-    latency: [20, 1000]
-    latency_interval: logarithmic scale
-    benchmarks: [convergence, performances, Contentions]
-
-
 #############################################
 #                                           #
 #     Experiment Environment Settings       #
