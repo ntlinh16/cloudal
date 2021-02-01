@@ -356,3 +356,39 @@ class k8s_resources_configurator(object):
             body['metadata']['labels'][key] = val
 
         return v1.patch_node(name=nodename, body=body)
+
+    def create_configmap(self, kube_config=None, configmap=None, file=None, namespace="default", configmap_name="Configmap_name"):
+        if configmap is None and file is None:
+            raise Exception(
+                "Please provide either a configmap or a file to create a Kubernetes configmap")
+
+        if kube_config:
+            api_client = ApiClient(kube_config)
+        else:
+            api_client = ApiClient()
+
+        # Configureate ConfigMap metadata
+        metadata = client.V1ObjectMeta(name=configmap_name, namespace=namespace)
+
+        v1 = client.CoreV1Api(api_client)
+        if file is not None:
+            file_name = file.split('/')[-1]
+            logger.info('Creating configmap object from file %s' % file_name)
+            # Get File Content
+            with open(file, 'r') as f:
+                file_content = f.read()
+            data = {file_name: file_content}
+            # Instantiate the configmap object
+            configmap = client.V1ConfigMap(api_version="v1",
+                                           kind="ConfigMap",
+                                           data=data,
+                                           metadata=metadata)
+        try:
+            logger.info('Deploying configmap')
+            v1.create_namespaced_config_map(namespace=namespace,
+                                            body=configmap,)
+            logger.debug('Deploy configmap successfully')
+        except FailToCreateError as e:
+            for api_exception in e.api_exceptions:
+                body = json.loads(api_exception.body)
+                logger.error('Error: %s, because: %s' % (api_exception.reason, body['message']))
