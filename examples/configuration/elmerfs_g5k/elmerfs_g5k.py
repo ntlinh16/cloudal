@@ -24,19 +24,25 @@ class elmerfs_g5k(performing_actions_g5k):
                                       type=str)
         self.args_parser.add_argument("--monitoring", dest="monitoring",
                                       help="deploy Grafana and Prometheus for monitoring",
-                                      default=None,
-                                      type=str)
+                                      action="store_true")
 
     def deploy_monitoring(self, kube_master, kube_namespace):
+        logger.info("Deploying monitoring system")
         monitoring_k8s_dir = self.configs['exp_env']['monitoring_yaml_path']
 
-        cmd = "git clone https://github.com/AntidoteDB/antidote_stats.git"
-        execute_cmd(cmd, kube_master)
-        cmd = "kubectl taint nodes - -all node-role.kubernetes.io/master-"
+        logger.info("Deleting old deployment")
+        cmd = "rm -rf /root/antidote_stats"
         execute_cmd(cmd, kube_master)
 
         logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
+
+        cmd = "git clone https://github.com/AntidoteDB/antidote_stats.git"
+        execute_cmd(cmd, kube_master)
+        logger.info("Setting to allow pods created on kube_master")
+        cmd = "kubectl taint nodes --all node-role.kubernetes.io/master-"
+        execute_cmd(cmd, kube_master, is_continue=True)
+
         pods = configurator.get_k8s_resources_name(resource='pod',
                                                    label_selectors='app=antidote',
                                                    kube_namespace=kube_namespace)
@@ -92,6 +98,9 @@ class elmerfs_g5k(performing_actions_g5k):
         configurator.wait_k8s_resources(resource='pod',
                                         label_selectors="app=grafana",
                                         kube_namespace=kube_namespace)
+        logger.info("Finish deploying monitoring system")
+        logger.info("Connect to Grafana at: http://%s:3000" % kube_master_ip)
+        logger.info("Connect to Prometheus at: http://%s:9090" % kube_master_ip)
 
     def deploy_elmerfs(self, kube_master, kube_namespace, elmerfs_hosts):
         logger.info("Starting deploying elmerfs on hosts")

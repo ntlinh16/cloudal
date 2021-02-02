@@ -1,0 +1,50 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-deployment
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana
+        volumeMounts:
+        - mountPath: /etc/grafana/provisioning
+          name: provisioning
+        - mountPath: /var/lib/grafana/dashboards/provisioning
+          name: dashboard
+      volumes:
+      - name: provisioning
+        hostPath:
+          path: /root/antidote_stats/monitoring/grafana-config/provisioning
+      - name: dashboard
+        hostPath:
+          path: /root/antidote_stats/monitoring/grafana-config/dashboards
+      nodeSelector:
+        kubernetes.io/hostname: kube_master_hostname
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana-service
+spec:
+  selector:
+    app: grafana
+  ports:
+  - name: grafanaui
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+  externalIPs:
+    - kube_master_ip
+  type: LoadBalancer
