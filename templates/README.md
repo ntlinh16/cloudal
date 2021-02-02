@@ -131,7 +131,7 @@ A `comb` instance contains one combination of parameters and we can retrieve eac
 
 # Run the experiment
 
-We assume that you already followed the setting steps in [Installation](https://github.com/ntlinh16/cloudal#installation) to set up all necessary for running _cloudal_.
+We assume that you already followed the setting steps in [Installation](https://github.com/ntlinh16/cloudal#installation) to set up all necessary for running _cloudal_ with Grid5000.
 
 You only need to run the command:
 
@@ -139,3 +139,4 @@ You only need to run the command:
 python performing_exp_template_g5k.py --system_config_file exp_setting_template_g5k.yaml -k
 ```
 
+with `-k` argument, after finishing all the runs of the experiment, all provisioned nodes on Gris5000 will be kept alive so that you can connect to them, or if the experiment is interrupted in the middle, you can use these provisioned nodes to continue the experiments. This mechanism saves time since you don't have to reserve and deploy nodes again. If you do not use `-k`, when the script is finished or interrupted, all your reserved nodes will be deleted.
