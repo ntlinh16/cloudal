@@ -4,7 +4,7 @@ This example deploys [elmerfs](https://github.com/scality/elmerfs) which is a fi
 
 ## Introduction
 
-This example implements a provisioning process based on the required infrastructure, it deploys a Kubernetes cluster, and then deploys AntidoteDB clusters using Kubernetes. After that, `elmerfs` is installed on hosts that run AntidoteDB instances. The infrastructure is shown in the following Figure:
+This example implements a provisioning process based on the required infrastructure, it deploys a Kubernetes cluster, and then deploys AntidoteDB clusters using Kubernetes. After that, `elmerfs` is installed on hosts that run AntidoteDB instances.
 
 ## How to run the deployment script
 
@@ -14,7 +14,7 @@ There are three types of files to perform this deployment.
 
 #### AntidoteDB Kubernetes deployment files 
 
-I use Kubernetes deployment files to deploy an AntidoteDB cluster for this experiment. These files are provided in folder [antidotedb_yaml](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs/antidotedb_yaml) and they work well for this experiment scenario. Check and modify these template files if you need any special configurations for AntidoteDB.
+I use Kubernetes deployment files to deploy an AntidoteDB cluster. These files are provided in folder [antidotedb_yaml](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/elmerfs/antidotedb_yaml) and they work well for this experiment scenario. Check and modify these template files if you need any special configurations for AntidoteDB.
 
 #### Monitoring Kubernetes deployment files 
 
