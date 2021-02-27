@@ -5,7 +5,7 @@ This experiment performs the [FMKe benchmark](https://github.com/ntlinh16/FMKe) 
 
 The flow of the experiment follows [An experiment workflow with cloudal](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md#an-experiment-workflow-with-cloudal).
 
-The `create_combs_queue()` function creates a list of combinations from the given parameters in the _exp_setting_fmke_antidotedb_ file which are (1) the number of concurrent clients connects to the database and (2) the number of iterations.
+The `create_combs_queue()` function creates a list of combinations from the given parameters in the _exp_setting_fmke_antidotedb_g5k_ file which are (1) the number of concurrent clients connects to the database and (2) the number of iterations.
 
 The `setup_env()` function (1) makes a reservation for the required infrastructure; and then (2) deploys a Kubernetes cluster to managed all AntidoteDB and FMKe services which are deployed by using containers.
 
@@ -33,7 +33,7 @@ will be repeated 5 times (`iteration: [1..5]`) for a statistically significant r
 
 * Experiment environment information: the path to experiment configuration files; the topology of an AntidoteDB cluster; etc.
 
-You need to clarify all these information in `exp_setting_fmke_antidotedb.yaml` file
+You need to clarify all these information in `exp_setting_fmke_antidotedb_g5k.yaml` file
 
 #### Experiment config files 
 
@@ -46,7 +46,7 @@ Then, run the following command:
 
 ```
 cd cloudal/examples/experiment/antidotedb/
-python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb.yaml -k &>  result/test.log
+python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb_g5k.yaml -k &>  result/test.log
 ```
 
 You can watch the log by:
@@ -62,13 +62,13 @@ If the script is interrupted by unexpected reasons. You can re-run the experimen
 1. If your reserved hosts are dead, you just run the same above command:
 ```
 cd cloudal/examples/experiment/antidotedb/
-python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb.yaml -k &> result/test2.log
+python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb_g5k.yaml -k &> result/test2.log
 ```
 
 2. If your reserved hosts are still alive, you can give the OAR_JOB_IDs to the script:
 ```
 cd cloudal/examples/experiment/antidotedb/
-python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb.yaml -k -j < site1:oar_job_id1,site2:oar_job_id2,...> --no-deploy-os --kube-master <the host name of the kubernetes master> &> result/test2.log
+python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb_g5k.yaml -k -j < site1:oar_job_id1,site2:oar_job_id2,...> --no-deploy-os --kube-master <the host name of the kubernetes master> &> result/test2.log
 ```
 
 ### 4. Results of the experiments
