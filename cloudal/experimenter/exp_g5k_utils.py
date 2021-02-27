@@ -60,7 +60,7 @@ def define_parameters(parameters):
     normalized_parameters = dict()
     pattern = re.compile(r"^\d+\.\.+\d+$")
     for param, values in parameters.items():
-        if not values or isinstance(values, dict):
+        if (values != 0.0 and not values) or isinstance(values, dict):
             continue
         elif not isinstance(values, list):
             normalized_parameters[param] = [values]
