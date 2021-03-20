@@ -128,6 +128,37 @@ class k8s_resources_configurator(object):
         logger.info('Timeout! Cannot wait until all %s are up' % resource)
         return False
 
+    def get_k8s_pod_log(self, pod_name, kube_config=None, kube_namespace='default'):
+        '''Get the log of a given pod
+
+        Parameters
+        ----------
+        pod_name: string
+            the name of the pod to get log
+
+        kube_config: kubernetes.client.configuration.Configuration
+            the configuration to the kubernetes cluster
+
+        kube_namespace: string
+            the k8s namespace to perform the wait of k8s resources operation on,
+            the default namespace is 'default'
+
+        Returns
+        -------
+        string
+        the content of the log
+        '''
+
+        if kube_config:
+            api_client = ApiClient(kube_config)
+        else:
+            api_client = ApiClient()
+
+        v1 = client.CoreV1Api(api_client)
+        log = v1.read_namespaced_pod_log(name=pod_name, namespace=kube_namespace)
+
+        return log
+
     def get_k8s_resources(self, resource, label_selectors='', kube_config=None, kube_namespace='default'):
         '''List all k8s resources in a namespace
 
