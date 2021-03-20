@@ -62,7 +62,8 @@ Arguments:
 * `--monitoring`: the script will deploy [Grafana](https://grafana.com/) and [Prometheus](https://prometheus.io/) as an AntidoteDB monitoring system. If you use this option, please make sure that you provide the corresponding Kubernetes deployment files. You can connect to the url provided in the log to access the monitoring UI (i.e., `http://<kube_master_ip>:3000`). The default account credential is `admin/admin`. When login successfully, you can search for `Antidote` to access the pre-defined AntidoteDB dashboard.
 <p align="center">
     <br>
-    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/grafana_example_screenshot.png" width="650"/>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/examples/experiment/antidotedb_g5k/results/grafana_monitoring.png" 
+    width="650"/>
     <br>
 <p>
 
