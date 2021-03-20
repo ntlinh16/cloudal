@@ -45,14 +45,14 @@ If you are running this experiment on your local machine, remember to run the VP
 Then, run the following command:
 
 ```
-cd cloudal/examples/experiment/antidotedb/
+cd cloudal/examples/experiment/antidotedb_g5k/
 python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb_g5k.yaml -k &>  result/test.log
 ```
 
 You can watch the log by:
 
 ```
-tail -f cloudal/examples/experiment/antidotedb/result/test.log
+tail -f cloudal/examples/experiment/antidotedb_g5k/result/test.log
 ```
 Depending on how many clusters you are requiring, it might take 35 minutes to 1 hour to fully set up the environment before starting the _run_exp_workflow_ function to execute the combinations.
 
