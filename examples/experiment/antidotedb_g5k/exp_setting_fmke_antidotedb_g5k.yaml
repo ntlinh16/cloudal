@@ -51,9 +51,11 @@ parameters:
 exp_env:
     # the path to th results directory
     results_dir: cloudal/examples/experiment/antidotedb_g5k/result
-    # the path to the kubernetes yaml files to deploy antidote cluster and FMKe benchmark
+    # the path to the kubernetes yaml template files to deploy 
+    # Antidote cluster,  Antidote monitoring services (prometheus and grafana) and FMKe benchmark
     antidote_yaml_path: cloudal/examples/experiment/antidotedb_g5k/exp_config_files/antidotedb_yaml
     fmke_yaml_path: cloudal/examples/experiment/antidotedb_g5k/exp_config_files/fmke_yaml
+    monitoring_yaml_path: cloudal/examples/experiment/antidotedb_g5k/exp_config_files/monitoring_yaml
 
 
 

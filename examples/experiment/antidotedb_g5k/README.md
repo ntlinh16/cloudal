@@ -54,26 +54,36 @@ You can watch the log by:
 ```
 tail -f cloudal/examples/experiment/antidotedb/result/test.log
 ```
-Depending on how many clusters you are requiring, it might take 35 minutes to 1 hour to fully set up the environment before starting the _run_workflow_ function to execute the combinations.
+Depending on how many clusters you are requiring, it might take 35 minutes to 1 hour to fully set up the environment before starting the _run_exp_workflow_ function to execute the combinations.
+
+Arguments:
+
+* `-k`: after finishing all the runs of the experiment, all provisioned nodes on Gris5000 will be kept alive so that you can connect to them, or if the experiment is interrupted in the middle, you can use these provisioned nodes to continue the experiments. This mechanism saves time since you don't have to reserve and deploy nodes again. If you do not use `-k`, when the script is finished or interrupted, all your reserved nodes will be deleted.
+* `--monitoring`: the script will deploy [Grafana](https://grafana.com/) and [Prometheus](https://prometheus.io/) as an AntidoteDB monitoring system. If you use this option, please make sure that you provide the corresponding Kubernetes deployment files. You can connect to the url provided in the log to access the monitoring UI (i.e., `http://<kube_master_ip>:3000`). The default account credential is `admin/admin`. When login successfully, you can search for `Antidote` to access the pre-defined AntidoteDB dashboard.
+<p align="center">
+    <br>
+    <img src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/grafana_example_screenshot.png" width="650"/>
+    <br>
+<p>
 
 ### 3. Re-run the experiment
 If the script is interrupted by unexpected reasons. You can re-run the experiment and it will continue with the list of combinations left in the queue. You have to provide the same result directory of the previous one. There are two possible cases:
 
 1. If your reserved hosts are dead, you just run the same above command:
 ```
-cd cloudal/examples/experiment/antidotedb/
+cd cloudal/examples/experiment/antidotedb_g5k/
 python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb_g5k.yaml -k &> result/test2.log
 ```
 
 2. If your reserved hosts are still alive, you can give the OAR_JOB_IDs to the script:
 ```
-cd cloudal/examples/experiment/antidotedb/
+cd cloudal/examples/experiment/antidotedb_g5k/
 python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb_g5k.yaml -k -j < site1:oar_job_id1,site2:oar_job_id2,...> --no-deploy-os --kube-master <the host name of the kubernetes master> &> result/test2.log
 ```
 
 ### 4. Results of the experiments
 
-A figure of the results of this experiment can be found [here](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/results)
+A figure of the results of this experiment can be found in the directory [results](https://github.com/cloudal/tree/master/examples/experiment/antidotedb_g5k/results/summary.png)
 
 
 ## Docker images used in the experiments

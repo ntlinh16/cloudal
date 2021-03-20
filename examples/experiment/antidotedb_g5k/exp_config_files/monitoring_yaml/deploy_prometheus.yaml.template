@@ -1,0 +1,52 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+  labels:
+    app: prometheus
+    purpose: monitor-antidote
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      purpose: monitor-antidote
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        purpose: monitor-antidote
+    spec:
+      containers:
+      - name: prometheus-monitor
+        image: prom/prometheus
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/prometheus/prometheus.yml
+            subPath: prometheus.yml
+        ports:
+        - containerPort: 9090
+      volumes:
+        - name: config-volume
+          configMap:
+           name: prometheus-configmap
+      nodeSelector:
+        kubernetes.io/hostname: kube_master_hostname
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-service
+spec:
+  selector:
+    app: prometheus
+    purpose: monitor-antidote
+  ports:
+  - name: promui
+    protocol: TCP
+    port: 9090
+    targetPort: 9090
+  externalIPs:
+    - kube_master_ip
+  type: LoadBalancer

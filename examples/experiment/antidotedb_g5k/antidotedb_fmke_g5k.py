@@ -27,6 +27,9 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                                       help="name of kube master node",
                                       default=None,
                                       type=str)
+        self.args_parser.add_argument("--monitoring", dest="monitoring",
+                                      help="deploy Grafana and Prometheus for monitoring",
+                                      action="store_true")
 
     def save_results(self, comb):
         logger.info("----------------------------------")
@@ -382,6 +385,82 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
 
         logger.info('Finish deploying the Antidote cluster')
 
+    def config_monitoring(self, kube_master, kube_namespace):
+        logger.info("Deploying monitoring system")
+        monitoring_k8s_dir = self.configs['exp_env']['monitoring_yaml_path']
+
+        logger.info("Deleting old deployment")
+        cmd = "rm -rf /root/antidote_stats"
+        execute_cmd(cmd, kube_master)
+
+        logger.debug("Init configurator: k8s_resources_configurator")
+        configurator = k8s_resources_configurator()
+
+        cmd = "git clone https://github.com/AntidoteDB/antidote_stats.git"
+        execute_cmd(cmd, kube_master)
+        logger.info("Setting to allow pods created on kube_master")
+        cmd = "kubectl taint nodes --all node-role.kubernetes.io/master-"
+        execute_cmd(cmd, kube_master, is_continue=True)
+
+        pods = configurator.get_k8s_resources_name(resource='pod',
+                                                   label_selectors='app=antidote',
+                                                   kube_namespace=kube_namespace)
+        antidote_info = ["%s.antidote:3001" % pod for pod in pods]
+
+        logger.debug('Modify the prometheus.yml file with antidote instances info')
+        file_path = os.path.join(monitoring_k8s_dir, 'prometheus.yml.template')
+        with open(file_path) as f:
+            doc = f.read().replace('antidotedc_info', '%s' % antidote_info)
+        prometheus_configmap_file = os.path.join(monitoring_k8s_dir, 'prometheus.yml')
+        with open(prometheus_configmap_file, 'w') as f:
+            f.write(doc)
+        configurator.create_configmap(file=prometheus_configmap_file,
+                                      namespace=kube_namespace,
+                                      configmap_name='prometheus-configmap')
+        logger.debug('Modify the deploy_prometheus.yaml file with kube_master info')
+        kube_master_info = configurator.get_k8s_resources(resource='node',
+                                                          label_selectors='kubernetes.io/hostname=%s' % kube_master)
+        for item in kube_master_info.items[0].status.addresses:
+            if item.type == 'InternalIP':
+                kube_master_ip = item.address
+        file_path = os.path.join(monitoring_k8s_dir, 'deploy_prometheus.yaml.template')
+        with open(file_path) as f:
+            doc = f.read().replace('kube_master_ip', '%s' % kube_master_ip)
+            doc = doc.replace("kube_master_hostname", '%s' % kube_master)
+        prometheus_deploy_file = os.path.join(monitoring_k8s_dir, 'deploy_prometheus.yaml')
+        with open(prometheus_deploy_file, 'w') as f:
+            f.write(doc)
+
+        logger.info("Starting Prometheus service")
+        configurator.deploy_k8s_resources(files=[prometheus_deploy_file], namespace=kube_namespace)
+        logger.info('Waiting until Prometheus instance is up')
+        configurator.wait_k8s_resources(resource='pod',
+                                        label_selectors="app=prometheus",
+                                        kube_namespace=kube_namespace)
+
+        logger.debug('Modify the deploy_grafana.yaml file with kube_master info')
+        file_path = os.path.join(monitoring_k8s_dir, 'deploy_grafana.yaml.template')
+        with open(file_path) as f:
+            doc = f.read().replace('kube_master_ip', '%s' % kube_master_ip)
+            doc = doc.replace("kube_master_hostname", '%s' % kube_master)
+        grafana_deploy_file = os.path.join(monitoring_k8s_dir, 'deploy_grafana.yaml')
+        with open(grafana_deploy_file, 'w') as f:
+            f.write(doc)
+
+        file = '/root/antidote_stats/monitoring/grafana-config/provisioning/datasources/all.yml'
+        cmd = """ sed -i "s/localhost/%s/" %s """ % (kube_master_ip, file)
+        execute_cmd(cmd, kube_master)
+
+        logger.info("Starting Grafana service")
+        configurator.deploy_k8s_resources(files=[grafana_deploy_file], namespace=kube_namespace)
+        logger.info('Waiting until Grafana instance is up')
+        configurator.wait_k8s_resources(resource='pod',
+                                        label_selectors="app=grafana",
+                                        kube_namespace=kube_namespace)
+        logger.info("Finish deploying monitoring system\n")
+        logger.info("Connect to Grafana at: http://%s:3000" % kube_master_ip)
+        logger.info("Connect to Prometheus at: http://%s:9090" % kube_master_ip)
+
     def clean_k8s_resources(self, kube_namespace):
         logger.info('1. Deleting all k8s resource from the previous run in namespace "%s"' %
                     kube_namespace)
@@ -406,6 +485,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
 
             self.clean_k8s_resources(kube_namespace)
             self.config_antidote(kube_namespace)
+            if self.args.monitoring:
+                self.config_monitoring(kube_master, kube_namespace)
             self.config_fmke(kube_master, kube_namespace)
             self.config_fmke_pop(kube_namespace)
             self.perform_combination(kube_namespace, comb['concurrent_clients'])
