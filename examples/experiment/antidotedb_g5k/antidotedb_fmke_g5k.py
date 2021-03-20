@@ -16,6 +16,10 @@ import yaml
 logger = get_logger()
 
 
+class DurationNotFoundException(Exception):
+    pass
+
+
 class FMKe_antidotedb_g5k(performing_actions_g5k):
     def __init__(self, **kwargs):
         super(FMKe_antidotedb_g5k, self).__init__()
@@ -81,8 +85,10 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             file_path2 = os.path.join(fmke_client_k8s_dir, 'fmke_client_%s.config' % cluster)
             with open(file_path2, 'w') as f:
                 f.write(doc)
-            logger.debug('Upload fmke_client config files to kube_master to be used by kubectl to run fmke_client pods')
-            getput_file(hosts=exp_nodes, file_paths=[file_path2], dest_location='/tmp/fmke_client/', action='put')
+            logger.debug(
+                'Upload fmke_client config files to kube_master to be used by kubectl to run fmke_client pods')
+            getput_file(hosts=exp_nodes, file_paths=[file_path2],
+                        dest_location='/tmp/fmke_client/', action='put')
 
         logger.debug('Create create_fmke_client.yaml files to run job stress for each Antidote DC')
         file_path = os.path.join(fmke_client_k8s_dir, 'create_fmke_client.yaml.template')
@@ -159,7 +165,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             doc['metadata']['name'] = 'fmke-%s' % cluster
             doc['spec']['template']['spec']['containers'][0]['env'] = [
                 {'name': 'DATABASE_ADDRESSES', 'value': ip}]
-            doc['spec']['template']['spec']['nodeSelector'] = {'service_g5k': 'fmke', 'cluster_g5k': '%s' % cluster}
+            doc['spec']['template']['spec']['nodeSelector'] = {
+                'service_g5k': 'fmke', 'cluster_g5k': '%s' % cluster}
             file_path = os.path.join(fmke_k8s_dir, 'statefulSet_fmke_%s.yaml' % cluster)
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
@@ -194,7 +201,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml.template')) as f:
             doc = yaml.safe_load(f)
         doc['metadata']['name'] = 'populate-data-without-prescriptions'
-        doc['spec']['template']['spec']['containers'][0]['args'] = ['-f -d small --noprescriptions'] + fmke_IPs
+        doc['spec']['template']['spec']['containers'][0]['args'] = [
+            '-f -d small --noprescriptions'] + fmke_IPs
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml'), 'w') as f:
             yaml.safe_dump(doc, f)
 
@@ -209,11 +217,32 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                                         label_selectors="app=fmke_pop",
                                         kube_namespace=kube_namespace)
 
+        logger.info('Checking if the populating process is successfull or not')
+        fmke_pop_pods = configurator.get_k8s_resources_name(resource='pod',
+                                                            label_selectors='job-name=populate-data-without-prescriptions',
+                                                            kube_namespace=kube_namespace)
+        logger.info('FMKe pod: %s' % fmke_pop_pods[0])
+        if len(fmke_pop_pods) > 0:
+            log = configurator.get_k8s_pod_log(
+                pod_name=fmke_pop_pods[0], kube_namespace=kube_namespace)
+            last_line = log.strip().split('\n')[-1]
+            logger.info('Last line of log: %s' % last_line)
+            if 'Populated' in last_line and 'entities in' in last_line:
+                result = log.strip().split('\n')[-1].split(' ')
+                if len(result) == 8:
+                    ops = result[6]
+                if len(result) == 9:
+                    ops = result[7]
+                logger.info("Population performance: %s, %s ops/s" % (result[6], ops))
+            else:
+                raise DurationNotFoundException("Populating process ERROR")
+
         logger.debug('Modify the populate_data file to populate prescriptions')
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml.template')) as f:
             doc = yaml.safe_load(f)
         doc['metadata']['name'] = 'populate-data-with-onlyprescriptions'
-        doc['spec']['template']['spec']['containers'][0]['args'] = ['-f -d small --onlyprescriptions -p 1'] + fmke_IPs
+        doc['spec']['template']['spec']['containers'][0]['args'] = [
+            '-f -d small --onlyprescriptions -p 1'] + fmke_IPs
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml'), 'w') as f:
             yaml.safe_dump(doc, f)
 
@@ -226,6 +255,25 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                                         label_selectors="app=fmke_pop",
                                         timeout=90,
                                         kube_namespace=kube_namespace)
+        logger.info('Checking if the populating process is successfull or not')
+        fmke_pop_pods = configurator.get_k8s_resources_name(resource='pod',
+                                                            label_selectors='job-name=populate-data-with-onlyprescriptions',
+                                                            kube_namespace=kube_namespace)
+        logger.info('FMKe pod: %s' % fmke_pop_pods[0])
+        if len(fmke_pop_pods) > 0:
+            log = configurator.get_k8s_pod_log(
+                pod_name=fmke_pop_pods[0], kube_namespace=kube_namespace)
+            last_line = log.strip().split('\n')[-1]
+            logger.info('Last line of log: %s' % last_line)
+            if 'Populated' in last_line and 'entities in' in last_line:
+                result = log.strip().split('\n')[-1].split(' ')
+                if len(result) == 8:
+                    ops = result[6]
+                if len(result) == 9:
+                    ops = result[7]
+                logger.info("Population performance: %s, %s ops/s" % (result[6], ops))
+            else:
+                raise DurationNotFoundException("Populating process ERROR")
         logger.info('Finish populating data')
 
     def config_antidote(self, kube_namespace):
@@ -250,7 +298,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         for cluster in self.configs['exp_env']['clusters']:
             doc['spec']['replicas'] = self.configs['exp_env']['n_antidotedb_per_dc']
             doc['metadata']['name'] = 'antidote-%s' % cluster
-            doc['spec']['template']['spec']['nodeSelector'] = {'service_g5k': 'antidote', 'cluster_g5k': '%s' % cluster}
+            doc['spec']['template']['spec']['nodeSelector'] = {
+                'service_g5k': 'antidote', 'cluster_g5k': '%s' % cluster}
             file_path = os.path.join(antidote_k8s_dir, 'statefulSet_%s.yaml' % cluster)
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
@@ -317,7 +366,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
-        doc['spec']['template']['spec']['containers'][0]['args'] = ['--connectDcs'] + antidote_masters
+        doc['spec']['template']['spec']['containers'][0]['args'] = [
+            '--connectDcs'] + antidote_masters
         file_path = os.path.join(antidote_k8s_dir, 'connectDCs_antidote.yaml')
         with open(file_path, 'w') as f:
             yaml.safe_dump(doc, f)
@@ -333,8 +383,10 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         logger.info('Finish deploying the Antidote cluster')
 
     def clean_k8s_resources(self, kube_namespace):
-        logger.info('1. Deleting all k8s resource from the previous run in namespace "%s"' % kube_namespace)
-        logger.debug('Delete namespace "%s" to delete all the resources, then create it again' % kube_namespace)
+        logger.info('1. Deleting all k8s resource from the previous run in namespace "%s"' %
+                    kube_namespace)
+        logger.debug(
+            'Delete namespace "%s" to delete all the resources, then create it again' % kube_namespace)
         configurator = k8s_resources_configurator()
         configurator.delete_namespace(kube_namespace)
         configurator.create_namespace(kube_namespace)
@@ -346,7 +398,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         cmd = 'rm -rf /tmp/results && mkdir -p /tmp/results'
         execute_cmd(cmd, results_nodes)
 
-    def run_workflow(self, kube_namespace, comb, kube_master, sweeper):
+    def run_exp_workflow(self, kube_namespace, comb, kube_master, sweeper):
         comb_ok = False
         try:
             logger.info('=======================================')
@@ -423,7 +475,8 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         kube_dir = os.path.join(home, '.kube')
         if not os.path.exists(kube_dir):
             os.mkdir(kube_dir)
-        getput_file(hosts=[kube_master], file_paths=['~/.kube/config'], dest_location=kube_dir, action='get')
+        getput_file(hosts=[kube_master], file_paths=['~/.kube/config'],
+                    dest_location=kube_dir, action='get')
         kube_config_file = os.path.join(kube_dir, 'config')
         config.load_kube_config(config_file=kube_config_file)
         logger.info('Kubernetes config file is stored at: %s' % kube_config_file)
@@ -529,10 +582,10 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 kube_master, oar_job_ids = self.setup_env(kube_master_site, kube_namespace)
 
             comb = sweeper.get_next()
-            sweeper = self.run_workflow(kube_namespace=kube_namespace,
-                                        kube_master=kube_master,
-                                        comb=comb,
-                                        sweeper=sweeper)
+            sweeper = self.run_exp_workflow(kube_namespace=kube_namespace,
+                                            kube_master=kube_master,
+                                            comb=comb,
+                                            sweeper=sweeper)
 
             if not is_job_alive(oar_job_ids):
                 oardel(oar_job_ids)
