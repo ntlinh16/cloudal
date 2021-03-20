@@ -83,7 +83,7 @@ python antidotedb_fmke_g5k.py --system_config_file exp_setting_fmke_antidotedb_g
 
 ### 4. Results of the experiments
 
-A figure of the results of this experiment can be found in the directory [results](https://github.com/cloudal/tree/master/examples/experiment/antidotedb_g5k/results/summary.png)
+A figure of the results of this experiment can be found in the directory [results](https://github.com/ntlinh16/cloudal/blob/master/examples/experiment/antidotedb_g5k/results/summary.png)
 
 
 ## Docker images used in the experiments
