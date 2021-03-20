@@ -195,7 +195,6 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         fmke_list = configurator.get_k8s_resources(resource='pod',
                                                    label_selectors='app=fmke',
                                                    kube_namespace=kube_namespace)
-        logger.info('fmke_list: %s' % len(fmke_list.items))
         fmke_IPs = list()
         for cluster in self.configs['exp_env']['clusters']:
             for fmke in fmke_list.items:
@@ -231,14 +230,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 pod_name=fmke_pop_pods[0], kube_namespace=kube_namespace)
             last_line = log.strip().split('\n')[-1]
             logger.info('Last line of log: %s' % last_line)
-            if 'Populated' in last_line and 'entities in' in last_line:
-                result = log.strip().split('\n')[-1].split(' ')
-                if len(result) == 8:
-                    ops = result[6]
-                if len(result) == 9:
-                    ops = result[7]
-                logger.info("Population performance: %s, %s ops/s" % (result[6], ops))
-            else:
+            if 'Populated' not in last_line:
                 raise DurationNotFoundException("Populating process ERROR")
 
         logger.debug('Modify the populate_data file to populate prescriptions')
@@ -269,14 +261,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                 pod_name=fmke_pop_pods[0], kube_namespace=kube_namespace)
             last_line = log.strip().split('\n')[-1]
             logger.info('Last line of log: %s' % last_line)
-            if 'Populated' in last_line and 'entities in' in last_line:
-                result = log.strip().split('\n')[-1].split(' ')
-                if len(result) == 8:
-                    ops = result[6]
-                if len(result) == 9:
-                    ops = result[7]
-                logger.info("Population performance: %s, %s ops/s" % (result[6], ops))
-            else:
+            if 'Populated' not in last_line:
                 raise DurationNotFoundException("Populating process ERROR")
         logger.info('Finish populating data')
 
@@ -493,7 +478,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             self.perform_combination(kube_namespace, comb['concurrent_clients'])
             self.save_results(comb)
             comb_ok = True
-        except ExecuteCommandException as e:
+        except (ExecuteCommandException, DurationNotFoundException) as e:
             comb_ok = False
         finally:
             if comb_ok:
