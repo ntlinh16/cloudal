@@ -205,7 +205,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             doc = yaml.safe_load(f)
         doc['metadata']['name'] = 'populate-data-without-prescriptions'
         doc['spec']['template']['spec']['containers'][0]['args'] = [
-            '-f -d small --noprescriptions'] + fmke_IPs
+            '-f --noprescriptions'] + fmke_IPs
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml'), 'w') as f:
             yaml.safe_dump(doc, f)
 
@@ -218,6 +218,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         logger.info('Waiting for populating data')
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=fmke_pop",
+                                        timeout=600,
                                         kube_namespace=kube_namespace)
 
         logger.info('Checking if the populating process is successfull or not')
@@ -245,7 +246,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
             doc = yaml.safe_load(f)
         doc['metadata']['name'] = 'populate-data-with-onlyprescriptions'
         doc['spec']['template']['spec']['containers'][0]['args'] = [
-            '-f -d small --onlyprescriptions -p 1'] + fmke_IPs
+            '-f --onlyprescriptions -p 1'] + fmke_IPs
         with open(os.path.join(fmke_k8s_dir, 'populate_data.yaml'), 'w') as f:
             yaml.safe_dump(doc, f)
 
@@ -256,7 +257,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
         logger.info('Waiting for populating data')
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=fmke_pop",
-                                        timeout=90,
+                                        timeout=600,
                                         kube_namespace=kube_namespace)
         logger.info('Checking if the populating process is successfull or not')
         fmke_pop_pods = configurator.get_k8s_resources_name(resource='pod',
@@ -590,7 +591,7 @@ class FMKe_antidotedb_g5k(performing_actions_g5k):
                                       oar_job_ids=self.args.oar_job_ids,
                                       no_deploy_os=self.args.no_deploy_os,
                                       is_reservation=self.args.is_reservation,
-                                      job_name="cloudal_k8s")
+                                      job_name="cloudal_k8s_fmke")
 
         provisioner.provisioning()
         self.hosts = provisioner.hosts
