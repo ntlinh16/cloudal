@@ -37,7 +37,7 @@ You need to clarify all these information in `exp_setting_fmke_antidotedb_g5k.ya
 
 #### Experiment config files 
 
-In this experiment, I am using Kubernetes deployment files to deploy and manage AntidoteDB cluster and FMKe benchmark. You need to provide these deployment files. I already provided the template files which work well with this experiment in folder [exp_config_files](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/exp_config_files). If you do not require any special configurations, you do not have to modify these files.
+In this experiment, I am using Kubernetes deployment files to deploy and manage AntidoteDB cluster, Antidote monitoring services and FMKe benchmark. You need to provide these deployment files. I already provided the template files which work well with this experiment in folder [exp_config_files](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb/exp_config_files). If you do not require any special configurations, you do not have to modify these files.
 
 ### 2. Run the experiment
 If you are running this experiment on your local machine, remember to run the VPN to [connect to Grid5000 system from outside](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md).
