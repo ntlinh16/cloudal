@@ -161,7 +161,7 @@ def create_combination_dir(comb, result_dir):
     if not os.path.exists(comb_dir):
         os.mkdir(comb_dir)
     else:
-        logger.warning('%s already exists, removing existing files' % comb_dir)
+        logger.warning('%s already exists, removed existing files' % comb_dir)
         for f in os.listdir(comb_dir):
             try:
                 os.remove(os.path.join(comb_dir, f))
@@ -196,6 +196,7 @@ def get_results(comb, hosts, remote_result_files, local_result_dir):
                 file_paths=remote_result_files,
                 dest_location=comb_dir,
                 action='get')
+    return comb_dir
 
 
 def is_job_alive(oar_job_ids):
