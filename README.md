@@ -135,5 +135,5 @@ I provide here some quick tutorials on how to perform an action with _cloudal_.
 - [Deploying elmerfs with an AntidoteDB backend on Google Cloud (using both GCP and GKE)](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration/elmerfs_gke)
 
 ### Experimenting
-- [Running FMKe benchmark on AntidoteDB cluster using Kubernetes on G5K](https://github.com/ntlinh16/cloudal/tree/master/examples/experiment/antidotedb_g5k)
+- [Benchmarking AntidoteDB cluster using FMKe on G5K](https://github.com/ntlinh16/antidotedb-eval)
 - [Benchmarking the elmerfs on G5K](https://github.com/ntlinh16/elmerfs-eval)
