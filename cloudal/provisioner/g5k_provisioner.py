@@ -61,7 +61,8 @@ class g5k_provisioner(cloud_provisioning):
                 # check validity of oar_job_id
                 job_info = get_oar_job_info(oar_job_id=oar_job_id, frontend=site_name)
                 if job_info is None or len(job_info) == 0:
-                    logger.error("Job id: %s in %s is not a valid Grid5000 oar_job_id" % (oar_job_id, site_name))
+                    logger.error("Job id: %s in %s is not a valid Grid5000 oar_job_id" %
+                                 (oar_job_id, site_name))
                     logger.error("Please rerun the script with a correct oar_job_id")
                     exit()
                 self.oar_result.append((int(oar_job_id), str(site_name)))
@@ -154,7 +155,8 @@ class g5k_provisioner(cloud_provisioning):
 
         logger.info('Performing reservation .......')
         if 'starttime' not in self.configs or self.configs['starttime'] is None:
-            self.configs['starttime'] = int(time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
+            self.configs['starttime'] = int(
+                time.time() + timedelta_to_seconds(datetime.timedelta(minutes=1)))
 
         starttime = int(get_unixts(self.configs['starttime']))
         endtime = int(
@@ -190,9 +192,9 @@ class g5k_provisioner(cloud_provisioning):
                 logger.info('Performing reservation FAILED')
                 exit()
 
-        message = "Reserved nodes successfully!!! \nOAR JOB ID:"
+        message = "Reserved nodes successfully!!! \nOAR JOB ID:\n"
         for each in self.oar_result:
-            message += "\n%s: %s" % (each[1], each[0])
+            message += "%s:%s," % (each[1], each[0])
         logger.info(message)
 
     def get_resources(self):
@@ -212,8 +214,9 @@ class g5k_provisioner(cloud_provisioning):
         for oar_job_id, site in self.oar_result:
             logger.info('Retrieving resource information on %s' % site)
             logger.debug('Retrieving hosts')
-            hosts = [host.address for host in get_oar_job_nodes(
-                oar_job_id, site)]
+            hosts = [host.address for host in get_oar_job_nodes(oar_job_id, site)]
+
+            # if len(hosts) != self.clusters[site]:
 
             logger.debug('Retrieving subnet')
             ip_mac, _ = get_oar_job_subnets(oar_job_id, site)
@@ -238,15 +241,14 @@ class g5k_provisioner(cloud_provisioning):
         # if the provisioner has oar_job_ids and no config_file_path
         # then the configs variable is not created
         if not hasattr(self, 'configs'):
-            logger.info('The list of %s hosts: \n%s', len(
-                self.hosts), hosts_list(self.hosts, separator='\n'))
+            logger.info('The list of %s hosts: \n%s', len(self.hosts),
+                        hosts_list(self.hosts, separator='\n'))
             return
 
         logger.info('Deploying %s hosts \n%s', len(self.hosts),
                     hosts_list(self.hosts, separator='\n'))
         try:
-            deployment = Deployment(hosts=[Host(canonical_host_name(host))
-                                           for host in self.hosts],
+            deployment = Deployment(hosts=[Host(canonical_host_name(host)) for host in self.hosts],
                                     env_file=self.configs['custom_image'],
                                     env_name=self.configs['cloud_provider_image'])
         except ValueError:
@@ -315,6 +317,10 @@ class g5k_provisioner(cloud_provisioning):
             n_nodes = sum([len(resource['hosts']) for site, resource in self.resources.items()])
             logger.info('Starting setup on %s hosts' % n_nodes)
             deployed_hosts, undeployed_hosts = self._launch_kadeploy()
+            logger.debug("there are %s undeployed hosts, undeployed_hosts = %s" %
+                         (len(undeployed_hosts), undeployed_hosts))
+            logger.debug("deployed_hosts = %s" % deployed_hosts)
+
             # self._configure_ssh()
 
             # Retry provisioning again if all reserved hosts are not deployed successfully
@@ -326,7 +332,8 @@ class g5k_provisioner(cloud_provisioning):
                         oardel(self.oar_result)
                         time.sleep(60)
                         self.oar_result = list()
-                    logger.info('---> Retrying provisioning nodes: attempt #%s' % (MAX_RETRY_DEPLOY - self.max_deploy))
+                    logger.info('---> Retrying provisioning nodes: attempt #%s' %
+                                (MAX_RETRY_DEPLOY - self.max_deploy))
                     self.provisioning()
                 else:
                     raise Exception('Failed to deploy all reserved nodes. Terminate the program.')
