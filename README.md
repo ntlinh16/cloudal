@@ -17,7 +17,7 @@
         <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/google_logo.png" width="140"/>
     </a>
         <a target="_blank" href="https://azure.microsoft.com">
-        <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/azure_logo.png" width="140"/>
+        <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/azure_logo.png" width="130"/>
     </a>
 </p>
 
@@ -135,5 +135,5 @@ I provide here some quick tutorials on how to perform an action with _cloudal_.
 - [Deploying elmerfs with an AntidoteDB backend on Google Cloud (using both GCP and GKE)](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration/elmerfs_gke)
 
 ### Experimenting
-- [Benchmarking AntidoteDB cluster using FMKe on G5K](https://github.com/ntlinh16/antidotedb-eval)
+- [Benchmarking the AntidoteDB using FMKe on G5K](https://github.com/ntlinh16/antidotedb-eval)
 - [Benchmarking the elmerfs on G5K](https://github.com/ntlinh16/elmerfs-eval)
