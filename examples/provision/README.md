@@ -3,7 +3,7 @@ Here are some examples to perform the provisioning process on different cloud sy
 ## Example 1: Provisioning some hosts on Grid5000 (G5k)
 In this example, we provision some nodes on Grid5000 system.
 
-First, edit the provision config file in `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
+First, edit the provision config file in `cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml` with your infrastructure requirements.
 
 Then, run the following command to perform the provisioning process on G5K:
 ```
@@ -21,7 +21,7 @@ Remember to delete the reservation to release the resources after finishing your
 
 You cannot provision a Kubernetes cluster directly from Grid5000. In this example, we help you do that. We first provision some nodes on Grid5000 system and then create a Kubernetes cluster from these nodes using kubeadm.
 
-First, you should edit the provisioning config file at `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
+First, you should edit the provisioning config file at `cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml` with your infrastructure requirements.
 
 Then, run the following command:
 ```
@@ -36,7 +36,7 @@ This cluster are kept alive after this script is terminated with `-k` option. Re
 
 You cannot provision a Docker Swarm cluster directly from Grid5000. In this example, we help you do that. We first provision some nodes on Grid5000 system and then create a Docker Swarm cluster from these nodes.
 
-First, you should edit the provisioning config file at `cloudal/examples/provision/provisioning_config_g5k.yaml` with your infrastructure requirements.
+First, you should edit the provisioning config file at `cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml` with your infrastructure requirements.
 
 Then, run the following command:
 ```
@@ -46,7 +46,7 @@ python provision_docker_swarm_g5k.py --system_config_file cloudal/examples/provi
 ## Example 4: Provisioning some hosts on Google Cloud Platform (GCP)
 In this example, we provision some hosts on GCP.
 
-First, edit the parameters in the provisioning config file `provisioning_config_gcp.yaml` with your authentication information and your infrastructure requirements.
+First, edit the parameters in the provisioning config file `cloudal/examples/provisioning_config_files/provisioning_config_gcp.yaml` with your authentication information and your infrastructure requirements.
 
 Then, run the following command to perform the provisioning process on GCP:
 ```
@@ -64,7 +64,7 @@ If you do not have a free trial account (with $300 credit), you can always creat
 
 You cannot provision a Docker Swarm cluster directly on GCP. In this example, we help you do that. We first provision some nodes on Grid5000 system and then create a Docker Swarm cluster from these nodes.
 
-First, you should edit the provisioning config file at `cloudal/examples/provision/provisioning_config_gcp.yaml` with your infrastructure requirements.
+First, you should edit the provisioning config file at `cloudal/examples/provisioning_config_files/provisioning_config_gcp.yaml` with your infrastructure requirements.
 
 Then, run the following command:
 ```
@@ -75,7 +75,7 @@ python provision_docker_swarm_gcp.py --system_config_file cloudal/examples/provi
 ## Example 6: Provisioning Kubernetes clusters on Google Cloud Engine (GKE)
 In this example, we create some Kubernetes clusters on Google Cloud by using GKE.
 
-First, edit the parameters in the provisioning config file `provisioning_config_gke.yaml` with your authentication information and your infrastructure requirements.
+First, edit the parameters in the provisioning config file `cloudal/examples/provisioning_config_files/provisioning_config_gke.yaml` with your authentication information and your infrastructure requirements.
 
 Then, run the following command to perform the provisioning process on GKE:
 ```
@@ -90,7 +90,7 @@ With GKE, all the provisioned clusters are kept alive until you deleted it, so t
 ## Example 7: Provisioning some hosts on Microsoft Azure
 In this example, we provision some hosts on Azure.
 
-First, edit the parameters in the provisioning config file `provisioning_config_azure.yaml` with your authentication information and your infrastructure requirements.
+First, edit the parameters in the provisioning config file `cloudal/examples/provisioning_config_files/provisioning_config_azure.yaml` with your authentication information and your infrastructure requirements.
 
 Then, run the following command to perform the provisioning process on Azure:
 ```

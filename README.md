@@ -61,7 +61,6 @@ To write your own script to perform your custom actions such as provisioning, co
 You can also try some examples in the [tutorials](#tutorials) section.
 
 # Installation
-This repo uses Python 2.7+ due to `execo`.
 
 The following are steps to install cloudal. If you want to test it without affecting your system, you may want to run it in a virtual environment. If you're unfamiliar with Python virtual environments, check out the [user guide](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
 
