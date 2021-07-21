@@ -120,7 +120,8 @@ def custom_retry_return(state):
     if not hasattr(state.exception(), 'is_continue'):
         raise(state.exception())
     if state.exception().is_continue == True:
-        logger.warning('Retrying maximum times, continue without raising exception (%s)' % state.exception().message)
+        logger.warning('Retrying maximum times, continue without raising exception (%s)' %
+                       state.exception().message)
         return None
     else:
         logger.warning('Retrying maximum times')
@@ -176,17 +177,20 @@ def execute_cmd(cmd, hosts, mode='run', batch_size=5, is_continue=False):
                 host_errors.append(process.host)
             if ('ssh_exchange_identification' in process.stderr or (process.ok == False and process.stdout.strip())):
                 logger.info('---> Retrying: %s\n' % cmd)
-                raise ExecuteCommandException(message=process.stderr.strip(), is_continue=is_continue)
+                raise ExecuteCommandException(
+                    message=process.stderr.strip(), is_continue=is_continue)
             # config host -> check for alive hosts at the end of the configuration
         # workflow -> detect by wrap the execute_cmd by another command and check
         #             for return host_errors --> remove host from all hosts/available host
         #             then cancel the combination, remember to check the finally statement of
         #             the workflow
     if len(host_errors) == len(hosts):
-        logger.error("Connection error to all hosts.\nProgram is terminated")
+        logger.error("Connection error to %s/%s hosts.\nProgram is terminated" %
+                     (len(host_errors), len(hosts)))
         exit()
     elif len(host_errors) > 0:
-        logger.error("Connection error to %s hosts:\n%s" % (len(host_errors), '\n'.join(host_errors)))
+        logger.error("Connection error to %s hosts:\n%s" %
+                     (len(host_errors), '\n'.join(host_errors)))
         hosts = [host for host in hosts if host not in host_errors]
     processes = list()
     for each in result:
