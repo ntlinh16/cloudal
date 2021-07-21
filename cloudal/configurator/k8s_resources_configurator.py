@@ -6,6 +6,7 @@ from time import sleep
 from cloudal.utils import get_logger
 
 from kubernetes import utils, client
+from kubernetes.stream import stream
 from kubernetes.utils import FailToCreateError
 from kubernetes.client.api_client import ApiClient
 
@@ -21,7 +22,7 @@ class k8s_resources_configurator(object):
 
         Parameters
         ----------
-        path: str
+        path: string
             the path to the directory which stores all the deployment yaml files
 
         files: list
@@ -30,7 +31,7 @@ class k8s_resources_configurator(object):
         kube_config: kubernetes.client.configuration.Configuration
             the configuration to the kubernetes cluster
 
-        namespace: str
+        namespace: string
             a namespace for k8s working with
 
         """
@@ -230,7 +231,7 @@ class k8s_resources_configurator(object):
 
         Return
         ------
-        list of str
+        list of strings
             list of resources' names
         '''
         resources = self.get_k8s_resources(resource=resource,
@@ -276,7 +277,7 @@ class k8s_resources_configurator(object):
 
         Parameters
         ----------
-        namespace: str
+        namespace: string
             a namespace for k8s working with
 
         kube_config: kubernetes.client.configuration.Configuration
@@ -307,7 +308,7 @@ class k8s_resources_configurator(object):
 
         Parameters
         ----------
-        namespace: str
+        namespace: string
             a namespace for k8s working with
 
         kube_config: kubernetes.client.configuration.Configuration
@@ -387,6 +388,50 @@ class k8s_resources_configurator(object):
             body['metadata']['labels'][key] = val
 
         return v1.patch_node(name=nodename, body=body)
+
+    def execute_command(self, pod_name, command, kube_config=None, kube_namespace='default'):
+        """Create a namespace in a k8s cluster
+
+        Parameters
+        ----------
+        pod_name: string
+            the name of the pod to run the command
+
+        command: string
+            the command to run on the pod
+
+        kube_config: kubernetes.client.configuration.Configuration
+            the configuration to the kubernetes cluster
+
+        kube_namespace: string
+            the k8s namespace to perform the wait of k8s resources operation on,
+            the default namespace is 'default'
+
+        Returns
+        -------
+        string
+            the std output when run the command in the pod
+        """
+        if kube_config:
+            api_client = ApiClient(kube_config)
+        else:
+            api_client = ApiClient()
+
+        v1 = client.CoreV1Api(api_client)
+        logger.debug('Run command %s on pod %s' % (command, pod_name))
+
+        if ' ' in command:
+            command = command.split()
+
+        return stream(v1.connect_get_namespaced_pod_exec,
+                      pod_name,
+                      namespace=kube_namespace,
+                      command=command,
+                      stderr=True,
+                      stdin=False,
+                      stdout=True,
+                      tty=False,
+                      _preload_content=True)
 
     def create_configmap(self, kube_config=None, configmap=None, file=None, namespace="default", configmap_name="Configmap_name"):
         if configmap is None and file is None:
