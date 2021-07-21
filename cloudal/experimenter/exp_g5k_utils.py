@@ -191,7 +191,9 @@ def get_results(comb, hosts, remote_result_files, local_result_dir):
         the path to the directory to store the results on the local node
 
     """
+    logger.info('Create combination dir locally')
     comb_dir = create_combination_dir(comb, local_result_dir)
+    logger.info('Download the result')
     getput_file(hosts=hosts,
                 file_paths=remote_result_files,
                 dest_location=comb_dir,
