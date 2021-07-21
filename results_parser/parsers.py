@@ -92,8 +92,8 @@ class ElmerfsCopyTimeParser(BaseParser):
                 for file_name in os.listdir(comb_dir_path):
                     if '_start' in file_name:
                         with open(os.path.join(comb_dir_path, file_name), "r") as f:
-                            cur_row['time_cp_start'] = self.parse_datetime(f.readline())
-                            cur_row['time_cp_end'] = self.parse_datetime(f.readline())
+                            cur_row['time_cp_start'] = self._parse_datetime(f.readline())
+                            cur_row['time_cp_end'] = self._parse_datetime(f.readline())
                             cur_row['src_host'] = file_name.split('_')[1]
                             src_site = cur_row['src_host'].split('-')[0]
                     elif 'checksum_copy_' in file_name:
@@ -176,7 +176,7 @@ class ElmerfsConvergenceParser(BaseParser):
             columns.append("copy_ok")
         if "elmerfs_ok" in data:
             columns.append("elmerfs_ok")
-
+        columns += ['_id']
         return data[columns]
 
 
