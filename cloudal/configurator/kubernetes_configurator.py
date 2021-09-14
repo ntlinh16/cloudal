@@ -51,6 +51,19 @@ class kubernetes_configurator(object):
             kube_workers = self.hosts[1:]
         else:
             kube_workers = [host for host in self.hosts if host != self.kube_master]
+        logger.info('Kubernetes master: %s' % self.kube_master)
+        logger.info('Changing cgroups driver of Docker to systemd to be compatible with kubeadm v1.22+')
+        # https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/configure-cgroup-driver/
+        cmd = '''cat <<EOF >> /etc/docker/daemon.json
+        {
+        "exec-opts": ["native.cgroupdriver=systemd"]
+        }
+        EOF'''
+        execute_cmd(cmd, self.hosts)
+
+        logger.info('Restarting Docker')
+        cmd = 'systemctl restart docker'
+        execute_cmd(cmd, self.hosts)
 
         logger.info('Initializing kubeadm on master')
         cmd = 'kubeadm init --pod-network-cidr=10.244.0.0/16'
@@ -73,6 +86,5 @@ class kubernetes_configurator(object):
         execute_cmd(cmd.strip(), kube_workers)
 
         logger.info('Deploying Kubernetes cluster successfully')
-        logger.info('Kubernetes master: %s' % self.kube_master)
 
         return self.kube_master, kube_workers
