@@ -141,7 +141,7 @@ class k8s_resources_configurator(object):
             the configuration to the kubernetes cluster
 
         kube_namespace: string
-            the k8s namespace to perform the wait of k8s resources operation on,
+            the k8s namespace to perform the k8s resources operation on,
             the default namespace is 'default'
 
         Returns
@@ -175,7 +175,7 @@ class k8s_resources_configurator(object):
             the configuration to the kubernetes cluster
 
         kube_namespace: string
-            the k8s namespace to perform the wait of k8s resources operation on,
+            the k8s namespace to perform the k8s resources operation on,
             the default namespace is 'default'
 
         Returns
@@ -226,7 +226,7 @@ class k8s_resources_configurator(object):
             the configuration to the kubernetes cluster
 
         kube_namespace: string
-            the k8s namespace to perform the wait of k8s resources operation on,
+            the k8s namespace to perform the k8s resources operation on,
             the default namespace is 'default'
 
         Return
@@ -252,7 +252,7 @@ class k8s_resources_configurator(object):
             the configuration to the kubernetes cluster
 
         kube_namespace: string
-            the k8s namespace to perform the wait of k8s resources operation on,
+            the k8s namespace to perform the k8s resources operation on,
             the default namespace is 'default'
 
         Returns
@@ -390,7 +390,7 @@ class k8s_resources_configurator(object):
         return v1.patch_node(name=nodename, body=body)
 
     def execute_command(self, pod_name, command, kube_config=None, kube_namespace='default'):
-        """Create a namespace in a k8s cluster
+        """Execute a command on a pod
 
         Parameters
         ----------
@@ -404,7 +404,7 @@ class k8s_resources_configurator(object):
             the configuration to the kubernetes cluster
 
         kube_namespace: string
-            the k8s namespace to perform the wait of k8s resources operation on,
+            the k8s namespace to perform the k8s resources operation on,
             the default namespace is 'default'
 
         Returns
@@ -422,6 +422,7 @@ class k8s_resources_configurator(object):
 
         if ' ' in command:
             command = command.split()
+        logger.debug('command = %s' % command)
 
         return stream(v1.connect_get_namespaced_pod_exec,
                       pod_name,
