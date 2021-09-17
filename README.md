@@ -135,4 +135,5 @@ I provide here some quick tutorials on how to perform an action with _cloudal_.
 
 ### Experimenting
 - [Benchmarking the AntidoteDB using FMKe on G5K](https://github.com/ntlinh16/antidotedb-eval)
+- [Benchmarking the Riak KV using FMKe on G5K](https://github.com/ntlinh16/riakKV-eval)
 - [Benchmarking the elmerfs on G5K](https://github.com/ntlinh16/elmerfs-eval)
