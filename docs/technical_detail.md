@@ -38,3 +38,5 @@ As shown in the following Figure, _cloudal_ provides 3 main modules to help user
 - __experimenter__: this module contains some ready-to-use experimenters to manage the experiments, meaning that creating and controlling the combinations queue and handling the results.
 
 By using the 3 provided modules as Lego blocks, users can assemble them to write an `Experiment script` which describes steps to perform their specific experimental scenarios. And they are free to choose which actions they want to incorporate in their script (i.e. users may just want to provision hosts for manually testing, or perform an experiment automatically which requires the whole workflow).
+
+You can find more information in the [cloudal report](https://drive.google.com/file/d/1rCVob6QfjCi5fVHNxE0g7yQxoR2jJhhK/view?usp=sharing).
