@@ -115,17 +115,17 @@ class ExecuteCommandException(Exception):
         super(ExecuteCommandException, self).__init__(message)
 
 
-def custom_retry_return(state):
-    logger.warning("Exception when running command: %s" % state.exception())
-    if not hasattr(state.exception(), 'is_continue'):
-        raise(state.exception())
-    if state.exception().is_continue == True:
+def custom_retry_return(retry_state):
+    logger.warning("Exception when running command: %s" % retry_state.outcome.exception())
+    if not hasattr(retry_state.outcome.exception(), 'is_continue'):
+        raise(retry_state.outcome.exception())
+    if retry_state.outcome.exception().is_continue == True:
         logger.warning('Retrying maximum times, continue without raising exception (%s)' %
-                       state.exception().message)
+                       retry_state.outcome.exception().message)
         return None
     else:
         logger.warning('Retrying maximum times')
-        raise(state.exception())
+        raise(retry_state.outcome.exception())
 
 
 @retry(
