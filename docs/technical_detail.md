@@ -2,7 +2,7 @@
 
 To set up a cloud environment for running rigorous experiments, we usually follow a typical workflow that consists of three steps: (1) provisioning some hosts (physical machines or virtual machines); (2) configuring the environment (i.e., installing/deploying services or applications on provisioned hosts); (3) performing an experiment workflow. To achieve a complete configured environment, we have to overcome a massive amount of challenges and obstacles of low-level technical details such as system deployment, failures management on one specific cloud system. Additionally, we have to ensure the reproducibility of the experiments and the control of the parameter space. `cloudal` helps us with these boring setting steps as well as manage the experimenter more productively, therefore, we only need to focus on the interesting experiments and find out more insights.
 
-To address all the challenges when performing a cloud experiment, I design a workflow of a general cloud experiment on a specific cloud system when using _cloudal_. The following flowchart presents three main processes of the workflow: create a combination queue, setup environment, and run a user-defined experiment workflow.
+To address all the challenges when performing a cloud experiment, I design a general workflow of a cloud experiment when using _cloudal_. The following flowchart presents three main processes of the workflow: create a combination queue, setup environment, and run a user-defined experiment workflow.
 
 
 <p align="center">
