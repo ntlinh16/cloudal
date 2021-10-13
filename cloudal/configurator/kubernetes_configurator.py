@@ -85,6 +85,12 @@ class kubernetes_configurator(object):
             result.processes[0].stdout.split('kubeadm join')[-1]
         execute_cmd(cmd.strip(), kube_workers)
 
+        logger.debug('Adding kubectl completion bash on master')
+        cmd = '''echo 'source <(kubectl completion bash)' >> ~/.bashrc
+                 kubectl completion bash >/etc/bash_completion.d/kubectl
+                 source ~/.bashrc'''
+        execute_cmd(cmd, [self.kube_master])
+
         logger.info('Deploying Kubernetes cluster successfully')
 
         return self.kube_master, kube_workers
