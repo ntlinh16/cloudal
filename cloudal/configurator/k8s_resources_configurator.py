@@ -12,6 +12,40 @@ from kubernetes.client.api_client import ApiClient
 
 logger = get_logger()
 
+def _split_argument(command):
+    """Spliting arguments in a command to be use by K8s API
+
+    Parameters
+    ----------
+    command: string
+        the original command
+    Returns
+    -------
+    list of string
+        the list of arguments
+    """
+    tokens = command.split()
+    logger.debug("command = %s" % command)
+    logger.debug("token = %s" % tokens)
+    result = list()
+    i = 0
+    while i < len(tokens):
+        if '"' in tokens[i]:
+            j = i + 1
+            for j in range(i + 1, len(tokens)):
+                if tokens[j].count('"') == 1:
+                    break
+            new_token = ' '.join(tokens[i: j + 1]).strip()
+            if new_token[0] == '"':
+                new_token = new_token[1:]
+            if new_token[-1] == '"':
+                new_token = new_token[:-1]
+            result.append(new_token)
+            i = j + 1
+        else:
+            result.append(tokens[i])
+            i += 1
+    return result
 
 class k8s_resources_configurator(object):
     """
@@ -421,8 +455,8 @@ class k8s_resources_configurator(object):
         logger.debug('Run command %s on pod %s' % (command, pod_name))
 
         if ' ' in command:
-            command = command.split()
-        logger.debug('command = %s' % command)
+            command = _split_argument(command)
+
 
         return stream(v1.connect_get_namespaced_pod_exec,
                       pod_name,
