@@ -30,9 +30,6 @@ class provision_g5k_k8s(performing_actions_g5k):
 
     def config_host(self, hosts):
         logger.info("Starting configuring Kubernetes cluster")
-        logger.info("Init configurator: docker_configurator")
-        configurator = docker_configurator(hosts)
-        configurator.config_docker()
 
         logger.info("Init configurator: kubernetes_configurator")
         configurator = kubernetes_configurator(hosts)

@@ -2,8 +2,6 @@ import sys
 import time
 import datetime
 
-from humanfriendly.terminal import message
-
 from cloudal.provisioner.provisioning import cloud_provisioning
 from cloudal.utils import get_remote_executor, get_logger, parse_config_file
 
