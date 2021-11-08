@@ -1,0 +1,34 @@
+---
+# your authorization information
+endpoint: <your_endpoint>
+application_key: <your_application_key>
+application_secret: <your_application_secret> 
+consumer_key: <your_consumer_key> 
+project_id: <your_project_id> 
+
+# the information to make your provisioning 
+clusters:
+    # the first node is the kubernetes master
+    - n_nodes: 1
+      node_name: kube-master
+      region: SBG5
+      instance_type: b2-7
+      # The Flex option opts for 50 GB storage, providing faster snapshots and the ability to downgrade later on.
+      flexible_instance: False
+      image: Debian 11
+
+    - n_nodes: 1
+      node_name: node-sbg
+      region: SBG5
+      instance_type: b2-7
+      # The Flex option opts for 50 GB storage, providing faster snapshots and the ability to downgrade later on.
+      flexible_instance: False
+      image: Debian 11
+
+    - n_nodes: 1
+      node_name: node-de
+      region: DE1
+      instance_type: b2-7
+      # The Flex option opts for 50 GB storage, providing faster snapshots and the ability to downgrade later on.
+      flexible_instance: False
+      image: Debian 11
