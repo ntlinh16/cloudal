@@ -19,7 +19,7 @@ Remember to delete the reservation to release the resources after finishing your
 
 ## Example 2: Provisioning a Kubernetes cluster on Grid5000 (G5K)
 
-You cannot provision a Kubernetes cluster directly from Grid5000. In this example, we help you do that. We first provision some nodes on Grid5000 system and then create a Kubernetes cluster from these nodes using kubeadm.
+You cannot provision a Kubernetes cluster directly from Grid5000. In this example, we help you to do that. We first provision some nodes on Grid5000 system and then create a Kubernetes cluster from these nodes using kubeadm.
 
 First, you should edit the provisioning config file at `cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml` with your infrastructure requirements.
 
@@ -117,9 +117,9 @@ Remember to delete the reservation to release the resources after finishing your
 
 ## Example 9: Provisioning a Kubernetes cluster on OVHCloud
 
-You cannot provision a Kubernetes cluster with multiple sites on OVHCloud. In this example, we help you do that. We first provision some nodes on OVHCloud and then create a Kubernetes cluster from these nodes using kubeadm.
+You can provision a Kubernetes cluster directly on OVHCloud. But the Kubernetes cluster has all nodes located on one region. In this example, we help you to provision a multiple site Kubernetes cluster on OVHCloud. We first provision some nodes on OVHCloud and then create a Kubernetes cluster from these nodes using kubeadm.
 
-First, you should edit the provisioning config file at `cloudal/examples/provisioning_config_files/provisioning_config_ovh.yaml` with your infrastructure requirements.
+First, you should edit the provisioning config file at `cloudal/examples/provisioning_config_files/provisioning_config_ovh.yaml` with your authentication and infrastructure requirements.
 
 Then, run the following command:
 ```
@@ -127,7 +127,7 @@ cd cloudal/examples/provision/
 python provision_ovh_k8s.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml
 ```
 
-The `provision_ovh.py` script makes a reservation with the clusters described in _provisioning_config_ovh.yaml_ fil. After that, we install Docker, kubelet, kubeadm, kubectl and then perform some setups on these nodes to create a Kubernetes cluster.
+The `provision_ovh_k8s.py` script makes a reservation with the clusters described in _provisioning_config_ovh.yaml_ file. After that, we install Docker, kubelet, kubeadm, kubectl and then perform some setups on these nodes to create a Kubernetes cluster.
 
 Remember to delete the reservation to release the resources after finishing your testing.
 ## Options
