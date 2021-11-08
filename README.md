@@ -16,8 +16,11 @@
     <a target="_blank" href="https://cloud.google.com">
         <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/google_logo.png" width="140"/>
     </a>
-        <a target="_blank" href="https://azure.microsoft.com">
+    <a target="_blank" href="https://azure.microsoft.com">
         <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/azure_logo.png" width="130"/>
+    </a>
+    <a target="_blank" href="https://www.ovhcloud.com/">
+        <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/ovh_logo.png" width="130"/>
     </a>
 </p>
 
@@ -125,6 +128,8 @@ I provide here some quick tutorials on how to perform an action with _cloudal_.
 - [Provisioning on GCP: creating a Docker Swarm cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-5-provisioning-docker-swarm-cluster-on-google-cloud-platform-gcp)
 - [Provisioning on GKE: reserving Kubernetes clusters](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-6-provisioning-kubernetes-clusters-on-google-cloud-engine-gke)
 - [Provisioning on Azure: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-7-provisioning-some-hosts-on-microsoft-azure)
+- [Provisioning on OVHCloud: reserving some hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-8-provisioning-some-hosts-on-OVHCloud)
+- [Provisioning on OVHCloud: creating a Kubernetes cluster](https://github.com/ntlinh16/cloudal/tree/master/examples/provision#example-9-provisioning-a-kubernetes-cluster-on-OVHCloud)
 
 ### Configuring
 - [Configuring Docker on all reserved hosts](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration#example-1-configuring-docker-on-running-hosts-on-grid5000-g5k)

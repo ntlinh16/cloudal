@@ -29,7 +29,7 @@ cd cloudal/examples/provision/
 python provision_g5k_k8s.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml -k
 ```
 
-The `provision_g5k.py` script makes a reservation with the clusters described in _provisioning_config_g5k.yaml_ file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install kubelet, kubeadm, kubectl and then perform some setups on these nodes to create a Kubernetes cluster.
+The `provision_g5k_k8s.py` script makes a reservation with the clusters described in _provisioning_config_g5k.yaml_ file: 3 nodes on cluster *ecotype*, 1 node on *dahu* and 2 nodes on *paravance* in 1 hour. These nodes are deployed with the `debian10-x64-big` environment. You can see all the supported OS environments from Grid5000 [here](https://www.grid5000.fr/w/Getting_Started#Deploying_nodes_with_Kadeploy). After that, we install kubelet, kubeadm, kubectl and then perform some setups on these nodes to create a Kubernetes cluster.
 
 This cluster are kept alive after this script is terminated with `-k` option. Remember to delete the reservation to release the resources after finishing your testing.
 ## Example 3: Provisioning Docker Swarm cluster on Grid5000 (G5K)
@@ -102,6 +102,34 @@ The `provision_azure.py` script makes a reservation with the description in `pro
 
 With azure, all the provisioned hosts are kept alive until you deleted it, so that remember to delete your hosts to release the resources (and not losing money) after finishing your testing.
 
+## Example 8: Provisioning some hosts on OVHCloud
+In this example, we provision some nodes on Grid5000 system.
+
+First, edit the provision config file in `cloudal/examples/provisioning_config_files/provisioning_config_ovh.yaml` with your authentication and infrastructure requirements.
+
+Then, run the following command to perform the provisioning process on OVHCloud:
+```
+cd cloudal/examples/provision/
+python provision_ovh.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_ovh.yaml
+```
+
+Remember to delete the reservation to release the resources after finishing your testing.
+
+## Example 9: Provisioning a Kubernetes cluster on OVHCloud
+
+You cannot provision a Kubernetes cluster with multiple sites on OVHCloud. In this example, we help you do that. We first provision some nodes on OVHCloud and then create a Kubernetes cluster from these nodes using kubeadm.
+
+First, you should edit the provisioning config file at `cloudal/examples/provisioning_config_files/provisioning_config_ovh.yaml` with your infrastructure requirements.
+
+Then, run the following command:
+```
+cd cloudal/examples/provision/
+python provision_ovh_k8s.py --system_config_file cloudal/examples/provisioning_config_files/provisioning_config_g5k.yaml
+```
+
+The `provision_ovh.py` script makes a reservation with the clusters described in _provisioning_config_ovh.yaml_ fil. After that, we install Docker, kubelet, kubeadm, kubectl and then perform some setups on these nodes to create a Kubernetes cluster.
+
+Remember to delete the reservation to release the resources after finishing your testing.
 ## Options
 You might want to use `--help` to see more supported options:
 
