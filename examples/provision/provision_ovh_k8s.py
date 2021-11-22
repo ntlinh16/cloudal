@@ -11,21 +11,9 @@ from kubernetes import config
 logger = get_logger()
 
 
-class config_antidotedb_cluster_ovh(performing_actions):
+class provision_ovh_k8s(performing_actions):
     def __init__(self):
-        super(config_antidotedb_cluster_ovh, self).__init__()
-
-    def _set_kube_workers_label(self, kube_master):
-        configurator = k8s_resources_configurator()
-        clusters = dict()
-        for node in self.nodes:
-            if node['ipAddresses'][0]['ip'] == kube_master:
-                pass
-            else:
-                cluster = node['region']
-                clusters[cluster] = [node['name']] + clusters.get(cluster, list())
-                configurator.set_labels_node(nodename=node['name'],
-                                            labels='cluster_ovh=%s' % cluster)
+        super(provision_ovh_k8s, self).__init__()
 
     def _get_credential(self, kube_master):
         home = os.path.expanduser('~')
@@ -57,13 +45,6 @@ class config_antidotedb_cluster_ovh(performing_actions):
 
         self._get_credential(kube_master)
 
-        logger.info('Create k8s namespace "%s" for the experiments' % kube_namespace)
-        configurator = k8s_resources_configurator()
-        configurator.create_namespace(namespace=kube_namespace)
-
-        logger.info('Set labels for all kubernetes workers')
-        self._set_kube_workers_label(kube_workers)
-
         logger.info("Finish configuring Kubernetes environment")
         return kube_master
 
@@ -80,13 +61,13 @@ class config_antidotedb_cluster_ovh(performing_actions):
         self.provisioning()
 
         kube_namespace = 'exp'
-        self.setup_k8s(kube_namespace)
+        kube_master = self.setup_k8s(kube_namespace)
 
 
 
 if __name__ == "__main__":
     logger.info("Init engine in %s" % __file__)
-    engine = config_antidotedb_cluster_ovh()
+    engine = provision_ovh_k8s()
 
     try:
         logger.info("Start engine in %s" % __file__)
