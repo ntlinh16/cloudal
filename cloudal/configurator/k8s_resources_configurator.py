@@ -12,6 +12,7 @@ from kubernetes.client.api_client import ApiClient
 
 logger = get_logger()
 
+
 def _split_argument(command):
     """Spliting arguments in a command to be use by K8s API
 
@@ -46,6 +47,7 @@ def _split_argument(command):
             result.append(tokens[i])
             i += 1
     return result
+
 
 class k8s_resources_configurator(object):
     """
@@ -338,7 +340,7 @@ class k8s_resources_configurator(object):
         return v1.create_namespace(body)
 
     def delete_namespace(self, namespace=None, kube_config=None):
-        """Delete a namespace from a k8s cluster
+        """Delete a namespace in a k8s cluster
 
         Parameters
         ----------
@@ -378,12 +380,12 @@ class k8s_resources_configurator(object):
             return False
 
     def set_labels_node(self, nodename, labels, kube_config=None):
-        """Create a namespace in a k8s cluster
+        """Set label for a node
 
         Parameters
         ----------
-        namespace: str
-            a namespace for k8s working with
+        nodename: str
+            hostname of the node
 
         labels: string
             the new k8s labels used to label this node, the format is: key1=value1,key2=value2,...
@@ -456,7 +458,6 @@ class k8s_resources_configurator(object):
 
         if ' ' in command:
             command = _split_argument(command)
-
 
         return stream(v1.connect_get_namespaced_pod_exec,
                       pod_name,
