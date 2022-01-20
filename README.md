@@ -116,6 +116,7 @@ To working on specific cloudal systems, you need more installation. Please find 
 - [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_setting.md)
 - [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_setting.md)
 - [Working on Azure](https://github.com/ntlinh16/cloudal/blob/master/docs/azure_setting.md)
+- [Working on OVH](https://github.com/ntlinh16/cloudal/blob/master/docs/ovh_setting.md)
 
 # Tutorials
 
