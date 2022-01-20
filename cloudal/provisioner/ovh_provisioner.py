@@ -167,8 +167,10 @@ class ovh_provisioner(cloud_provisioning):
             logger.debug('region = %s' % region)
 
             if cluster.get('node_name') is None:
+                # using kebabcase in node name to follow name in Kubernetes
                 _hash = base64.urlsafe_b64encode(hashlib.md5(
                     str(time.time()).encode()).digest()).decode('ascii')[:8].lower()
+                _hash = _hash.replace('_', '-')
                 cluster['node_name'] = 'node-%s-%s' % (region.lower(), _hash)
 
             if cluster['flexible_instance'] is True:
