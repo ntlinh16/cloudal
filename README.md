@@ -28,7 +28,7 @@
 
 `cloudal` provides 3 main modules: provisioner, configurator and experimenter. You can use `provisioner` to provision your resources on a specific cloud system by simply describing your requirements in a YAML file. Other than that, by calling our ready-to-use `configurators` you can easily install and configure some software or services on these provisioned hosts/instances. After configuring the environment, you can use the `experimenter` module to perform an experiment workflow automatically from creating and controlling each run to collecting the results.
 
-By using these 3 modules as Lego blocks, users can assemble them to write an Experiment script that describes steps to perform an cloud experimental scenarios.
+By using these 3 modules as Lego blocks, you can assemble them to write a script that describes all steps to perform an cloud experimental scenarios.
 
 Read the [doc](https://github.com/ntlinh16/cloudal/blob/master/docs/technical_detail.md) for more technical detail.
 

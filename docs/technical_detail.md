@@ -41,4 +41,4 @@ By using the 3 provided modules as Lego blocks, users can assemble them to write
 
 We do not leverage any popular infrastructure-as-code (IaC) tools such as [Terraform](https://www.terraform.io/), [Ansible](https://www.ansible.com/), [Pulumi](https://www.pulumi.com/), or [SaltStack](https://saltproject.io/) for the `provisioner` module since they can deal with the provisioning and (simple) configuring stages but they are not designed to perform and manage a whole experiments workflow, therefore, users would also have to learn how to use an additional IaC tool beside `cloudal`.
 
-You can find more information in the [cloudal report](https://drive.google.com/file/d/1rCVob6QfjCi5fVHNxE0g7yQxoR2jJhhK/view?usp=sharing).
+More information can be found in the [cloudal report](https://drive.google.com/file/d/1rCVob6QfjCi5fVHNxE0g7yQxoR2jJhhK/view?usp=sharing).
