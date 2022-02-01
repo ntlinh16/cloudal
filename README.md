@@ -5,16 +5,13 @@
     <br>
 <p>
 
-<!-- <h4 align="center"> Design and perform experiments on different cloud systems 🤗
-</h4> -->
-
 <p align="center">
-<b><i>Currently support:</i></b>
+<b><i>Currently support: </i></b>
     <a target="_blank" href="https://www.grid5000.fr">
         <img align="middle" src="https://www.grid5000.fr/mediawiki/resources/assets/logo.png" width="70"/>
     </a>
     <a target="_blank" href="https://cloud.google.com">
-        <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/google_logo.png" width="140"/>
+        <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/google_logo.png" width="160"/>
     </a>
     <a target="_blank" href="https://azure.microsoft.com">
         <img align="middle" src="https://raw.githubusercontent.com/ntlinh16/cloudal/master/images/azure_logo.png" width="130"/>
