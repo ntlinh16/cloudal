@@ -25,35 +25,35 @@ class antidotedb_configurator(object):
             return 1024
         return 2048
 
-    def deploy_antidotedb(self, n_nodes, antidote_yaml_path, clusters, kube_namespace='default'):
-        """Deploy AntidoteDB on the given K8s cluster
+    def deploy_antidotedb(self, n_nodes, antidotedb_yaml_path, clusters, kube_namespace='default'):
+        """Deploy AntidoteDB on the given Kubernetes cluster
 
         Parameters
         ----------
         n_nodes: int
             the number of AntidoteDB nodes
-        antidote_yaml_path: str
-            a path to the K8s yaml deployment file 
+        antidotedb_yaml_path: str
+            a path to the K8s yaml deployment files
         clusters: list
             a list of cluster that antidoted will be deployed on
         kube_namespace: str
-            the name of K8s naespace
+            the name of K8s namespace
         """
 
-        logger.debug('Delete old createDC, connectDCs_antidote and exposer-service files if exists')
-        for filename in os.listdir(antidote_yaml_path):
+        logger.debug('Delete old createDC, connectDCs and exposer-service files if exists')
+        for filename in os.listdir(antidotedb_yaml_path):
             if filename.startswith('createDC_') or filename.startswith('statefulSet_') or filename.startswith('exposer-service_') or filename.startswith('connectDCs_antidote'):
                 if '.template' not in filename:
                     try:
-                        os.remove(os.path.join(antidote_yaml_path, filename))
+                        os.remove(os.path.join(antidotedb_yaml_path, filename))
                     except OSError:
                         logger.debug("Error while deleting file")
 
-        statefulSet_files = [os.path.join(antidote_yaml_path, 'headlessService.yaml')]
+        statefulSet_files = [os.path.join(antidotedb_yaml_path, 'headlessService.yaml')]
         
         logger.debug('Modify the statefulSet file')
         ring_size  = self._calculate_ring_size(n_nodes)
-        file_path = os.path.join(antidote_yaml_path, 'statefulSet.yaml.template')    
+        file_path = os.path.join(antidotedb_yaml_path, 'statefulSet.yaml.template')    
         with open(file_path) as f:
             doc = yaml.safe_load(f)
 
@@ -67,7 +67,7 @@ class antidotedb_configurator(object):
                 if env.get('name') == "RING_SIZE":
                     env['value'] = str(ring_size)
                     break
-            file_path = os.path.join(antidote_yaml_path, 'statefulSet_%s.yaml' % cluster)
+            file_path = os.path.join(antidotedb_yaml_path, 'statefulSet_%s.yaml' % cluster)
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
             statefulSet_files.append(file_path)
@@ -77,7 +77,7 @@ class antidotedb_configurator(object):
         configurator = k8s_resources_configurator()
         configurator.deploy_k8s_resources(files=statefulSet_files, namespace=kube_namespace)
 
-        logger.info('Waiting until all Antidote instances are up')
+        logger.info('Waiting until all AntidoteDB instances are up')
         deploy_ok = configurator.wait_k8s_resources(resource='pod',
                                                     label_selectors="app=antidote",
                                                     timeout=600,
@@ -85,7 +85,7 @@ class antidotedb_configurator(object):
         if not deploy_ok:
             raise CancelException("Cannot deploy enough Antidotedb instances")
 
-        logger.debug('Creating createDc.yaml file for each Antidote DC')
+        logger.debug('Creating createDc.yaml file for each AntidoteDB DC')
         dcs = dict()
         for cluster in clusters:
             dcs[cluster] = list()
@@ -102,7 +102,7 @@ class antidotedb_configurator(object):
             cluster = antidote.split('-')[1].strip()
             dcs[cluster].append(antidote)
 
-        file_path = os.path.join(antidote_yaml_path, 'createDC.yaml.template')
+        file_path = os.path.join(antidotedb_yaml_path, 'createDC.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
 
@@ -113,58 +113,69 @@ class antidotedb_configurator(object):
                                                                         '%s.antidote:8087' % pods[0]] + ['antidote@%s.antidote' % pod for pod in pods]
             doc['metadata']['name'] = 'createdc-%s' % cluster
             antidote_masters.append('%s.antidote:8087' % pods[0])
-            file_path = os.path.join(antidote_yaml_path, 'createDC_%s.yaml' % cluster)
+            file_path = os.path.join(antidotedb_yaml_path, 'createDC_%s.yaml' % cluster)
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
             createdc_files.append(file_path)
 
         logger.debug('Creating exposer-service.yaml files')
-        file_path = os.path.join(antidote_yaml_path, 'exposer-service.yaml.template')
+        file_path = os.path.join(antidotedb_yaml_path, 'exposer-service.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
         for cluster, pods in dcs.items():
             doc['spec']['selector']['statefulset.kubernetes.io/pod-name'] = pods[0]
             doc['metadata']['name'] = 'antidote-exposer-%s' % cluster
-            file_path = os.path.join(antidote_yaml_path, 'exposer-service_%s.yaml' % cluster)
+            file_path = os.path.join(antidotedb_yaml_path, 'exposer-service_%s.yaml' % cluster)
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
             createdc_files.append(file_path)
 
-        logger.info("Creating Antidote DCs and exposing services")
+        logger.info("Creating AntidoteDB DCs and exposing services")
         configurator.deploy_k8s_resources(files=createdc_files, namespace=kube_namespace)
 
-        logger.info('Waiting until all antidote DCs are created')
+        logger.info('Waiting until all AntidoteDB DCs are created')
         deploy_ok = configurator.wait_k8s_resources(resource='job',
                                                     label_selectors='app=antidote',
                                                     kube_namespace=kube_namespace)
 
         if not deploy_ok:
-            raise CancelException("Cannot connect Antidotedb instances to create DC")
+            raise CancelException("Cannot connect AntidoteDB instances to create DC")
 
-        logger.debug('Creating connectDCs_antidote.yaml to connect all Antidote DCs')
-        file_path = os.path.join(antidote_yaml_path, 'connectDCs.yaml.template')
+        logger.debug('Creating connectDCs_antidote.yaml to connect all AntidoteDB DCs')
+        file_path = os.path.join(antidotedb_yaml_path, 'connectDCs.yaml.template')
         with open(file_path) as f:
             doc = yaml.safe_load(f)
         doc['spec']['template']['spec']['containers'][0]['args'] = [
             '--connectDcs'] + antidote_masters
-        file_path = os.path.join(antidote_yaml_path, 'connectDCs_antidote.yaml')
+        file_path = os.path.join(antidotedb_yaml_path, 'connectDCs_antidote.yaml')
         with open(file_path, 'w') as f:
             yaml.safe_dump(doc, f)
 
-        logger.info("Connecting all Antidote DCs into a cluster")
+        logger.info("Connecting all AntidoteDB DCs into a cluster")
         configurator.deploy_k8s_resources(files=[file_path], namespace=kube_namespace)
 
-        logger.info('Waiting until connecting all Antidote DCs')
+        logger.info('Waiting until connecting all AntidoteDB DCs')
         deploy_ok = configurator.wait_k8s_resources(resource='job',
                                                     label_selectors='app=antidote',
                                                     kube_namespace=kube_namespace)
         if not deploy_ok:
-            raise CancelException("Cannot connect all Antidotedb DCs")
+            raise CancelException("Cannot connect all AntidoteDB DCs")
 
-        logger.info('Finish deploying the Antidote cluster')
+        logger.info('Finish deploying the AntidoteDB cluster')
 
 
     def deploy_monitoring(self, node, monitoring_yaml_path, kube_namespace='default'):
+        """Deploy monitoring system for AntidoteDB cluster on the given K8s cluster
+
+        Parameters
+        ----------
+        node: str
+            the IP or hostname of node to deploy monitoring system on
+        monitoring_yaml_path: str
+            a path to the K8s yaml deployment files
+        kube_namespace: str
+            the name of K8s namespace
+        """
         logger.info("Deleting old deployment")
         cmd = "rm -rf /root/antidote_stats"
         execute_cmd(cmd, node)
@@ -182,7 +193,7 @@ class antidotedb_configurator(object):
                                                    kube_namespace=kube_namespace)
         antidote_info = ["%s.antidote:3001" % pod for pod in pods]
 
-        logger.debug('Modify the prometheus.yml file with antidote instances info')
+        logger.debug('Modify the prometheus.yml file with AntidoteDB instances info')
         file_path = os.path.join(monitoring_yaml_path, 'prometheus.yml.template')
         with open(file_path) as f:
             doc = f.read().replace('antidotedc_info', '%s' % antidote_info)
