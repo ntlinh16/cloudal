@@ -5,17 +5,15 @@ import shutil
 from time import sleep
 
 from cloudal.utils import get_logger, execute_cmd, getput_file
-from cloudal.configurator import k8s_resources_configurator
+from cloudal.configurator import k8s_resources_configurator, CancelException
 
 import yaml
 logger = get_logger()
 
-class CancelException(Exception):
-    pass
 
 class fmke_configurator(object):    
 
-    def deploy_fmke_client(self, fmke_yaml_path, test_duration, concurrent_clients, n_total_fmke_clients, workload=None, k8s_namespace='default'):
+    def deploy_fmke_client(self, fmke_yaml_path, test_duration, concurrent_clients, n_total_fmke_clients, workload=None, kube_namespace='default'):
 
         logger.debug('Delete old k8s yaml files if exists')
         for filename in os.listdir(fmke_yaml_path):
@@ -35,7 +33,7 @@ class fmke_configurator(object):
         configurator = k8s_resources_configurator()
         fmke_list = configurator.get_k8s_resources(resource='pod',
                                                    label_selectors='app=fmke',
-                                                   kube_namespace=k8s_namespace)
+                                                   kube_namespace=kube_namespace)
 
         fmke_client_files = list()
         config_file_path = os.path.join(fmke_yaml_path, 'fmke_client.config.template')
@@ -76,12 +74,12 @@ class fmke_configurator(object):
             fmke_client_files.append(file_path)
 
         logger.info("Starting FMKe client instances on each Antidote DC")
-        configurator.deploy_k8s_resources(files=fmke_client_files, namespace=k8s_namespace)
+        configurator.deploy_k8s_resources(files=fmke_client_files, namespace=kube_namespace)
         sleep(20)
         logger.info("Checking if deploying enough the number of running FMKe_client or not")
         fmke_client_list = configurator.get_k8s_resources_name(resource='pod',
                                                             label_selectors='app=fmke-client',
-                                                            kube_namespace=k8s_namespace)
+                                                            kube_namespace=kube_namespace)
         if len(fmke_client_list) != n_total_fmke_clients:
             logger.info("n_fmke_client = %s, n_deployed_fmke_client = %s" %(n_total_fmke_clients, len(fmke_client_list)))
             raise CancelException("Cannot deploy enough FMKe_client")
@@ -90,14 +88,14 @@ class fmke_configurator(object):
         deploy_ok = configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=fmke-client",
                                         timeout=(test_duration + 5)*60,
-                                        kube_namespace=k8s_namespace)
+                                        kube_namespace=kube_namespace)
         if not deploy_ok:
             logger.error("Cannot wait until all FMKe client instances running completely")
             raise CancelException("Cannot wait until all FMKe client instances running completely")
 
         logger.info("Finish stressing Antidote database")
 
-    def deploy_fmke_app(self, fmke_yaml_path, clusters, n_fmke_app_per_dc, concurrent_clients, k8s_namespace='default'):
+    def deploy_fmke_app(self, fmke_yaml_path, clusters, n_fmke_app_per_dc, concurrent_clients, kube_namespace='default'):
 
         logger.debug('Delete old deployment files')
         for filename in os.listdir(fmke_yaml_path):
@@ -125,7 +123,7 @@ class fmke_configurator(object):
         configurator = k8s_resources_configurator()
         service_list = configurator.get_k8s_resources(resource='service',
                                                       label_selectors='app=antidote,type=exposer-service',
-                                                      kube_namespace=k8s_namespace)
+                                                      kube_namespace=kube_namespace)
 
         for cluster in clusters:
             # Get IP of antidote DC exposer service for each cluster
@@ -144,33 +142,33 @@ class fmke_configurator(object):
                 yaml.safe_dump(doc, f)
 
         logger.info("Starting FMKe instances on each Antidote DC")
-        configurator.deploy_k8s_resources(path=fmke_yaml_path, namespace=k8s_namespace)
+        configurator.deploy_k8s_resources(path=fmke_yaml_path, namespace=kube_namespace)
 
         logger.info('Waiting until all fmke app instances are up')
         deploy_ok = configurator.wait_k8s_resources(resource='pod',
                                                     label_selectors="app=fmke",
                                                     timeout=600,
-                                                    kube_namespace=k8s_namespace)
+                                                    kube_namespace=kube_namespace)
 
         if not deploy_ok:
             raise CancelException("Cannot wait until all fmke app instances are up")
         logger.info("Checking if FMKe_app deployed correctly")
         fmke_app_list = configurator.get_k8s_resources_name(resource='pod',
                                                             label_selectors='app=fmke',
-                                                            kube_namespace=k8s_namespace)
+                                                            kube_namespace=kube_namespace)
         if len(fmke_app_list) != n_fmke_app_per_dc * len(clusters):
             logger.info("n_fmke_app = %s, n_deployed_fmke_app = %s" % (n_fmke_app_per_dc * len(clusters), len(fmke_app_list)))
             raise CancelException("Cannot deploy enough FMKe_app")
 
         logger.info('Finish deploying FMKe benchmark')
 
-    def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, k8s_namespace='default'):
+    def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, kube_namespace='default'):
 
         logger.debug('Modify the populate_data template file')
         configurator = k8s_resources_configurator()
         fmke_list = configurator.get_k8s_resources(resource='pod',
                                                    label_selectors='app=fmke',
-                                                   kube_namespace=k8s_namespace)
+                                                   kube_namespace=kube_namespace)
         fmke_IPs = list()
         for cluster in clusters:
             for fmke in fmke_list.items:
@@ -188,24 +186,24 @@ class fmke_configurator(object):
         logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
         configurator.deploy_k8s_resources(files=[os.path.join(fmke_yaml_path, 'populate_data.yaml')],
-                                          namespace=k8s_namespace)
+                                          namespace=kube_namespace)
 
         logger.info('Waiting for populating data without prescriptions')
         deploy_ok = configurator.wait_k8s_resources(resource='job',
                                                     label_selectors="app=fmke_pop",
-                                                    timeout=600,
-                                                    kube_namespace=k8s_namespace)
+                                                    timeout=1200,
+                                                    kube_namespace=kube_namespace)
         if not deploy_ok:
             raise CancelException("Cannot wait until finishing populating data")
 
         logger.info('Checking if the populating process finished successfully or not')
         fmke_pop_pods = configurator.get_k8s_resources_name(resource='pod',
                                                             label_selectors='job-name=populate-data-without-prescriptions',
-                                                            kube_namespace=k8s_namespace)
+                                                            kube_namespace=kube_namespace)
         logger.debug('FMKe pod name: %s' % fmke_pop_pods[0])
         pop_result = dict()
         if len(fmke_pop_pods) > 0:
-            log = configurator.get_k8s_pod_log(pod_name=fmke_pop_pods[0], kube_namespace=k8s_namespace)
+            log = configurator.get_k8s_pod_log(pod_name=fmke_pop_pods[0], kube_namespace=kube_namespace)
             last_line = log.strip().split('\n')[-1]
             logger.info('Last line of log: %s' % last_line)
             if 'Populated' in last_line and 'entities in' in last_line and 'avg' in last_line:
@@ -214,7 +212,7 @@ class fmke_configurator(object):
                     pop_result = result[4] + "\n" + result[6]
                 if len(result) == 9:
                     pop_result = result[4] + "\n" + result[7]
-                t = 10
+                t = 5
                 logger.info('Waiting %s minutes for the replication and key distribution mechanisms between DCs' % t)
                 sleep(t*60)
             else:
@@ -232,26 +230,26 @@ class fmke_configurator(object):
 
         logger.info("Populating the FMKe benchmark data with prescriptions")
         configurator.deploy_k8s_resources(files=[os.path.join(fmke_yaml_path, 'populate_data.yaml')],
-                                          namespace=k8s_namespace)
+                                          namespace=kube_namespace)
 
         logger.info('Waiting for populating data with prescriptions')
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors="app=fmke_pop",
-                                        timeout=600,
-                                        kube_namespace=k8s_namespace)
+                                        timeout=1200,
+                                        kube_namespace=kube_namespace)
         logger.info('Checking if the populating process finished successfully or not')
         fmke_pop_pods = configurator.get_k8s_resources_name(resource='pod',
                                                             label_selectors='job-name=populate-data-with-onlyprescriptions',
-                                                            kube_namespace=k8s_namespace)
+                                                            kube_namespace=kube_namespace)
         logger.info('FMKe pod: %s' % fmke_pop_pods[0])
         if len(fmke_pop_pods) > 0:
             log = configurator.get_k8s_pod_log(
-                pod_name=fmke_pop_pods[0], kube_namespace=k8s_namespace)
+                pod_name=fmke_pop_pods[0], kube_namespace=kube_namespace)
             last_line = log.strip().split('\n')[-1]
             logger.info('Last line of log: %s' % last_line)
             if 'Populated' not in last_line:
                 raise CancelException("Populating process ERROR")
-            t = 10
+            t = 5
             logger.info('Waiting %s minutes for the replication and key distribution mechanisms between DCs' % t)
             sleep(t*60)
         logger.info('Finish populating data')
