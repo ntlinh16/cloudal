@@ -23,7 +23,7 @@
 
 `cloudal` /ˈklaʊdəl/, an experiment management tool, is one of the contributions of the [RainbowFS](https://rainbowfs.lip6.fr/) project. It is created with the mission to simplify the management of designing and running [a full factorial experiments](https://en.wikipedia.org/wiki/Factorial_experiment) on a cloud system automatically. 
 
-`cloudal` provides 3 main modules: provisioner, configurator and experimenter. You can use `provisioner` to provision nods on a specific cloud system by simply describing your requirements in a YAML file. Moreover, by calling our ready-to-use `configurators` you can easily install and configure some software or services on these provisioned nodes. After configuring the environment, you can use the `experimenter` module to perform an experiment workflow automatically from creating and controlling each run to collecting the results.
+`cloudal` provides 3 main modules: provisioner, configurator and experimenter. You can use `provisioner` to provision nodes on a specific cloud system by simply describing your requirements in a YAML file. Moreover, by calling our ready-to-use `configurators` you can easily install and configure some software or services on these provisioned nodes. After configuring the environment, you can use the `experimenter` module to perform an experiment workflow automatically from creating and controlling each run to collecting the results.
 
 By using these 3 modules as Lego blocks, you can assemble them to write a script that describes all steps to perform a cloud experimental scenario.
 
