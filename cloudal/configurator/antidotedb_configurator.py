@@ -1,13 +1,11 @@
 import os
 
-from cloudal.utils import get_logger
-from cloudal.configurator import k8s_resources_configurator
+from cloudal.utils import get_logger, execute_cmd
+from cloudal.configurator import k8s_resources_configurator, CancelException
 
 import yaml
 logger = get_logger()
 
-class CancelException(Exception):
-    pass
 
 class antidotedb_configurator(object):
 
@@ -27,7 +25,7 @@ class antidotedb_configurator(object):
             return 1024
         return 2048
 
-    def deploy_antidotedb(self, n_nodes, antidote_yaml_path, clusters, k8s_namespace='default'):
+    def deploy_antidotedb(self, n_nodes, antidote_yaml_path, clusters, kube_namespace='default'):
         """Deploy AntidoteDB on the given K8s cluster
 
         Parameters
@@ -38,7 +36,7 @@ class antidotedb_configurator(object):
             a path to the K8s yaml deployment file 
         clusters: list
             a list of cluster that antidoted will be deployed on
-        k8s_namespace: str
+        kube_namespace: str
             the name of K8s naespace
         """
 
@@ -77,13 +75,13 @@ class antidotedb_configurator(object):
         logger.info("Starting AntidoteDB instances")
         logger.debug("Init configurator: k8s_resources_configurator")
         configurator = k8s_resources_configurator()
-        configurator.deploy_k8s_resources(files=statefulSet_files, namespace=k8s_namespace)
+        configurator.deploy_k8s_resources(files=statefulSet_files, namespace=kube_namespace)
 
         logger.info('Waiting until all Antidote instances are up')
         deploy_ok = configurator.wait_k8s_resources(resource='pod',
                                                     label_selectors="app=antidote",
                                                     timeout=600,
-                                                    kube_namespace=k8s_namespace)
+                                                    kube_namespace=kube_namespace)
         if not deploy_ok:
             raise CancelException("Cannot deploy enough Antidotedb instances")
 
@@ -93,7 +91,7 @@ class antidotedb_configurator(object):
             dcs[cluster] = list()
         antidote_list = configurator.get_k8s_resources_name(resource='pod',
                                                             label_selectors='app=antidote',
-                                                            kube_namespace=k8s_namespace)
+                                                            kube_namespace=kube_namespace)
         logger.info("Checking if AntidoteDB are deployed correctly")
         if len(antidote_list) != n_nodes*len(clusters):
             logger.info("n_antidotedb = %s, n_deployed_fmke_app = %s" %
@@ -133,12 +131,12 @@ class antidotedb_configurator(object):
             createdc_files.append(file_path)
 
         logger.info("Creating Antidote DCs and exposing services")
-        configurator.deploy_k8s_resources(files=createdc_files, namespace=k8s_namespace)
+        configurator.deploy_k8s_resources(files=createdc_files, namespace=kube_namespace)
 
         logger.info('Waiting until all antidote DCs are created')
         deploy_ok = configurator.wait_k8s_resources(resource='job',
                                                     label_selectors='app=antidote',
-                                                    kube_namespace=k8s_namespace)
+                                                    kube_namespace=kube_namespace)
 
         if not deploy_ok:
             raise CancelException("Cannot connect Antidotedb instances to create DC")
@@ -154,13 +152,91 @@ class antidotedb_configurator(object):
             yaml.safe_dump(doc, f)
 
         logger.info("Connecting all Antidote DCs into a cluster")
-        configurator.deploy_k8s_resources(files=[file_path], namespace=k8s_namespace)
+        configurator.deploy_k8s_resources(files=[file_path], namespace=kube_namespace)
 
         logger.info('Waiting until connecting all Antidote DCs')
         deploy_ok = configurator.wait_k8s_resources(resource='job',
                                                     label_selectors='app=antidote',
-                                                    kube_namespace=k8s_namespace)
+                                                    kube_namespace=kube_namespace)
         if not deploy_ok:
             raise CancelException("Cannot connect all Antidotedb DCs")
 
         logger.info('Finish deploying the Antidote cluster')
+
+
+    def deploy_monitoring(self, node, monitoring_yaml_path, kube_namespace='default'):
+        logger.info("Deleting old deployment")
+        cmd = "rm -rf /root/antidote_stats"
+        execute_cmd(cmd, node)
+
+        cmd = "git clone https://github.com/AntidoteDB/antidote_stats.git"
+        execute_cmd(cmd, node)
+        logger.info("Setting to allow pods created on kube mater node")
+        cmd = "kubectl taint nodes --all node-role.kubernetes.io/master-"
+        execute_cmd(cmd, node, is_continue=True)
+
+        logger.debug("Init configurator: k8s_resources_configurator")
+        configurator = k8s_resources_configurator()
+        pods = configurator.get_k8s_resources_name(resource='pod',
+                                                   label_selectors='app=antidote',
+                                                   kube_namespace=kube_namespace)
+        antidote_info = ["%s.antidote:3001" % pod for pod in pods]
+
+        logger.debug('Modify the prometheus.yml file with antidote instances info')
+        file_path = os.path.join(monitoring_yaml_path, 'prometheus.yml.template')
+        with open(file_path) as f:
+            doc = f.read().replace('antidotedc_info', '%s' % antidote_info)
+        prometheus_configmap_file = os.path.join(monitoring_yaml_path, 'prometheus.yml')
+        with open(prometheus_configmap_file, 'w') as f:
+            f.write(doc)
+        configurator.create_configmap(file=prometheus_configmap_file,
+                                      namespace=kube_namespace,
+                                      configmap_name='prometheus-configmap')
+        logger.debug('Modify the deploy_prometheus.yaml file with node info')
+        node_info = configurator.get_k8s_resources(resource='node',
+                                                          label_selectors='kubernetes.io/hostname=%s' % node)
+        for item in node_info.items[0].status.addresses:
+            if item.type == 'InternalIP':
+                node_ip = item.address
+        file_path = os.path.join(monitoring_yaml_path, 'deploy_prometheus.yaml.template')
+        with open(file_path) as f:
+            doc = f.read().replace('node_ip', '%s' % node_ip)
+            doc = doc.replace("node_hostname", '%s' % node)
+        prometheus_deploy_file = os.path.join(monitoring_yaml_path, 'deploy_prometheus.yaml')
+        with open(prometheus_deploy_file, 'w') as f:
+            f.write(doc)
+
+        logger.info("Starting Prometheus service")
+        configurator.deploy_k8s_resources(files=[prometheus_deploy_file], namespace=kube_namespace)
+        logger.info('Waiting until Prometheus instance is up')
+        configurator.wait_k8s_resources(resource='pod',
+                                        label_selectors="app=prometheus",
+                                        kube_namespace=kube_namespace)
+
+        logger.debug('Modify the deploy_grafana.yaml file with node info')
+        file_path = os.path.join(monitoring_yaml_path, 'deploy_grafana.yaml.template')
+        with open(file_path) as f:
+            doc = f.read().replace('node_ip', '%s' % node_ip)
+            doc = doc.replace("node_hostname", '%s' % node)
+        grafana_deploy_file = os.path.join(monitoring_yaml_path, 'deploy_grafana.yaml')
+        with open(grafana_deploy_file, 'w') as f:
+            f.write(doc)
+
+        file = '/root/antidote_stats/monitoring/grafana-config/provisioning/datasources/all.yml'
+        cmd = """ sed -i "s/localhost/%s/" %s """ % (node_ip, file)
+        execute_cmd(cmd, node)
+
+        logger.info("Starting Grafana service")
+        configurator.deploy_k8s_resources(files=[grafana_deploy_file], namespace=kube_namespace)
+        logger.info('Waiting until Grafana instance is up')
+        configurator.wait_k8s_resources(resource='pod',
+                                        label_selectors="app=grafana",
+                                        kube_namespace=kube_namespace)
+
+        logger.info("Finish deploying monitoring system\n")
+        prometheus_url = "http://%s:9090" % node_ip
+        grafana_url = "http://%s:3000" % node_ip
+        logger.info("Connect to Grafana at: %s" % grafana_url)
+        logger.info("Connect to Prometheus at: %s" % prometheus_url)
+
+        return prometheus_url, grafana_url
