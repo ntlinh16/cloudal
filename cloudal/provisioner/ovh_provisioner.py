@@ -243,7 +243,7 @@ class ovh_provisioner(cloud_provisioning):
     def get_resources(self):
         """Retriving the public IPs of the list of provisioned hosts
         """
-        logger.info("Retriving the public IPs of all nodes on ovh")
+        logger.info("Retriving the public IPs of all nodes on OVHCloud")
         for node in self.nodes:
             self.hosts.append(node['ipAddresses'][0]['ip'])
         logger.info('hosts = %s' % self.hosts)
