@@ -59,15 +59,15 @@ class antidotedb_configurator(object):
 
         for cluster in clusters:
             doc['spec']['replicas'] = n_nodes
-            doc['metadata']['name'] = 'antidote-%s' % cluster
+            doc['metadata']['name'] = 'antidote-%s' % cluster.lower()
             doc['spec']['template']['spec']['nodeSelector'] = {
-                'service_g5k': 'antidote', 'cluster_g5k': '%s' % cluster}
+                'service': 'antidote', 'cluster': '%s' % cluster.lower()}
             envs = doc['spec']['template']['spec']['containers'][0]['env']
             for env in envs:
                 if env.get('name') == "RING_SIZE":
                     env['value'] = str(ring_size)
                     break
-            file_path = os.path.join(antidotedb_yaml_path, 'statefulSet_%s.yaml' % cluster)
+            file_path = os.path.join(antidotedb_yaml_path, 'statefulSet_%s.yaml' % cluster.lower())
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
             statefulSet_files.append(file_path)
@@ -88,14 +88,13 @@ class antidotedb_configurator(object):
         logger.debug('Creating createDc.yaml file for each AntidoteDB DC')
         dcs = dict()
         for cluster in clusters:
-            dcs[cluster] = list()
+            dcs[cluster.lower()] = list()
         antidote_list = configurator.get_k8s_resources_name(resource='pod',
                                                             label_selectors='app=antidote',
                                                             kube_namespace=kube_namespace)
         logger.info("Checking if AntidoteDB are deployed correctly")
         if len(antidote_list) != n_nodes*len(clusters):
-            logger.info("n_antidotedb = %s, n_deployed_fmke_app = %s" %
-                        (n_nodes*len(clusters), len(antidote_list)))
+            logger.info("n_antidotedb = %s, n_deployed_fmke_app = %s" % (n_nodes*len(clusters), len(antidote_list)))
             raise CancelException("Cannot deploy enough Antidotedb instances")
 
         for antidote in antidote_list:

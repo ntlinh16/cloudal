@@ -41,8 +41,7 @@ class fmke_configurator(object):
                         logger.debug('Error while deleting file')
         if workload:
             logger.debug('Create the new workload ratio')
-            new_workload = ',\n'.join(['  {%s, %s}' % (key, val)
-                                for key, val in workload.items()])
+            new_workload = ',\n'.join(['  {%s, %s}' % (key, val) for key, val in workload.items()])
             operations = '{operations,[\n%s\n]}.' % new_workload
 
         logger.debug('Init configurator: k8s_resources_configurator')
@@ -83,7 +82,7 @@ class fmke_configurator(object):
             doc['spec']['template']['spec']['containers'][0]['lifecycle']['postStart']['exec']['command'] = [
                 'cp', '/cluster_node/fmke_client_%s.config' % node, '/fmke_client/fmke_client.config']
             doc['spec']['template']['spec']['nodeSelector'] = {
-                'service_g5k': 'fmke', 'kubernetes.io/hostname': '%s' % fmke.spec.node_name}
+                'service': 'fmke', 'kubernetes.io/hostname': '%s' % fmke.spec.node_name}
             file_path = os.path.join(fmke_yaml_path, 'create_fmke_client_%s.yaml' % node)
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
@@ -158,16 +157,16 @@ class fmke_configurator(object):
         for cluster in clusters:
             # Get IP of AntidoteDB DC exposer service for each cluster
             for service in service_list.items:
-                if cluster in service.metadata.name:
+                if cluster.lower() in service.metadata.name:
                     ip = service.spec.cluster_ip
             doc['spec']['replicas'] = n_fmke_app_per_dc
-            doc['metadata']['name'] = 'fmke-%s' % cluster
+            doc['metadata']['name'] = 'fmke-%s' % cluster.lower()
             doc['spec']['template']['spec']['containers'][0]['env'] = [
                 {'name': 'DATABASE_ADDRESSES', 'value': ip},
                 {'name': 'CONNECTION_POOL_SIZE', 'value': '%s' % connection_pool_size}]
             doc['spec']['template']['spec']['nodeSelector'] = {
-                'service_g5k': 'fmke', 'cluster_g5k': '%s' % cluster}
-            file_path = os.path.join(fmke_yaml_path, 'statefulSet_fmke_%s.yaml' % cluster)
+                'service': 'fmke', 'cluster': '%s' % cluster.lower()}
+            file_path = os.path.join(fmke_yaml_path, 'statefulSet_fmke_%s.yaml' % cluster.lower())
             with open(file_path, 'w') as f:
                 yaml.safe_dump(doc, f)
 
@@ -218,7 +217,7 @@ class fmke_configurator(object):
         fmke_IPs = list()
         for cluster in clusters:
             for fmke in fmke_list.items:
-                if cluster in fmke.metadata.name:
+                if cluster.lower() in fmke.metadata.name:
                     fmke_IPs.append('fmke@%s' % fmke.status.pod_ip)
         with open(os.path.join(fmke_yaml_path, 'populate_data.yaml.template')) as f:
             doc = yaml.safe_load(f)
