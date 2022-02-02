@@ -1,7 +1,7 @@
 import os
 
 from cloudal.utils import get_logger, execute_cmd
-from cloudal.configurator import k8s_resources_configurator, CancelException
+from cloudal.configurator import k8s_resources_configurator, CancelException, packages_configurator
 
 import yaml
 logger = get_logger()
@@ -162,6 +162,21 @@ class antidotedb_configurator(object):
 
         logger.info('Finish deploying the AntidoteDB cluster')
 
+    def _is_ip(self, ip):
+        elements = ip.split('.') 
+        if len(elements) != 4:
+            return False
+        else:
+            for e in elements:
+                try:
+                    int_e = int(e)
+                except:
+                    return False
+                if 0 <= int_e <= 255 and len(str(int_e)) == len(e):
+                    continue
+                else:
+                    return False
+            return True
 
     def deploy_monitoring(self, node, monitoring_yaml_path, kube_namespace='default'):
         """Deploy monitoring system for AntidoteDB cluster on the given K8s cluster
@@ -178,6 +193,9 @@ class antidotedb_configurator(object):
         logger.info("Deleting old deployment")
         cmd = "rm -rf /root/antidote_stats"
         execute_cmd(cmd, node)
+
+        configurator = packages_configurator()
+        configurator.install_packages(['git'], [node])
 
         cmd = "git clone https://github.com/AntidoteDB/antidote_stats.git"
         execute_cmd(cmd, node)
@@ -203,15 +221,24 @@ class antidotedb_configurator(object):
                                       namespace=kube_namespace,
                                       configmap_name='prometheus-configmap')
         logger.debug('Modify the deploy_prometheus.yaml file with node info')
-        node_info = configurator.get_k8s_resources(resource='node',
-                                                          label_selectors='kubernetes.io/hostname=%s' % node)
-        for item in node_info.items[0].status.addresses:
-            if item.type == 'InternalIP':
-                node_ip = item.address
+        
+        if not self._is_ip(node):
+            node_info = configurator.get_k8s_resources(resource='node',
+                                                            label_selectors='kubernetes.io/hostname=%s' % node)
+            for item in node_info.items[0].status.addresses:
+                if item.type == 'InternalIP':
+                    node_ip = item.address
+            node_hostname = node
+        else:
+            node_ip = node
+            cmd = 'hostname'
+            _, r = execute_cmd(cmd, node)
+            node_hostname = r.processes[0].stdout.strip().lower()
+
         file_path = os.path.join(monitoring_yaml_path, 'deploy_prometheus.yaml.template')
         with open(file_path) as f:
             doc = f.read().replace('node_ip', '%s' % node_ip)
-            doc = doc.replace("node_hostname", '%s' % node)
+            doc = doc.replace("node_hostname", '%s' % node_hostname)
         prometheus_deploy_file = os.path.join(monitoring_yaml_path, 'deploy_prometheus.yaml')
         with open(prometheus_deploy_file, 'w') as f:
             f.write(doc)
@@ -227,7 +254,7 @@ class antidotedb_configurator(object):
         file_path = os.path.join(monitoring_yaml_path, 'deploy_grafana.yaml.template')
         with open(file_path) as f:
             doc = f.read().replace('node_ip', '%s' % node_ip)
-            doc = doc.replace("node_hostname", '%s' % node)
+            doc = doc.replace("node_hostname", '%s' % node_hostname)
         grafana_deploy_file = os.path.join(monitoring_yaml_path, 'deploy_grafana.yaml')
         with open(grafana_deploy_file, 'w') as f:
             f.write(doc)
