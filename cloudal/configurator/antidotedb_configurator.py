@@ -184,7 +184,7 @@ class antidotedb_configurator(object):
         Parameters
         ----------
         node: str
-            the IP or hostname of node to deploy monitoring system on
+            the IP or hostname used to connect to the node to deploy monitoring system on
         monitoring_yaml_path: str
             a path to the K8s yaml deployment files
         kube_namespace: str
