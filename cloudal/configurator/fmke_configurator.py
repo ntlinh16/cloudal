@@ -191,11 +191,7 @@ class fmke_configurator(object):
 
         logger.info('Finish deploying FMKe benchmark')
 
-<<<<<<< HEAD
-    def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, stabilizing_time, timeout=600,kube_namespace='default'):
-=======
     def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, stabilizing_time, timeout=600, kube_namespace='default'):
->>>>>>> 35f5daf95ac6588e5e1fc5a85c55905d6479f8be
         """Deploy FMKe populator on the given K8s cluster to generate the data in to an AntidoteDB cluster
 
         Parameters
