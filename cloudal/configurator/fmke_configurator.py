@@ -11,7 +11,7 @@ import yaml
 logger = get_logger()
 
 
-class fmke_configurator(object):    
+class fmke_configurator(object): 
 
     def deploy_fmke_client(self, fmke_yaml_path, test_duration, concurrent_clients, n_total_fmke_clients, workload=None, kube_namespace='default'):
         """Deploy FMKe client on the given K8s cluster
@@ -70,9 +70,9 @@ class fmke_configurator(object):
                 f.write(doc)
             logger.debug('Create fmke_client folder on each fmke_client node')
             cmd = 'mkdir -p /tmp/fmke_client'
-            execute_cmd(cmd, fmke.spec.node_name)
+            execute_cmd(cmd, fmke.status.host_ip)
             logger.debug('Upload fmke_client config files to kube_master to be used by kubectl to run fmke_client pods')
-            getput_file(hosts=fmke.spec.node_name, file_paths=[file_path], dest_location='/tmp/fmke_client/', action='put')
+            getput_file(hosts=fmke.status.host_ip, file_paths=[file_path], dest_location='/tmp/fmke_client/', action='put')
 
 
             logger.debug('Create create_fmke_client.yaml files to deploy one FMKe client')
@@ -191,7 +191,7 @@ class fmke_configurator(object):
 
         logger.info('Finish deploying FMKe benchmark')
 
-    def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, stabilizing_time, timeout=600, kube_namespace='default'):
+    def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, stabilizing_time, timeout=600,kube_namespace='default'):
         """Deploy FMKe populator on the given K8s cluster to generate the data in to an AntidoteDB cluster
 
         Parameters
