@@ -6,10 +6,10 @@ from argparse import ArgumentParser
 logger = get_logger()
 
 endpoint='ovh-eu'
-application_key='oxEOA8X9ce84dJ38'
-application_secret='kdleniHtou4SIqXrVN10t0QqKyiiqKfm'
-consumer_key='6H3iGiSTPivjGBpSxKE8zytqk8oOwVl5'
-project_id='f90fa8b9f3dd4895bca784a32504309d'
+application_key='abc'
+application_secret='xyz'
+consumer_key='qwe'
+project_id='123'
 
 logger.info("Creating a Driver to connect to OVHCloud")
 driver = ovh.Client(
