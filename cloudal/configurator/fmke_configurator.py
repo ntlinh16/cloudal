@@ -191,7 +191,7 @@ class fmke_configurator(object):
 
         logger.info('Finish deploying FMKe benchmark')
 
-    def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, stabilizing_time, kube_namespace='default'):
+    def deploy_fmke_pop(self, fmke_yaml_path, dataset, n_fmke_pop_process, clusters, stabilizing_time, timeout=600, kube_namespace='default'):
         """Deploy FMKe populator on the given K8s cluster to generate the data in to an AntidoteDB cluster
 
         Parameters
@@ -236,7 +236,7 @@ class fmke_configurator(object):
         logger.info('Waiting for populating data without prescriptions')
         deploy_ok = configurator.wait_k8s_resources(resource='job',
                                                     label_selectors='app=fmke_pop',
-                                                    timeout=1200,
+                                                    timeout=timeout,
                                                     kube_namespace=kube_namespace)
         if not deploy_ok:
             raise CancelException('Cannot wait until finishing populating data')
@@ -280,7 +280,7 @@ class fmke_configurator(object):
         logger.info('Waiting for populating data with prescriptions')
         configurator.wait_k8s_resources(resource='job',
                                         label_selectors='app=fmke_pop',
-                                        timeout=1200,
+                                        timeout=timeout,
                                         kube_namespace=kube_namespace)
         logger.info('Checking if the populating process finished successfully or not')
         fmke_pop_pods = configurator.get_k8s_resources_name(resource='pod',
