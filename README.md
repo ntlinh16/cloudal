@@ -114,8 +114,8 @@ To working on specific cloudal systems, you need more installation. Please find 
 - [Working with Kubernetes on G5K](https://github.com/ntlinh16/cloudal/blob/master/docs/g5k_k8s_setting.md)
 - [Working on Google Cloud Platform (GCP)](https://github.com/ntlinh16/cloudal/blob/master/docs/gcp_setting.md)
 - [Working with Google Kubernetes Engine (GKE)](https://github.com/ntlinh16/cloudal/blob/master/docs/gke_setting.md)
-- [Working on Azure](https://github.com/ntlinh16/cloudal/blob/master/docs/azure_setting.md)
-- [Working on OVH](https://github.com/ntlinh16/cloudal/blob/master/docs/ovh_setting.md)
+- [Working on MS Azure](https://github.com/ntlinh16/cloudal/blob/master/docs/azure_setting.md)
+- [Working on OVHCloud](https://github.com/ntlinh16/cloudal/blob/master/docs/ovh_setting.md)
 
 # Tutorials
 
@@ -139,6 +139,7 @@ I provide here some quick tutorials on how to perform an action with _cloudal_.
 - [Deploying elmerfs with an AntidoteDB backend on Google Cloud (using both GCP and GKE)](https://github.com/ntlinh16/cloudal/tree/master/examples/configuration/elmerfs_gke)
 
 ### Experimenting
-- [Benchmarking the AntidoteDB using FMKe on G5K](https://github.com/ntlinh16/antidotedb-eval)
+- [Benchmarking the AntidoteDB using FMKe on G5K/OVHCloud](https://github.com/ntlinh16/antidotedb-eval)
 - [Benchmarking the Riak KV using FMKe on G5K](https://github.com/ntlinh16/riakKV-eval)
-- [Benchmarking the elmerfs on G5K](https://github.com/ntlinh16/elmerfs-eval)
+- [Benchmarking the elmerfs using Filebench on G5K/OVHCloud](https://github.com/ntlinh16/elmerfs-eval)
+- [Benchmarking the GlusterFS using Filebench on G5K/OVHCloud](https://github.com/ntlinh16/glusterfs-eval)
