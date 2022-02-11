@@ -1,0 +1,6 @@
+walltime: 6:30:00
+starttime: null
+cloud_provider_image: debian10-x64-big
+clusters:
+  - cluster: dahu
+    n_nodes: 3
