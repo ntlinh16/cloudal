@@ -47,12 +47,10 @@ class azure_provisioner(cloud_provisioning):
             auth = NodeAuthSSHKey(fp.read().strip())
 
         for cluster in self.configs['clusters']:
+            n_nodes = cluster['n_nodes']
+            location_str = cluster['location']
             logger.info("Starting provisioning %s nodes on %s" % (n_nodes, location_str))
 
-            n_nodes = cluster['n_nodes']
-
-            # Get location
-            location_str = cluster['location']
             locations = driver.list_locations()
             location = [location for location in locations if location.id == location_str]
             if len(location) > 0:
