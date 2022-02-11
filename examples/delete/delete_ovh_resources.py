@@ -44,8 +44,3 @@ if decision.lower().strip() == 'y':
     logger.info('Delete jobs successfully!')
 else:
     logger.info('Bye bye!')
-
-
-logger.info('We found %s volumes: \n' % len*(volumes))
-for region, volumes in volumes:
-    print('%s: %s \n' % (region, volumes))
