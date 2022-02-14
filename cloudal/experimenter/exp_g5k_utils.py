@@ -57,6 +57,9 @@ def define_parameters(parameters):
         key: str, the name of the experiment parameter
         value: list, a list of possible values for a parameter of the experiment
     """
+    if not isinstance(parameters, dict):
+        raise TypeError('Parameters has to be a dictionary.')
+
     normalized_parameters = dict()
     pattern = re.compile(r"^\d+\.\.+\d+$")
     for param, values in parameters.items():

@@ -4,3 +4,8 @@ cloud_provider_image: debian10-x64-big
 clusters:
   - cluster: dahu
     n_nodes: 3
+
+parameters:
+  iteration: [1..4]
+  duration: 10
+  workloads: write

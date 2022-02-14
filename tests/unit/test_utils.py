@@ -18,7 +18,8 @@ def test_parse_config_file_valid_input():
     expected = {'walltime': 23400,
                 'starttime': None,
                 'cloud_provider_image': 'debian10-x64-big',
-                'clusters': [{'cluster': 'dahu', 'n_nodes': 3}]}
+                'clusters': [{'cluster': 'dahu', 'n_nodes': 3}],
+                'parameters': {'iteration': ['1..4'], 'duration': 10,'workloads': 'write' }}
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(dir_path, "../test_data/test.yaml")
