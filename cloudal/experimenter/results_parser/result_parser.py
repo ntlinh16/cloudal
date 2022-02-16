@@ -2,9 +2,9 @@ import sys
 
 from argparse import ArgumentParser
 
-from parsers import PARSERS
 from controller import ParsingController
 from helpers import get_logger
+from parsers import PARSERS
 
 logger = get_logger("ParsingResults")
 

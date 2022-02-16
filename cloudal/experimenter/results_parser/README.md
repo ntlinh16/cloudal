@@ -10,7 +10,7 @@ The architecture of the parser presented in the following diagram:
 
 You may want to use `-h` to see all the options:
 ```
-$ python main.py -h
+$ python result_parser.py -h
 usage: parse_result [-h] -i INPUT -o OUTPUT -p
                     {fmke_pop,elmerfs_bench,elmerfs_copy,elmerfs_convergence,fmke_client}
                     [{fmke_pop,elmerfs_bench,elmerfs_copy,elmerfs_convergence,fmke_client} ...]
@@ -28,4 +28,4 @@ optional arguments:
 ```
 # How to add more parser
 
-You can write your own parser in `parser.py`.
+You can write your own parser in `parsers` directory.

@@ -1,6 +1,6 @@
 import pytest
 
-from examples.delete.delete_g5k_jobs import parse_job_ids
+from cloudal.experimenter import parse_job_ids
 
 @pytest.mark.parametrize('job_ids', [
     '',
