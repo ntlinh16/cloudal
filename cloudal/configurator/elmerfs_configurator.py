@@ -5,7 +5,7 @@ from cloudal.configurator import k8s_resources_configurator
 
 logger = get_logger()
 class elmerfs_configurator(object):
-    def deploy_elmerfs(self, clusters, kube_master, kube_namespace, elmerfs_hosts, antidote_ips, elmerfs_repo, elmerfs_version, elmerfs_path):
+    def deploy_elmerfs(self, clusters, kube_master, kube_namespace, elmerfs_hosts, elmerfs_mountpoint, antidote_ips, elmerfs_repo, elmerfs_version, elmerfs_path):
         logger.info('-----------------------------------------')
         logger.info('3. Starting deploying elmerfs on %s hosts' % len(elmerfs_hosts))
 
@@ -33,13 +33,13 @@ class elmerfs_configurator(object):
                     execute_cmd(cmd, host)
                 sleep(5)
 
-            cmd = 'mount | grep /tmp/dc-$(hostname)'
+            cmd = 'mount | grep %s' % elmerfs_mountpoint
             _, r = execute_cmd(cmd, host)
             is_mount = r.processes[0].stdout.strip()
 
             if is_mount:
-                cmd = '''umount /tmp/dc-$(hostname) &&
-                        rm -rf /tmp/dc-$(hostname) '''
+                cmd = '''umount %s &&
+                        rm -rf %s ''' % (elmerfs_mountpoint, elmerfs_mountpoint)
                 execute_cmd(cmd, host)
 
         logger.info('Delete elmerfs project folder on host (if existing)')
@@ -93,7 +93,7 @@ class elmerfs_configurator(object):
                     dest_location='/tmp',
                     action='put',)
         cmd = 'chmod +x /tmp/elmerfs \
-               && mkdir -p /tmp/dc-$(hostname)'
+               && mkdir -p %s' % elmerfs_mountpoint
         execute_cmd(cmd, elmerfs_hosts)
 
         cmd = 'wget https://raw.githubusercontent.com/scality/elmerfs/master/Elmerfs.template.toml -P /tmp/ -N'
@@ -124,15 +124,14 @@ class elmerfs_configurator(object):
                     execute_cmd(cmd, host)
 
         logger.info('Running bootstrap command on host %s' % elmerfs_hosts[0])
-        cmd = '/tmp/elmerfs --config /tmp/Elmerfs.template.toml --bootstrap --mount /tmp/dc-$(hostname)'
+        cmd = '/tmp/elmerfs --config /tmp/Elmerfs.template.toml --bootstrap --mount %s' % elmerfs_mountpoint
         execute_cmd(cmd, elmerfs_hosts[0])
         # waiting for the bootstrap common to propagate on all DCs
         sleep(30)
 
         logger.info('Starting elmerfs on %s hosts' % len(elmerfs_hosts))
         for host in elmerfs_hosts:
-            elmerfs_cmd = 'RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs --config /tmp/Elmerfs.template.toml --mount=/tmp/dc-$(hostname) --force-view=%s > /tmp/elmer.log 2>&1' % elmerfs_uid.pop(
-            )
+            elmerfs_cmd = 'RUST_BACKTRACE=1 RUST_LOG=debug nohup /tmp/elmerfs --config /tmp/Elmerfs.template.toml --mount=%s --force-view=%s > /tmp/elmer.log 2>&1' % (elmerfs_mountpoint, elmerfs_uid.pop())
             logger.debug('Starting elmerfs on %s with cmd: %s' % (host, elmerfs_cmd))
             execute_cmd(elmerfs_cmd, host, mode='start')
             sleep(5)
