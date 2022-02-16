@@ -175,10 +175,11 @@ def execute_cmd(cmd, hosts, mode='run', batch_size=5, is_continue=False):
         for process in chunk.processes:
             if process.error_reason == 'taktuk connection failed':
                 host_errors.append(process.host)
-            if ('ssh_exchange_identification' in process.stderr or (process.ok == False and process.stdout.strip())):
+            if ('ssh_exchange_identification' in process.stderr 
+                or 'Connection timed out during banner exchange' in process.stderr
+                or (process.ok == False and process.stdout.strip())):
                 logger.info('---> Retrying: %s\n' % cmd)
-                raise ExecuteCommandException(
-                    message=process.stderr.strip(), is_continue=is_continue)
+                raise ExecuteCommandException(message=process.stderr.strip(), is_continue=is_continue)
             # config host -> check for alive hosts at the end of the configuration
         # workflow -> detect by wrap the execute_cmd by another command and check
         #             for return host_errors --> remove host from all hosts/available host
