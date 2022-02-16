@@ -6,6 +6,7 @@ logger = get_logger()
 
 class filebench_configurator(object): 
     def install_filebench(self, hosts):
+        logger.info('Installing Filebench')
         configurator = packages_configurator()
         configurator.install_packages(['build-essential', 'bison', 'flex', 'libtool'], hosts)
 
