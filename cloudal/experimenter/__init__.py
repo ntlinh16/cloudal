@@ -20,4 +20,4 @@ try:
         delete_ovh_nodes
     )
 except ImportError:
-    logger.warning('Missing dependencies to use OVH provisioner')
+    logger.warning('Missing dependencies to use OVH experimenter')
