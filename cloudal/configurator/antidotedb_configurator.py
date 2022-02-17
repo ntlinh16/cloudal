@@ -1,6 +1,6 @@
 import os
 
-from cloudal.utils import get_logger, execute_cmd
+from cloudal.utils import get_logger, execute_cmd, is_ip
 from cloudal.configurator import k8s_resources_configurator, CancelException, packages_configurator
 
 import yaml
@@ -162,22 +162,6 @@ class antidotedb_configurator(object):
 
         logger.info('Finish deploying the AntidoteDB cluster')
 
-    def _is_ip(self, ip):
-        elements = ip.split('.') 
-        if len(elements) != 4:
-            return False
-        else:
-            for e in elements:
-                try:
-                    int_e = int(e)
-                except:
-                    return False
-                if 0 <= int_e <= 255 and len(str(int_e)) == len(e):
-                    continue
-                else:
-                    return False
-            return True
-
     def deploy_monitoring(self, node, monitoring_yaml_path, kube_namespace='default'):
         """Deploy monitoring system for AntidoteDB cluster on the given K8s cluster
 
@@ -222,7 +206,7 @@ class antidotedb_configurator(object):
                                       configmap_name='prometheus-configmap')
         logger.debug('Modify the deploy_prometheus.yaml file with node info')
         
-        if not self._is_ip(node):
+        if not is_ip(node):
             node_info = configurator.get_k8s_resources(resource='node',
                                                             label_selectors='kubernetes.io/hostname=%s' % node)
             for item in node_info.items[0].status.addresses:

@@ -11,4 +11,5 @@ from .antidotedb_configurator import antidotedb_configurator
 from .fmke_configurator import fmke_configurator
 from .elmerfs_configurator import elmerfs_configurator
 from .filebench_configurator import filebench_configurator
+from .glusterfs_configurator import glusterfs_configurator
 

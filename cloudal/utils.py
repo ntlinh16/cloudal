@@ -260,3 +260,22 @@ def getput_file(hosts, file_paths, dest_location, action, mode='run', batch_size
                 result.append(act.run())
             elif mode == 'start':
                 result.append(act.start())
+
+
+def is_ip(ip):
+    if not isinstance(ip, str) or '.' not in ip:
+        return False
+    elements = ip.split('.')
+    if len(elements) != 4:
+        return False
+    else:
+        for e in elements:
+            try:
+                int_e = int(e)
+            except:
+                return False
+            if 0 <= int_e <= 255 and len(str(int_e)) == len(e):
+                continue
+            else:
+                return False
+        return True
