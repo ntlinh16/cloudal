@@ -9,6 +9,7 @@ import ovh
 
 from cloudal.provisioner.provisioning import cloud_provisioning
 from cloudal.utils import get_logger
+from cloudal.experimenter import is_node_active, delete_ovh_nodes
 
 logger = get_logger()
 
@@ -19,6 +20,7 @@ class ovh_provisioner(cloud_provisioning):
         self.configs = kwargs.get('configs')
         self.node_ids_file = kwargs.get('node_ids_file')
         self.nodes = list()
+        self.node_ids = list()
         self.hosts = list()
 
         if self.configs and isinstance(self.configs, dict):
@@ -36,15 +38,15 @@ class ovh_provisioner(cloud_provisioning):
                 exit()
             else:
                 with open(self.node_ids_file, 'r') as f:
-                    self.nodes = [line.strip() for line in f]
+                    self.node_ids = [line.strip() for line in f]
                 n_nodes = 0
                 for cluster in self.configs['clusters']:
                     n_nodes += cluster['n_nodes']
-                if len(self.nodes) != n_nodes:
+                if len(self.node_ids) != n_nodes:
                     logger.error("The topology required %s nodes, but the file contents %s nodes. Please provide the correct node IDs" % (
-                        n_nodes, len(self.nodes)))
+                        n_nodes, len(self.node_ids)))
                     exit()
-                logger.debug('nodes = %s' % self.nodes)
+                logger.debug('nodes = %s' % self.node_ids)
 
     def detach_volume_from_node(self, driver, volume_id, node_id):
         """Detach node which is attaching to given volumes
@@ -107,8 +109,7 @@ class ovh_provisioner(cloud_provisioning):
             existing_nodes[region] = list()
 
         for region in list_regions:
-            nodes = driver.get('/cloud/project/%s/instance' % self.configs['project_id'],
-                               region=region)
+            nodes = driver.get('/cloud/project/%s/instance' % self.configs['project_id'], region=region)
             for node in nodes:
                 existing_nodes[region].append(node['name'])
         return existing_nodes
@@ -141,22 +142,12 @@ class ovh_provisioner(cloud_provisioning):
 
     def make_reservation(self, driver):
         project_id = self.configs['project_id']
-
-        existing_nodes = self._get_existing_nodes(driver)
-
-        logger.info("Checking existing nodes")
-        error_nodes = set()
+        total_nodes = 0
+        message = ''
         for cluster in self.configs['clusters']:
-            if cluster.get('node_name'):
-                new_nodes = [cluster['node_name']+'-%s' % i for i in range(1, cluster['n_nodes']+1)]
-                logger.info('new_nodes = %s' % new_nodes)
-                r = set(existing_nodes['region']).intersection(set(new_nodes))
-                logger.info('r = %s' % r)
-                error_nodes = error_nodes.union(r)
-        if error_nodes:
-            logger.error('Can not provision nodes on OVHCloud')
-            logger.error('Nodes: %s are already existing' % error_nodes)
-            exit()
+            message += "\n%s: %s nodes" % (cluster['region'], cluster['n_nodes'])
+            total_nodes += cluster['n_nodes']
+        logger.info('You are requesting %s nodes in %s region(s):' % (total_nodes, len(self.configs['clusters']))  + message )
 
         logger.info("Starting provisioning nodes on ovh")
         for cluster in self.configs['clusters']:
@@ -167,11 +158,13 @@ class ovh_provisioner(cloud_provisioning):
             logger.debug('region = %s' % region)
 
             if cluster.get('node_name') is None:
-                # using kebabcase in node name to follow name in Kubernetes
-                _hash = base64.urlsafe_b64encode(hashlib.md5(
-                    str(time.time()).encode()).digest()).decode('ascii')[:8].lower()
-                _hash = _hash.replace('_', '-')
-                cluster['node_name'] = 'node-%s-%s' % (region.lower(), _hash)
+                cluster['node_name'] = 'node'
+            
+            # using kebabcase in node name to follow name in Kubernetes
+            _hash = base64.urlsafe_b64encode(hashlib.md5(
+                str(time.time()).encode()).digest()).decode('ascii')[:8].lower()
+            _hash = _hash.replace('_', '-')
+            cluster['node_name'] = '%s-%s-%s' % (cluster['node_name'], region.lower(), _hash)
 
             if cluster['flexible_instance'] is True:
                 instance_type = '%s-flex' % cluster['instance_type']
@@ -218,27 +211,11 @@ class ovh_provisioner(cloud_provisioning):
                     nodes = [nodes]
                 logger.debug('nodes = %s' % nodes)
                 for each in nodes:
-                    self.nodes.append(each['id'])
+                    self.node_ids.append(each['id'])
             except ovh.APIError as e:
                 print('ERROR: ')
                 print(e)
-        logger.debug('Waiting for all hosts are up')
-        sleep(60)
-        logger.info('nodes = %s' % self.nodes)
-
-    def _wait_hosts_up(self, driver):
-        logger.info('Checking whether all hosts are up')
-        nodes_up = list()
-        for node in self.nodes:
-            node = driver.get('/cloud/project/%s/instance/%s' % (self.configs['project_id'], node))
-            if node['status'] == 'ACTIVE':
-                nodes_up.append(node)
-        if len(nodes_up) == len(self.nodes):
-            logger.info('All reserved hosts are up')
-            self.nodes = nodes_up
-        else:
-            hosts_ko = [node['name'] for node in self.nodes if node not in nodes_up]
-            logger.info('The following hosts are not up: %s' % hosts_ko)
+        logger.info('nodes = %s' % self.node_ids)
 
     def get_resources(self):
         """Retriving the public IPs of the list of provisioned hosts
@@ -250,18 +227,44 @@ class ovh_provisioner(cloud_provisioning):
         logger.info("Finish retriving the public IPs\n")
 
     def provisioning(self):
-        driver = self._get_ovh_driver()
-        if self.node_ids_file is None:
-            self.make_reservation(driver)
+        self.driver = self._get_ovh_driver()
+        for _ in range(5):
+            if self.node_ids_file is None:
+                self.make_reservation(self.driver)
 
-            home = os.path.expanduser('~')
-            self.node_ids_file = os.path.join(home, 'node_ids_file')
-            if os.path.exists(self.node_ids_file):
-                os.remove(self.node_ids_file)
-            with open(self.node_ids_file, 'w') as f:
-                for id in self.nodes:
-                    f.write(id + "\n")
-        logger.info('List of node IDs is stored at: %s' % self.node_ids_file)
+                home = os.path.expanduser('~')
+                self.node_ids_file = os.path.join(home, 'node_ids_file')
+                if os.path.exists(self.node_ids_file):
+                    os.remove(self.node_ids_file)
+                with open(self.node_ids_file, 'w') as f:
+                    for id in self.node_ids:
+                        f.write(id + "\n")
+                
+                logger.info('List of node IDs is stored at: %s' % self.node_ids_file)
+                logger.info('Waiting for all nodes are up . . .')
+                sleep(60)
 
-        self._wait_hosts_up(driver)
-        self.get_resources()
+            logger.info('Cheking whether all provisioned nodes are running')
+            for count in range(10):
+                is_all_hosts_up, self.nodes = is_node_active(node_ids=self.node_ids, 
+                                                            project_id=self.configs['project_id'], 
+                                                            driver=self.driver)
+                if is_all_hosts_up:
+                    self.get_resources()
+                    return True
+                else:
+                    logger.info('------> Retrying #%s: Cheking status ' % count)
+                    sleep(10)
+            else:
+                logger.info('Cannot wait for all provisioned nodes are up.\n')
+                delete_ovh_nodes(node_ids=self.node_ids,
+                                project_id=self.configs['project_id'], 
+                                driver=self.driver)
+                self.node_ids_file = None
+                self.nodes = list()
+                self.node_ids = list()
+                self.hosts = list()
+        else:
+            logger.info('Provisioning process is canceld after many attemps!')
+
+            

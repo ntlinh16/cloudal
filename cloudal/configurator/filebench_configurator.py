@@ -1,3 +1,5 @@
+from time import sleep
+
 from cloudal.utils import get_logger, execute_cmd
 from cloudal.configurator import packages_configurator
 
@@ -52,5 +54,6 @@ class filebench_configurator(object):
         logger.info('Running mailserver on hosts:\n %s' % hosts)
         logger.info('Running filebench in %s second' % duration)
         cmd = 'setarch $(arch) -R filebench -f /tmp/varmail.f > /tmp/results/filebench_$(hostname)'
-        execute_cmd(cmd, hosts)
+        execute_cmd(cmd, hosts, mode='start')
+        sleep(duration + 90)
         return True
