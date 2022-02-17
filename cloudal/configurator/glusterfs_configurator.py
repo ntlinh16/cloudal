@@ -30,8 +30,7 @@ class glusterfs_configurator(object):
     def deploy_glusterfs(self, gluster_hosts, indices, gluster_mountpoint, gluster_volume_name):
         indices = sorted(indices)
         hosts = [host for index,host in enumerate(gluster_hosts) if index in indices]
-        # logger.info('Creating volumes on %s hosts' % len(hosts))
-        logger.info('Creating volumes on hosts: %s' % hosts)
+        logger.info('Creating volumes on %s hosts: \n %s' % (len(hosts), hosts))
         volume_path = '/tmp/glusterd/volume'
         cmd = 'mkdir -p %s' % volume_path
         execute_cmd(cmd, hosts)
@@ -41,7 +40,7 @@ class glusterfs_configurator(object):
             volume_params.append("gluster-%s.%s.local:%s" % (index, host, volume_path))
         volume_params = " ".join(volume_params)
 
-        cmd ='gluster --mode=script volume create %s replica 3 %s' % (gluster_volume_name, volume_params)
+        cmd ='gluster --mode=script volume create %s replica 3 %s force' % (gluster_volume_name, volume_params)
         execute_cmd(cmd, hosts[0])
         
         logger.info('Starting volumes on hosts')

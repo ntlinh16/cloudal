@@ -49,7 +49,7 @@ class filebench_configurator(object):
         cmd = 'sync; echo 3 > /proc/sys/vm/drop_caches'
         execute_cmd(cmd, hosts)
 
-        logger.info('hosts = %s' % hosts)
+        logger.info('Running mailserver on hosts:\n %s' % hosts)
         logger.info('Running filebench in %s second' % duration)
         cmd = 'setarch $(arch) -R filebench -f /tmp/varmail.f > /tmp/results/filebench_$(hostname)'
         execute_cmd(cmd, hosts)
