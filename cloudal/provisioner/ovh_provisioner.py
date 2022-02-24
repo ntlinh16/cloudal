@@ -42,7 +42,7 @@ class ovh_provisioner(cloud_provisioning):
                 n_nodes = 0
                 for cluster in self.configs['clusters']:
                     n_nodes += cluster['n_nodes']
-                if len(self.node_ids) != n_nodes:
+                if len(self.node_ids) < n_nodes:
                     logger.error("The topology required %s nodes, but the file contents %s nodes. Please provide the correct node IDs" % (
                         n_nodes, len(self.node_ids)))
                     exit()
@@ -141,6 +141,7 @@ class ovh_provisioner(cloud_provisioning):
         return driver
 
     def make_reservation(self, driver):
+        logger.info("Starting provisioning nodes on ovh")
         project_id = self.configs['project_id']
         total_nodes = 0
         message = ''
@@ -148,8 +149,7 @@ class ovh_provisioner(cloud_provisioning):
             message += "\n%s: %s nodes" % (cluster['region'], cluster['n_nodes'])
             total_nodes += cluster['n_nodes']
         logger.info('You are requesting %s nodes in %s region(s):' % (total_nodes, len(self.configs['clusters']))  + message )
-
-        logger.info("Starting provisioning nodes on ovh")
+        
         for cluster in self.configs['clusters']:
             n_nodes = cluster['n_nodes']
             logger.debug('n_nodes = %s' % n_nodes)
@@ -220,7 +220,7 @@ class ovh_provisioner(cloud_provisioning):
     def get_resources(self):
         """Retriving the public IPs of the list of provisioned hosts
         """
-        logger.info("Retriving the public IPs of all nodes on OVHCloud")
+        logger.info("Retriving the public IPs of nodes on OVHCloud")
         for node in self.nodes:
             self.hosts.append(node['ipAddresses'][0]['ip'])
         logger.info('hosts = %s' % self.hosts)
@@ -241,8 +241,8 @@ class ovh_provisioner(cloud_provisioning):
                         f.write(id + "\n")
                 
                 logger.info('List of node IDs is stored at: %s' % self.node_ids_file)
-                logger.info('Waiting for all nodes are up . . .')
-                sleep(60)
+                logger.info('Waiting for all nodes are up .....')
+                sleep(30)
 
             logger.info('Cheking whether all provisioned nodes are running')
             for count in range(10):
@@ -257,6 +257,7 @@ class ovh_provisioner(cloud_provisioning):
                     sleep(10)
             else:
                 logger.info('Cannot wait for all provisioned nodes are up.\n')
+                logger.info('Deleting old provisioned nodes')
                 delete_ovh_nodes(node_ids=self.node_ids,
                                 project_id=self.configs['project_id'], 
                                 driver=self.driver)

@@ -14,11 +14,13 @@ def is_node_active(node_ids, project_id, driver):
 
     Returns
     ------
-    bool
-        True: if the given node IDs is still alive
-        False: if  the given node IDs is dead
+    bool, node_id
+        True: if the given node IDs is still alive and list of node ids 
+        False: if some of the given node IDs is dead and list of node ids that are not running
+    
 
     """
+    
     
     nodes_ko = list()
     nodes_ok = list()

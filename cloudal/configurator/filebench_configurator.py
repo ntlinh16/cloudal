@@ -11,7 +11,7 @@ class filebench_configurator(object):
         logger.info('Installing Filebench')
         configurator = packages_configurator()
         configurator.install_packages(['build-essential', 'bison', 'flex', 'libtool'], hosts)
-
+        
         cmd = 'wget https://github.com/filebench/filebench/archive/refs/tags/1.5-alpha3.tar.gz -P /tmp/ -N'
         execute_cmd(cmd, hosts)
         cmd = 'tar -xf /tmp/1.5-alpha3.tar.gz --directory /tmp/'
@@ -51,9 +51,13 @@ class filebench_configurator(object):
         cmd = 'sync; echo 3 > /proc/sys/vm/drop_caches'
         execute_cmd(cmd, hosts)
 
-        logger.info('Running mailserver on hosts:\n %s' % hosts)
+        logger.info('Running mailserver on hosts:\n%s' % hosts)
         logger.info('Running filebench in %s second' % duration)
         cmd = 'setarch $(arch) -R filebench -f /tmp/varmail.f > /tmp/results/filebench_$(hostname)'
-        execute_cmd(cmd, hosts, mode='start')
-        sleep(duration + 90)
+        _, results = execute_cmd(cmd, hosts, mode='start')
+        for each in results.processes:
+            if 'Failed to create filesets' in each.stdout.strip():
+                logger.info('Cannot run filebench.')
+                return False
+        sleep(duration + 60)
         return True
